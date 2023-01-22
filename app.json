@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "happychat",
+    "slug": "happychat",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a5b14e29-3104-4d4a-a77f-9721fb64f2b4"
+      }
+    }
+  }
+}
