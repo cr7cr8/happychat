@@ -25,7 +25,6 @@ import ReAnimated, {
 import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
 
 
-
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
@@ -46,7 +45,8 @@ import {
     findNodeHandle, UIManager
 } from 'react-native';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
-const { View, Text, Image, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
+import Image from 'react-native-scalable-image';
+const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
 
@@ -89,7 +89,7 @@ export function ChatScreen({ }) {
         },
         {
             _id: Math.random(),
-            text: "imageBlock, should be image",
+            text: "",
             createdAt: new Date(),
             image: "https://picsum.photos/200/300",
 
@@ -110,7 +110,18 @@ export function ChatScreen({ }) {
         },
         {
             _id: Math.random(),
-            text: "11115555fdsfewfkwelfkl;ewkgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrgfl;rekglrekgl krek;'l ;lerktl;kl;gkdl;gkerokgo pgkrel;kg; g;ldfkg fdkgl;fdkgeoprkgpoekrgodkfg",
+            text: "",
+            createdAt: new Date(),
+            image: "https://picsum.photos/600/300",
+
+            user: {
+                _id: userName,
+                name: userName,
+            },
+        },
+        {
+            _id: Math.random(),
+            text: "glrgfl;rekglglrgfl;rekglkrgodkfg",
             createdAt: new Date(222228222822),
             user: {
                 _id: userName,
@@ -189,7 +200,7 @@ export function ChatScreen({ }) {
                 renderMessageImage={function (props) {
                     const currentMessage = props.currentMessage
                     const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
-
+                    return <ImageBlock currentMessage={currentMessage} imageMessageArr={imageMessageArr} />
                 }}
             />
         </>
@@ -216,11 +227,16 @@ function BubbleBlock({ ...props }) {
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
 
+    const isText = Boolean(currentMessage?.text)
+    const isImage = Boolean(currentMessage?.image)
+    const isAudio = Boolean(currentMessage?.audio)
 
     return (
 
         <AnimatedComponent entering={ZoomIn.duration(200)}
-            style={{ backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16) }}
+            style={{
+                //  backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16)  //random color
+            }}
             ref={function (element) { viewRef.current = element }}
         >
             <Bubble {...props}
@@ -254,22 +270,10 @@ function BubbleBlock({ ...props }) {
                     const handle = findNodeHandle(viewRef.current);
                     UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
 
-                        // if ((py - 18 + (compoHeight - 9) / 2) >= (height / 2)) {
-                        //     setTop(Math.max(py - 72, 0))
-                        // }
-                        // else {
-                        //     setTop(Math.min(height - 132, py - 18 + compoHeight))
-                        // }
-
-
-
-
-                        console.log(py)
                         setLeft(px)
                         setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                         setVisible(true)
                     })
-                    // setTimeout(() => { setVisible(true) }, 10);
 
                 }}
 
@@ -293,14 +297,21 @@ function BubbleBlock({ ...props }) {
 
                 <AnimatedComponent entering={ZoomIn.duration(200)} style={{
                     display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
-                    borderRadius:8
+                    borderRadius: 8
                 }}>
 
-                    <Icon name="copy-outline" type='ionicon'
+                    {(isImage) && (!isAudio) && <Icon name="arrow-down-circle-outline" type='ionicon'
                         color='white'
                         size={50}
                         style={{ padding: 4 }}
-                    />
+                    />}
+
+
+                    {isText && !isImage && !isAudio && <Icon name="copy-outline" type='ionicon'
+                        color='white'
+                        size={50}
+                        style={{ padding: 4 }}
+                    />}
 
                     <Icon
                         name="trash-outline"
@@ -325,148 +336,16 @@ function BubbleBlock({ ...props }) {
 
 }
 
-function ImageBlock({ ...props }) {
+function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
+    const currentImage = currentMessage.image
+    console.log(currentImage)
 
+    return <Image source={{uri:currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain"/>
 }
 
 
 
 
-
-function OverlayCompo({ token, visible, top, left, setVisible, currentMessage, isText, isImage, isAudio, setMessages, userName, item, canMoveDown, ...props }) {
-
-
-
-
-    const viewStyle = useAnimatedStyle(() => {
-
-
-        return {
-
-            width: 100,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-around",
-            alignItems: "center",
-            backgroundColor: "gray",
-            // transform: [{ scale: withTiming(overlayScale.value) }],
-            overflow: "hidden",
-        }
-
-    })
-
-
-
-    return <Overlay isVisible={visible} fullScreen={false}
-        overlayStyle={{
-            backgroundColor: "transparent",// width: 100, height: 60,
-            position: "absolute", top, left,
-            padding: 0,
-            borderWidth: 0,
-        }}
-        backdropStyle={{ backgroundColor: "rgba(0,0,0,0.5)", }}
-        onBackdropPress={function () { setVisible(false) }}
-    >
-        <ScaleView>
-            <View style={[viewStyle]} >
-
-                <Icon
-                    name={isText ? "copy-outline" : "arrow-down-circle-outline"}
-                    type='ionicon'
-                    color='white'
-                    size={50}
-                    onPress={function () {
-
-                        if (isText) {
-
-                            Clipboard.setString(currentMessage.text);
-                            setTimeout(() => {
-                                setSnackMsg("copied")
-                                setSnackBarHeight(60)
-                            }, 0);
-                        }
-                        else if ((isImage) && (currentMessage.user._id !== userName)) {
-                            downloadFromUri(currentMessage.image, setSnackMsg, setSnackBarHeight)
-                        }
-                        else if ((isImage) && (currentMessage.user._id === userName)) {
-                            downloadFromLocal(currentMessage.image, setSnackMsg, setSnackBarHeight)
-                        }
-                        else if (isAudio) {
-                            const audioUri = FileSystem.documentDirectory + "Audio/" + item.name + "/" + currentMessage.audioName
-
-                            downloadFromLocal(audioUri, setSnackMsg, setSnackBarHeight)
-
-
-                        }
-
-                        setVisible(false)
-                    }}
-                />
-                <Icon
-                    name="trash-outline"
-                    type='ionicon'
-                    color='white'
-                    size={50}
-                    onPress={function () {
-
-                        canMoveDown.current = false
-                        if (isText) {
-
-                            setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
-                            const fileUri = FileSystem.documentDirectory + "MessageFolder/" + item.name + "/" + item.name + "---" + currentMessage.createdTime
-                            setTimeout(() => {
-                                FileSystem.deleteAsync(fileUri, { idempotent: true })
-                            }, 800);
-
-                        }
-
-                        else if (isImage) {
-                            axios.get(`${url}/api/image/delete/${currentMessage._id}`, { headers: { "x-auth-token": token } }).then(response => {
-                                // console.log(response.data)
-                            })
-
-                            setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
-                            const fileUri = FileSystem.documentDirectory + "MessageFolder/" + item.name + "/" + item.name + "---" + currentMessage.createdTime
-                            FileSystem.deleteAsync(fileUri, { idempotent: true })
-                            setTimeout(() => {
-                                currentMessage.isLocal && FileSystem.deleteAsync(currentMessage.image, { idempotent: true })
-                            }, 800);
-
-
-                        }
-                        else if (isAudio) {
-
-
-                            setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
-
-
-
-
-
-                            setTimeout(() => {
-
-
-                                const folderUri = FileSystem.documentDirectory + "MessageFolder/" + item.name + "/"
-                                const fileUri = folderUri + item.name + "---" + currentMessage.createdTime
-                                FileSystem.deleteAsync(fileUri, { idempotent: true })
-
-                                const audioUri = FileSystem.documentDirectory + "Audio/" + item.name + "/" + currentMessage.audioName
-                                FileSystem.deleteAsync(audioUri, { idempotent: true })
-                            }, 800);
-                        }
-
-
-
-                    }}
-                />
-            </View>
-        </ScaleView>
-
-
-
-    </Overlay>
-
-}
 
 
