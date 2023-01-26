@@ -44,16 +44,12 @@ const AnimatedComponent = createAnimatedComponent(View)
 
 export function HomeScreen({ navigation, route }) {
 
-    // const { userName, setUserName } = useContext(Context)
 
-    const userName = useContextSelector(Context, (state) => (state.userName));
-    const setUserName = useContextSelector(Context, (state) => (state.setUserName));
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
 
-    const width = useSharedValue(100)
-    const scale = useSharedValue(1)
+   
 
 
 
@@ -66,7 +62,7 @@ export function HomeScreen({ navigation, route }) {
 
                 onDragEnd={function ({ data, ...props }) {
 
-                    console.log(props)
+               
                     setPeopleList(data)
                 }}
                 keyExtractor={(item) => item.key}
@@ -81,10 +77,10 @@ export function HomeScreen({ navigation, route }) {
 }
 
 function renderItem(props) {
-
+ 
     const { drag, isActive, getIndex, item: { name, barColor } } = props
 
-    console.log(getIndex(), isActive)
+   
 
     const scale = useDerivedValue(() => isActive ? 0.8 : 1)
 
@@ -97,11 +93,11 @@ function renderItem(props) {
             transform: [{ scale: withTiming(scale.value) }],
             elevation: withTiming(isActive?5:3)
         }
-
+ 
     })
 
     return (
-        <AnimatedComponent entering={SlideInRight.delay(getIndex() * 100)}>
+        <AnimatedComponent entering={SlideInRight.delay(getIndex() * 50)}>
             <Pressable onLongPress={drag} >
 
                 <View style={[panelCss]}>

@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { HomeScreen } from './HomeScreen';
+import { ChatScreen } from './ChatScreen';
 
 
 
@@ -78,12 +79,12 @@ export default function StackNavigator() {
               <Button
                 title={"Home"}
                 onPress={function () {
-
+                  navigation.navigate("Chat")
                 }}
               />
             ),
 
-            // color:"#fff", 
+            // color:"#fff",   
 
 
           }
@@ -95,20 +96,7 @@ export default function StackNavigator() {
 
       <Stack.Screen name="Chat"
 
-        component={function ({ navigation }) {
-
-          return <Button title="go to home"
-            onPress={function () {
-
-              navigation.navigate('Home')
-
-            }}
-
-
-
-
-          />
-        }}
+        component={ChatScreen}
 
         // header={function (props) {     console.log(props)  return <Header {...props} /> }}
 
@@ -117,13 +105,16 @@ export default function StackNavigator() {
           return {
             headerShown: true,
             gestureEnabled: false,
-            headerTintColor: 'orange',
+            //     headerTintColor: 'orange',
             header: (props) => <Header {...props} />,
 
             //   headerLeft: () => null,
             headerRight: () => (
               <Button
-                title={"Home"}
+                title={"Chat"}
+                onPress={function () {
+                  navigation.navigate("Home")
+                }}
               />
             ),
 
