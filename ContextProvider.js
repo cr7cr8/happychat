@@ -13,18 +13,18 @@ export default function ContextProvider(props) {
     const [userName, setUserName] = useState("hihih")
 
     const [peopleList, setPeopleList] = useState([
-        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#aff" },
-        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#ffa" },
-        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faf" },
-        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faa" },
-        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#aff" },
-        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#ffa" },
-        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faf" },
-        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faa" },
-        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#aff" },
-        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#ffa" },
-        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faf" },
-        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000).toFixed(0),barColor:"#faa" },
+        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#aff" },
+        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#ffa" },
+        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faf" },
+        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faa" },
+        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#aff" },
+        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#ffa" },
+        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faf" },
+        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faa" },
+        { name: "aaa", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#aff" },
+        { name: "bbb", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#ffa" },
+        { name: "ccc", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faf" },
+        { name: "ddd", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0),barColor:"#faa" },
     ])
 
 

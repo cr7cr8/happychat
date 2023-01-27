@@ -23,7 +23,7 @@ import ReAnimated, {
 } from 'react-native-reanimated';
 
 import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
-
+import { SharedElement } from 'react-navigation-shared-element';
 
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
@@ -53,7 +53,7 @@ const AnimatedComponent = createAnimatedComponent(View)
 
 
 
-export function ChatScreen({ }) {
+export function ChatScreen({ navigation, route }) {
 
     const userName = "chen"
     const [messages, setMessages] = useState([
@@ -100,6 +100,28 @@ export function ChatScreen({ }) {
         },
         {
             _id: Math.random(),
+            text: "",
+            createdAt: new Date(),
+            image: "https://picsum.photos/200/600",
+
+            user: {
+                _id: userName,
+                name: userName,
+            },
+        },
+        {
+            _id: Math.random(),
+            text: "",
+            createdAt: new Date(),
+            image: "https://picsum.photos/700/300",
+
+            user: {
+                _id: 'React Native',
+                name: 'React Native',
+            },
+        },
+        {
+            _id: Math.random(),
             text: '222522222',
             createdAt: new Date(),
 
@@ -119,16 +141,16 @@ export function ChatScreen({ }) {
                 name: userName,
             },
         },
-        {
-            _id: Math.random(),
-            text: "glrgfl;rekglglrgfl;rekglkrgodkfg",
-            createdAt: new Date(222228222822),
-            user: {
-                _id: userName,
-                name: userName,
+        // {
+        //     _id: Math.random(),
+        //     text: "glrgfl;rekglglrgfl;rekglkrgodkfg",
+        //     createdAt: new Date(222228222822),
+        //     user: {
+        //         _id: userName,
+        //         name: userName,
 
-            }
-        },
+        //     }
+        // },
 
 
     ])
@@ -168,7 +190,7 @@ export function ChatScreen({ }) {
                 renderBubble={function (props) {
                     //  console.log(props.currentMessage)
                     return (
-                        <BubbleBlock {...props} />
+                        <BubbleBlock  {...props} />
                     )
                 }}
                 renderTime={function (props) {
@@ -200,7 +222,7 @@ export function ChatScreen({ }) {
                 renderMessageImage={function (props) {
                     const currentMessage = props.currentMessage
                     const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
-                    return <ImageBlock currentMessage={currentMessage} imageMessageArr={imageMessageArr} />
+                    return <ImageBlock currentMessage={currentMessage} imageMessageArr={imageMessageArr} navigation={navigation} />
                 }}
             />
         </>
@@ -339,9 +361,31 @@ function BubbleBlock({ ...props }) {
 function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
     const currentImage = currentMessage.image
-    console.log(currentImage)
+    //console.log(imageMessageArr)
+    const navigation = useNavigation()
 
-    return <Image source={{uri:currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain"/>
+    return (
+        <TouchableOpacity
+
+            onPress={function () {
+                navigation.navigate('ImageScreen', {
+
+                    imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
+                    currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
+
+                })
+            }}
+        >
+            <SharedElement id={currentMessage._id}  >
+                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+            </SharedElement>
+
+        </TouchableOpacity>
+
+    )
+
+
+
 }
 
 

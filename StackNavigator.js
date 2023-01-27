@@ -10,7 +10,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { HomeScreen } from './HomeScreen';
 import { ChatScreen } from './ChatScreen';
-
+import { ImageScreen } from './ImageScreen';
 
 
 
@@ -53,14 +53,14 @@ export default function StackNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={"Home"}
+      initialRouteName={"HomeScreen"}
       screenOptions={screenOptions}
       // headerMode="float"
       headerMode="screen"
     >
 
 
-      <Stack.Screen name="Home"
+      <Stack.Screen name="HomeScreen"
 
         component={HomeScreen}
 
@@ -75,11 +75,16 @@ export default function StackNavigator() {
             header: (props) => <Header {...props} />,
 
             headerLeft: () => null,
+            headerStyle: {
+              height: getStatusBarHeight() > 24 ? 70 : 60,
+              elevation: 0,
+              backgroundColor: "tomato"
+            },
             headerRight: () => (
               <Button
                 title={"Home"}
                 onPress={function () {
-                  navigation.navigate("Chat")
+                  navigation.navigate("ChatScreen")
                 }}
               />
             ),
@@ -94,7 +99,7 @@ export default function StackNavigator() {
       />
 
 
-      <Stack.Screen name="Chat"
+      <Stack.Screen name="ChatScreen"
 
         component={ChatScreen}
 
@@ -109,24 +114,52 @@ export default function StackNavigator() {
             header: (props) => <Header {...props} />,
 
             //   headerLeft: () => null,
-            headerRight: () => (
-              <Button
-                title={"Chat"}
-                onPress={function () {
-                  navigation.navigate("Home")
-                }}
-              />
-            ),
-
-
-
+            headerStyle: {
+              height: getStatusBarHeight() > 24 ? 70 : 60,
+              elevation: 0,
+              backgroundColor: "skyblue"
+            },
+            // headerRight: () => (
+            //   <Button
+            //     title={"Chat"}
+            //     onPress={function () {
+            //       navigation.navigate("HomeScreen")
+            //     }}
+            //   />
+            // ),
 
           }
 
         }}
 
       />
+      <Stack.Screen name="ImageScreen"
+        component={ImageScreen}
+        options={function ({ navigation, route }) {
+          return {
+            headerShown: true,
+            gestureEnabled: false,
+            header:(props)=><Header {...props} />,
+            headerTitle: function (props) { return <></> },
+            headerStyle: {
+              height: getStatusBarHeight() > 24 ? 70 : 60,
+              elevation: 0,
+              backgroundColor: "lightgreen"
+            },
+            // headerRight: () => (
+            //   <Button
+            //     title={"Image"}
+            //     onPress={function () {
+            //       navigation.navigate("ChatScreen")
+            //     }}
+            //   />
+            // ),
 
+          }}
+
+        }
+
+      />
 
 
     </Stack.Navigator>
