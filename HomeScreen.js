@@ -40,6 +40,7 @@ import {
 
 } from 'react-native';
 //import Svg, { Circle, Rect, SvgUri } from 'react-native-svg';
+//import * as Svg from 'react-native-svg';
 import SvgUri from 'react-native-svg-uri';
 const { View, Text, Image, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
 
@@ -59,6 +60,8 @@ export function HomeScreen({ navigation, route }) {
 
     return (
         <>
+
+
             <DraggableFlatList
                 data={peopleList}
                 //  onDragEnd={({ data }) => setData(data)}
@@ -86,7 +89,7 @@ function renderItem(props) {
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
 
-    console.log(bgColor)
+    console.log(avatarString)
 
     const scale = useDerivedValue(() => isActive ? 0.8 : 1)
 
@@ -108,6 +111,15 @@ function renderItem(props) {
 
                 <View style={[panelCss]}>
                     <SvgUri style={{ margin: 10 }} width={60} height={60} svgXmlData={multiavatar(name)} />
+
+
+
+                    {/* <Svg height="50%" width="50%" viewBox="0 0 100 100" {...props}>
+                        <Circle cx="50" cy="50" r="45" stroke="blue" strokeWidth="2.5" fill="green" />
+                        <Rect x="15" y="15" width="70" height="70" stroke="red" strokeWidth="2" fill="yellow" />
+                    </Svg> */}
+
+
                     <Text>{name}</Text>
                 </View>
 
