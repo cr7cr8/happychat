@@ -163,7 +163,7 @@ export function ChatScreen({ navigation, route }) {
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
 
  
-
+ 
     const HEADER_HEIGHT = useHeaderHeight()
 
     console.log(HEADER_HEIGHT)
