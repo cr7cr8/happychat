@@ -21,7 +21,7 @@ import ReAnimated, {
     ZoomInEasyUp
 
 } from 'react-native-reanimated';
-
+import multiavatar from '@multiavatar/multiavatar';
 import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
 import { SharedElement } from 'react-navigation-shared-element';
 

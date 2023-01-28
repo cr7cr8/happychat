@@ -19,7 +19,8 @@ import ReAnimated, {
 } from 'react-native-reanimated';
 
 
-
+import multiavatar from '@multiavatar/multiavatar';
+import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
 import DraggableFlatList, {
     ScaleDecorator,
     useOnCellActiveAnimation,
@@ -38,6 +39,8 @@ import {
 
 
 } from 'react-native';
+//import Svg, { Circle, Rect, SvgUri } from 'react-native-svg';
+import SvgUri from 'react-native-svg-uri';
 const { View, Text, Image, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
@@ -49,7 +52,7 @@ export function HomeScreen({ navigation, route }) {
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
 
-   
+
 
 
 
@@ -62,14 +65,14 @@ export function HomeScreen({ navigation, route }) {
 
                 onDragEnd={function ({ data, ...props }) {
 
-               
+
                     setPeopleList(data)
                 }}
                 keyExtractor={(item) => item.key}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={true}
-             
-                
+
+
             />
         </>
     )
@@ -77,10 +80,13 @@ export function HomeScreen({ navigation, route }) {
 }
 
 function renderItem(props) {
- 
+
     const { drag, isActive, getIndex, item: { name, barColor } } = props
 
-   
+    const avatarString = multiavatar(name)
+    const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+
+    console.log(bgColor)
 
     const scale = useDerivedValue(() => isActive ? 0.8 : 1)
 
@@ -91,9 +97,9 @@ function renderItem(props) {
             backgroundColor: barColor,
             height: 80,
             transform: [{ scale: withTiming(scale.value) }],
-            elevation: withTiming(isActive?5:3)
+            elevation: withTiming(isActive ? 5 : 3)
         }
- 
+
     })
 
     return (
@@ -101,6 +107,7 @@ function renderItem(props) {
             <Pressable onLongPress={drag} >
 
                 <View style={[panelCss]}>
+                    <SvgUri style={{ margin: 10 }} width={60} height={60} svgXmlData={multiavatar(name)} />
                     <Text>{name}</Text>
                 </View>
 

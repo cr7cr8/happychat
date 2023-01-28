@@ -26,7 +26,7 @@ import ReAnimated, {
 
 } from 'react-native-reanimated';
 //import Image from 'react-native-scalable-image';
-
+import multiavatar from '@multiavatar/multiavatar';
 const { View, Text, ScrollView: ScrollV, Image } = ReAnimated
 
 import { PanGestureHandler, ScrollView, FlatList, NativeViewGestureHandler, PinchGestureHandler } from 'react-native-gesture-handler';
