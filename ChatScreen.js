@@ -24,15 +24,17 @@ import ReAnimated, {
 import multiavatar from '@multiavatar/multiavatar';
 import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
 import { SharedElement } from 'react-navigation-shared-element';
-
+import SvgUri from 'react-native-svg-uri';
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
     GiftedChat, Bubble, InputToolbar, Avatar as AvatarIcon, Message, Time, MessageContainer, MessageText, SystemMessage, Day, Send, Composer, MessageImage,
     Actions,
 } from 'react-native-gifted-chat'
+import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 const { width, height } = Dimensions.get('screen');
@@ -154,10 +156,33 @@ export function ChatScreen({ navigation, route }) {
 
 
     ])
+    console.log(route.params.item)
 
+    const name = route.params.item
+    const avatarString = multiavatar(name)
+    const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+
+
+
+    const HEADER_HEIGHT = useHeaderHeight()
+
+    console.log(HEADER_HEIGHT)
     return (
         <>
 
+
+
+            <View style={{
+                position: "absolute", display: "flex", justifyContent: "center", alignItems: "center",
+                transform: [{ translateY: -HEADER_HEIGHT }], backgroundColor: bgColor, width,
+                flexDirection:"row",height:HEADER_HEIGHT
+            }}>
+                <SharedElement id={route.params.item}  >
+
+                    <SvgUri style={{ margin: 10, transform: [{ translateY: 6 }, { translateX: 0 }] }} width={40} height={40} svgXmlData={multiavatar(route.params.item)} />
+                </SharedElement>
+                <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: 8 }, { translateX: 0}] }}>{name}</Text>
+            </View>
             {/* <Overlay isVisible={true} fullScreen={false}
 
                 backdropStyle={{ backgroundColor: "rgba(100,0,0,0.5)", }}
@@ -375,6 +400,10 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
                 })
             }}
+            onLongPress={function(){
+
+                console.log("image long press")
+            }}
         >
             <SharedElement id={currentMessage._id}  >
                 <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
@@ -393,3 +422,38 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
 
 
+export function ChatScreenHeaderTitle({ ...props }) {
+
+    const route = useRoute()
+    const name = route.params.item
+    return (
+        <>
+            <View style={[{ display: "flex", flexDirection: "row", alignItems: "center" }]}>
+                {/* <SharedElement id={name}  >
+                    <SvgUri style={{ margin: 10, }} width={40} height={40} svgXmlData={multiavatar(name)} />
+                </SharedElement> */}
+                {/* <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: -2 }, { translateX: 20 }] }}>{name}</Text> */}
+            </View>
+        </>
+    )
+}
+
+// ChatScreenHeaderTitle.sharedElements = (route, otherRoute, showing) => {
+
+//     const name = route.params.item
+
+//     console.log(name)
+
+//     return [{ id: name, animation: "move", resize: "auto", align: "left" }]
+
+// }
+
+ChatScreen.sharedElements = (route, otherRoute, showing) => {
+
+    const name = route.params.item
+
+   // console.log("chatscreen--" + name)
+
+    return [{ id: name, animation: "move", resize: "auto", align: "left" }]
+
+} 

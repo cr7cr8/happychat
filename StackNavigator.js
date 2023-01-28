@@ -3,16 +3,19 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 
 import { createStackNavigator, CardStyleInterpolators, TransitionPresets, HeaderTitle, Header } from '@react-navigation/stack';
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { HomeScreen } from './HomeScreen';
-import { ChatScreen } from './ChatScreen';
+import { ChatScreen,ChatScreenHeaderTitle } from './ChatScreen';
 import { ImageScreen } from './ImageScreen';
 
-
+import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
+import multiavatar from '@multiavatar/multiavatar';
+import SvgUri from 'react-native-svg-uri';
+import { SharedElement } from 'react-navigation-shared-element';
 
 
 const Stack = createSharedElementStackNavigator()
@@ -106,6 +109,10 @@ export default function StackNavigator() {
         // header={function (props) {     console.log(props)  return <Header {...props} /> }}
 
         options={function ({ navigation, route }) {
+          const name = route.params.item
+          const avatarString = multiavatar(name)
+          const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+
 
           return {
             headerShown: true,
@@ -117,8 +124,11 @@ export default function StackNavigator() {
             headerStyle: {
               height: getStatusBarHeight() > 24 ? 70 : 60,
               elevation: 0,
-              backgroundColor: "skyblue"
+              //backgroundColor: bgColor
+             // backgroundColor:"transparent"
+             backgroundColor:"rgba(0,0,255 ,0)",
             },
+            headerTitle: ChatScreenHeaderTitle
             // headerRight: () => (
             //   <Button
             //     title={"Chat"}
@@ -139,7 +149,7 @@ export default function StackNavigator() {
           return {
             headerShown: true,
             gestureEnabled: false,
-            header:(props)=><Header {...props} />,
+            header: (props) => <Header {...props} />,
             headerTitle: function (props) { return <></> },
             headerStyle: {
               height: getStatusBarHeight() > 24 ? 70 : 60,
@@ -155,7 +165,8 @@ export default function StackNavigator() {
             //   />
             // ),
 
-          }}
+          }
+        }
 
         }
 
@@ -166,3 +177,4 @@ export default function StackNavigator() {
   )
 
 }
+
