@@ -56,8 +56,14 @@ const AnimatedComponent = createAnimatedComponent(View)
 
 
 export function ChatScreen({ navigation, route }) {
-
+    const name = route.params.name
     const userName = "chen"
+
+    const avatarString = multiavatar(name)
+    const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+    const HEADER_HEIGHT = useHeaderHeight()
+
+
     const [messages, setMessages] = useState([
         {
             _id: Math.random(),
@@ -81,12 +87,34 @@ export function ChatScreen({ navigation, route }) {
         },
         {
             _id: Math.random(),
+            text: "",
+            audio: "audio",
+            createdAt: new Date(222228222822),
+            user: {
+                _id: userName,
+                name: userName,
+
+            }
+        },
+        {
+            _id: Math.random(),
+            text: "",
+            audio: "audio",
+            createdAt: new Date(222228222822),
+            user: {
+                _id: name,
+                name: name,
+
+            }
+        },
+        {
+            _id: Math.random(),
             text: '2',
             createdAt: new Date(),
 
             user: {
-                _id: 'React Native',
-                name: 'React Native',
+                _id: name,
+                name: name,
             },
         },
         {
@@ -96,8 +124,8 @@ export function ChatScreen({ navigation, route }) {
             image: "https://picsum.photos/200/300",
 
             user: {
-                _id: 'React Native',
-                name: 'React Native',
+                _id: name,
+                name: name,
             },
         },
         {
@@ -118,8 +146,8 @@ export function ChatScreen({ navigation, route }) {
             image: "https://picsum.photos/700/300",
 
             user: {
-                _id: 'React Native',
-                name: 'React Native',
+                _id: name,
+                name: name,
             },
         },
         {
@@ -128,8 +156,8 @@ export function ChatScreen({ navigation, route }) {
             createdAt: new Date(),
 
             user: {
-                _id: 'React Native',
-                name: 'React Native',
+                _id: name,
+                name: name,
             },
         },
         {
@@ -150,22 +178,22 @@ export function ChatScreen({ navigation, route }) {
         //     user: {
         //         _id: userName,
         //         name: userName,
-
         //     }
         // },
+    ]
+        .map(item => {
+
+            return {
+                ...item,
+                user: {
+                    ...item.user,
+                    avatar: () => (<SvgUri style={{ position: "relative" }} width={36} height={36} svgXmlData={multiavatar(item.user.name)} />)
+                }
+            }
 
 
-    ])
-
-
-    const name = route.params.name
-    const avatarString = multiavatar(name)
-    const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
-
-
-
-    const HEADER_HEIGHT = useHeaderHeight()
-
+        })
+    )
 
     return (
         <>
@@ -217,7 +245,47 @@ export function ChatScreen({ navigation, route }) {
                     if (currentMessage.video) { return }
                     return <MessageBlock outerProps={props} currentMessage={currentMessage} />
                 }}
+                renderAvatar={function (props) {
 
+                    return (
+                        <AnimatedComponent entering={ZoomIn.duration(200)}>
+
+
+                            <AvatarIcon {...props}
+                                onPressAvatar={function () {
+
+                                    console.log("avatar pressed")
+                                }}
+
+                                containerStyle={{
+                                    left: {
+                                        marginRight: 0,
+                                        marginTop: 0,
+                                        alignSelf: "flex-start",
+                                        //backgroundColor: "pink",
+                                        //transform: [{ scale: 0.8 }],
+                                        //backgroundColor: bgColor,//"pink",
+                                        padding: 0,
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        //borderRadius: 1000,
+                                    },
+                                    right: {
+                                        marginRight: 0,
+                                        marginTop: 0,
+                                        alignSelf: "flex-start",
+                                        //backgroundColor: "pink",
+                                        padding: 0,
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start"
+                                    }
+                                }}
+                            />
+
+
+                        </AnimatedComponent>
+                    )
+                }}
                 renderBubble={function (props) {
 
                     return (
@@ -254,6 +322,10 @@ export function ChatScreen({ navigation, route }) {
                     const currentMessage = props.currentMessage
                     const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
                     return <ImageBlock currentMessage={currentMessage} imageMessageArr={imageMessageArr} navigation={navigation} />
+                }}
+
+                renderMessageAudio={function (props) {
+                    return <AudioBlock {...props} />
                 }}
             />
         </>
@@ -325,7 +397,7 @@ function BubbleBlock({ ...props }) {
 
             />
 
-         
+
 
 
         </AnimatedComponent>
@@ -468,6 +540,13 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
 }
 
+function AudioBlock({ ...props }) {
+
+    // console.log(props)
+
+    return <Text>AudioBlock</Text>
+
+}
 
 
 
