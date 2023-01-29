@@ -156,17 +156,17 @@ export function ChatScreen({ navigation, route }) {
 
 
     ])
-    // console.log(route.params.name)
+
 
     const name = route.params.name
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
 
 
-    //// 
+
     const HEADER_HEIGHT = useHeaderHeight()
 
-    console.log(HEADER_HEIGHT)
+
     return (
         <>
 
@@ -208,7 +208,7 @@ export function ChatScreen({ navigation, route }) {
                 renderUsernameOnMessage={false}
 
                 onSend={function (msg) {
-                    //console.log(msg)
+
                     setMessages(pre => [...pre, ...msg])
                 }}
 
@@ -219,15 +219,14 @@ export function ChatScreen({ navigation, route }) {
                 }}
 
                 renderBubble={function (props) {
-                    //  console.log(props.currentMessage)
+
                     return (
                         <BubbleBlock  {...props} />
                     )
                 }}
                 renderTime={function (props) {
                     const currentMessage = props.currentMessage
-                    //console.log(currentMessage)
-                    //console.log(props.currentMessage.createdAt)
+
 
 
                     return <Time {...props}
@@ -247,8 +246,9 @@ export function ChatScreen({ navigation, route }) {
                         }} />
                 }}
                 renderMessageText={function (props) {
-                    return <MessageText {...props}
-                        textStyle={{ left: { fontSize: 20, lineHeight: 30, color: "black" }, right: { fontSize: 20, lineHeight: 30, color: "black" } }} />
+                    // return <MessageText {...props}
+                    //     textStyle={{ left: { fontSize: 20, lineHeight: 30, color: "black" }, right: { fontSize: 20, lineHeight: 30, color: "black" } }} />
+                    return <TextBlock {...props} />
                 }}
                 renderMessageImage={function (props) {
                     const currentMessage = props.currentMessage
@@ -275,14 +275,7 @@ function MessageBlock({ outerProps, currentMessage, ...props }) {
 function BubbleBlock({ ...props }) {
 
     const currentMessage = props.currentMessage
-    const viewRef = useAnimatedRef()
-    const [visible, setVisible] = useState(false)
-    const [top, setTop] = useState(60)
-    const [left, setLeft] = useState(0)
 
-    const isText = Boolean(currentMessage?.text)
-    const isImage = Boolean(currentMessage?.image)
-    const isAudio = Boolean(currentMessage?.audio)
 
     return (
 
@@ -290,7 +283,7 @@ function BubbleBlock({ ...props }) {
             style={{
                 //  backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16)  //random color
             }}
-            ref={function (element) { viewRef.current = element }}
+        //     ref={function (element) { viewRef.current = element }}
         >
             <Bubble {...props}
 
@@ -320,17 +313,125 @@ function BubbleBlock({ ...props }) {
                 }}
                 onLongPress={function () {
 
-                    const handle = findNodeHandle(viewRef.current);
-                    UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+                    // const handle = findNodeHandle(viewRef.current);
+                    // UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
 
-                        setLeft(px)
-                        setTop(Math.max(0, py - STATUS_HEIGHT - 60))
-                        setVisible(true)
-                    })
+                    //     setLeft(px)
+                    //     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
+                    //     setVisible(true)
+                    // })
 
                 }}
 
             />
+
+         
+
+
+        </AnimatedComponent>
+
+
+
+
+
+    )
+
+}
+
+function TextBlock({ ...props }) {
+
+    const viewRef = useAnimatedRef()
+
+    const [visible, setVisible] = useState(false)
+    const [top, setTop] = useState(60)
+    const [left, setLeft] = useState(0)
+    return (
+
+        <Pressable ref={function (element) { viewRef.current = element }}
+            onLongPress={function () {
+                const handle = findNodeHandle(viewRef.current);
+                UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+                    console.log(fx, fy, compoWidth, compoHeight, px, py)
+                    setLeft(Math.min(px, width - 150))
+                    setTop(Math.max(0, py - STATUS_HEIGHT - 60))
+                    setVisible(true)
+                })
+            }}
+
+        >
+            <MessageText {...props}
+                textStyle={{ left: { fontSize: 20, lineHeight: 30, color: "black" }, right: { fontSize: 20, lineHeight: 30, color: "black" } }}
+            />
+            <Overlay isVisible={visible} fullScreen={false}
+                onBackdropPress={function () {
+                    setVisible(false)
+                }}
+                backdropStyle={{ backgroundColor: "transparent" }}
+                overlayStyle={{
+                    //  backgroundColor: "rgba(50,50,50,0)",
+                    backgroundColor: "transparent",
+                    position: "absolute",
+                    left,
+                    top,
+                    elevation: 0,
+                }}
+            >
+
+                <AnimatedComponent entering={ZoomIn.duration(200)} style={{
+                    display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
+                    borderRadius: 8
+                }}>
+
+                    <Icon name="copy-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />
+                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
+
+                </AnimatedComponent>
+            </Overlay>
+        </Pressable>
+    )
+
+}
+
+function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
+
+    const currentImage = currentMessage.image
+
+    const navigation = useNavigation()
+    const route = useRoute()
+    const viewRef = useAnimatedRef()
+
+    const [visible, setVisible] = useState(false)
+    const [top, setTop] = useState(60)
+    const [left, setLeft] = useState(0)
+
+    return (
+        <Pressable
+            ref={function (element) { viewRef.current = element }}
+            onPress={function () {
+
+                navigation.navigate('ImageScreen', {
+
+                    imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
+                    currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
+                    name: route.params.name
+
+                })
+            }}
+            onLongPress={function () {
+
+                const handle = findNodeHandle(viewRef.current);
+                UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+                    console.log(fx, fy, compoWidth, compoHeight, px, py)
+                    setLeft(px)
+                    setTop(Math.max(0, py - STATUS_HEIGHT - 60))
+                    setVisible(true)
+                })
+            }}
+        >
+            <SharedElement id={currentMessage._id}  >
+                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+            </SharedElement>
+
 
             <Overlay isVisible={visible} fullScreen={false}
                 onBackdropPress={function () {
@@ -345,7 +446,6 @@ function BubbleBlock({ ...props }) {
                     top,
                     elevation: 0,
                 }}
-
             >
 
                 <AnimatedComponent entering={ZoomIn.duration(200)} style={{
@@ -353,71 +453,14 @@ function BubbleBlock({ ...props }) {
                     borderRadius: 8
                 }}>
 
-                    {(isImage) && (!isAudio) && <Icon name="arrow-down-circle-outline" type='ionicon'
-                        color='white'
-                        size={50}
-                        style={{ padding: 4 }}
-                    />}
-
-
-                    {isText && !isImage && !isAudio && <Icon name="copy-outline" type='ionicon'
-                        color='white'
-                        size={50}
-                        style={{ padding: 4 }}
-                    />}
-
-                    <Icon
-                        name="trash-outline"
-                        type='ionicon'
-                        color='white'
-                        style={{ padding: 4 }}
-                        size={50} />
-
+                    <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />
+                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
 
                 </AnimatedComponent>
             </Overlay>
 
 
-
-        </AnimatedComponent>
-
-
-
-
-
-    )
-
-}
-
-function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
-
-    const currentImage = currentMessage.image
-    //console.log(imageMessageArr)
-    const navigation = useNavigation()
-    const route = useRoute()
-
-    return (
-        <TouchableOpacity
-
-            onPress={function () {
-                navigation.navigate('ImageScreen', {
-
-                    imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
-                    currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
-                    name: route.params.name
-
-                })
-            }}
-            onLongPress={function () {
-
-                console.log("image long press")
-            }}
-        >
-            <SharedElement id={currentMessage._id}  >
-                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
-            </SharedElement>
-
-        </TouchableOpacity>
+        </Pressable>
 
     )
 
@@ -430,36 +473,12 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
 
 
-export function ChatScreenHeaderTitle({ ...props }) {
 
-    const route = useRoute()
-    const name = route.params.name
-    return (
-        <>
-            <View style={[{ display: "flex", flexDirection: "row", alignItems: "center" }]}>
-                {/* <SharedElement id={name}  >
-                    <SvgUri style={{ margin: 10, }} width={40} height={40} svgXmlData={multiavatar(name)} />
-                </SharedElement> */}
-                {/* <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: -2 }, { translateX: 20 }] }}>{name}</Text> */}
-            </View>
-        </>
-    )
-}
-
-// ChatScreenHeaderTitle.sharedElements = (route, otherRoute, showing) => {
-
-//     const name = route.params.item
-
-//     console.log(name)
-
-//     return [{ id: name, animation: "move", resize: "auto", align: "left" }]
-
-// }
 
 ChatScreen.sharedElements = (route, otherRoute, showing) => {
 
     const name = route.params.name
-    console.log("chat scrren otherRoute", otherRoute.params)
+
 
 
     if (otherRoute && otherRoute.route && otherRoute.route.params && otherRoute.route.params.imageMessageArr) {
@@ -479,4 +498,27 @@ ChatScreen.sharedElements = (route, otherRoute, showing) => {
 
     return [{ id: name, animation: "move", resize: "auto", align: "left" }]
 
-} 
+}
+
+
+
+
+
+
+
+// deprecated,shared elements no animation once placed in HeaderTitle Component
+export function ChatScreenHeaderTitle({ ...props }) {
+
+    const route = useRoute()
+    const name = route.params.name
+    return (
+        <>
+            {/* <View style={[{ display: "flex", flexDirection: "row", alignItems: "center" }]}>
+               <SharedElement id={name}  >
+                    <SvgUri style={{ margin: 10, }} width={40} height={40} svgXmlData={multiavatar(name)} />
+                </SharedElement> */}
+            {/* <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: -2 }, { translateX: 20 }] }}>{name}</Text> 
+            </View>*/}
+        </>
+    )
+}

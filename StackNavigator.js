@@ -9,7 +9,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { HomeScreen } from './HomeScreen';
-import { ChatScreen,ChatScreenHeaderTitle } from './ChatScreen';
+import { ChatScreen } from './ChatScreen';
 import { ImageScreen } from './ImageScreen';
 
 import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
@@ -128,7 +128,7 @@ export default function StackNavigator() {
              // backgroundColor:"transparent"
              backgroundColor:"rgba(0,0,255 ,0)",
             },
-            headerTitle: ChatScreenHeaderTitle
+            headerTitle: function (props) { return <></> },
             // headerRight: () => (
             //   <Button
             //     title={"Chat"}
