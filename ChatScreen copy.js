@@ -459,21 +459,15 @@ export function ChatScreenHeaderTitle({ ...props }) {
 ChatScreen.sharedElements = (route, otherRoute, showing) => {
 
     const name = route.params.name
-    console.log("chat scrren otherRoute", otherRoute.params)
+    console.log("chat scrren otherRoute", otherRoute.params.name)
 
 
-    if (otherRoute && otherRoute.route && otherRoute.route.params && otherRoute.route.params.imageMessageArr) {
+    // if (otherRoute && otherRoute.route && otherRoute.route.params && otherRoute.route.params.messages) {
+    //     messageArr = otherRoute.route.params.messages.map(item => {
+    //         return { id: item._id, animation: "move", resize: "auto", align: "left" }
+    //     })
 
-        return [
-
-            { id: name, animation: "move", resize: "auto", align: "left" },
-            { id: otherRoute.route.params.imageMessageArr[otherRoute.route.params.currentPos]._id, animation: "move", resize: "auto", align: "left" }
-
-
-        ]
-
-
-    }
+    // }
 
 
 

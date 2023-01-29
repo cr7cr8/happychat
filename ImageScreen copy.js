@@ -66,7 +66,7 @@ export function ImageScreen({ navigation, route, }) {
         <SharedElement id={route.params.name}  >
           <SvgUri style={{
             margin: 10,
-            transform: [{ translateY: 6 }, { translateX: -width/2-40 },{scale:1}]
+            transform: [{ translateY: 6 }, { translateX: 0 },{scale:3}]
 
           }} width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
         </SharedElement>

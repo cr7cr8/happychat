@@ -154,7 +154,8 @@ export default function StackNavigator() {
             headerStyle: {
               height: getStatusBarHeight() > 24 ? 70 : 60,
               elevation: 0,
-              backgroundColor: "lightgreen"
+              //backgroundColor: "lightgreen",
+              backgroundColor:"transparent",
             },
             // headerRight: () => (
             //   <Button

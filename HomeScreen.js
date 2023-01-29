@@ -32,7 +32,7 @@ import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useNavigation } from '@react-navigation/native';
-
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import {
     StyleSheet, Dimensions, TouchableOpacity, TouchableNativeFeedback, Pressable, TouchableHighlight, TouchableWithoutFeedback, Vibration, Button,
@@ -54,7 +54,7 @@ export function HomeScreen({ navigation, route }) {
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
 
-
+   
 
 
 
@@ -97,7 +97,7 @@ function renderItem(props) {
 
     const panelCss = useAnimatedStyle(() => {
 
-console.log("HOME",name)
+        console.log("HOME", name)
         return {
             backgroundColor: barColor,
             height: 80,
@@ -114,7 +114,7 @@ console.log("HOME",name)
     return (
         <AnimatedComponent entering={SlideInRight.delay(getIndex() * 50)}>
             <Pressable onLongPress={drag} onPress={function () {
-                navigation.navigate("ChatScreen", { item: name })
+                navigation.navigate("ChatScreen", { name: name })
             }}>
 
                 <View style={[panelCss]}>
