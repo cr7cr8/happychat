@@ -99,7 +99,7 @@ function renderItem(props) {
 
         console.log("HOME", name)
         return {
-            backgroundColor: barColor,
+            backgroundColor: bgColor,
             height: 80,
             transform: [{ scale: withTiming(scale.value) }],
             elevation: withTiming(isActive ? 5 : 3),

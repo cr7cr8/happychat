@@ -18,7 +18,9 @@ import ReAnimated, {
     SlideInDown,
     SlideInUp,
     ZoomInLeft,
-    ZoomInEasyUp
+    ZoomInEasyUp,
+    ZoomOut,
+    SlideOutRight
 
 } from 'react-native-reanimated';
 import multiavatar from '@multiavatar/multiavatar';
@@ -35,6 +37,9 @@ import {
 } from 'react-native-gifted-chat'
 import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
 import { useHeaderHeight } from '@react-navigation/elements';
+import { PanGestureHandler, ScrollView, FlatList, NativeViewGestureHandler } from 'react-native-gesture-handler';
+//import useKeyboardHeight from 'react-native-use-keyboard-height'; // causing error!!! 
+//import { useKeyboard } from "react-native-keyboard-height"; // causing error
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 const { width, height } = Dimensions.get('screen');
@@ -44,14 +49,13 @@ const BOTTOM_HEIGHT = Math.max(0, height - WINDOW_HEIGHT - STATUS_HEIGHT);
 
 import {
     StyleSheet, Dimensions, TouchableOpacity, TouchableNativeFeedback, Pressable, TouchableHighlight, TouchableWithoutFeedback, Vibration, Button,
-    findNodeHandle, UIManager
+    findNodeHandle, UIManager, Keyboard, Platform
 } from 'react-native';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
 import Image from 'react-native-scalable-image';
 const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
-
 
 
 
@@ -62,7 +66,17 @@ export function ChatScreen({ navigation, route }) {
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     const HEADER_HEIGHT = useHeaderHeight()
+    //let keyboardHeight = useKeyboardHeight()
 
+
+    const scrollRef = useRef()
+    const inputText = useRef("")
+    const inputRef = useRef()
+
+    // const keyboardShowPos = useRef(0)
+    // const keyboardHidePos = useRef(0)
+    // const [keyboardHeight, setKeyboardHeight] = useState(0)
+    const keyboardHeight = useKeyboardHeight()
 
     const [messages, setMessages] = useState([
         {
@@ -195,16 +209,68 @@ export function ChatScreen({ navigation, route }) {
         })
     )
 
+    useEffect(function () {
+
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
+
+            //   scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
+            console.log("keyboard show")
+
+            // const handle = findNodeHandle(inputRef.current);
+            // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+            //     //  console.log(fx, fy, compoWidth, compoHeight, px, py)
+            //     keyboardShowPos.current = py
+            // })
+
+         //   setKeyboardHeight(300)
+
+
+
+        });
+        const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
+            console.log("keyboard hide")
+
+            // const handle = findNodeHandle(inputRef.current);
+
+            // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+            //     //  console.log(fx, fy, compoWidth, compoHeight, px, py)
+
+            //     keyboardHidePos.current = py
+
+            //         setKeyboardHeight(0)
+
+
+            // })
+       //     setKeyboardHeight(0)
+        })
+
+        return function () {
+
+            //    return Keyboard.removeSubscription(keyboardDidShowListener)
+            keyboardDidShowListener.remove()
+            keyboardDidHideListener.remove()
+        }
+
+    }, [])
+
+    // const messageBlockStyle = useAnimatedStyle(() => {
+    //     return {
+    //         position: "relative",
+    //         transform: [{ translateY: withTiming(-STATUS_HEIGHT) }],
+    //         height: height - HEADER_HEIGHT - HEADER_HEIGHT - BOTTOM_HEIGHT,
+    //         marginEnd: 0,
+    //     }
+    // })
+
     return (
         <>
-
-
 
             <View style={{
                 position: "absolute", display: "flex", justifyContent: "center", alignItems: "center",
                 transform: [{ translateY: -HEADER_HEIGHT }],
                 backgroundColor: bgColor, width,
-                flexDirection: "row", height: HEADER_HEIGHT
+                flexDirection: "row", height: HEADER_HEIGHT,
+                zIndex: 100
             }}>
                 <SharedElement id={route.params.name}  >
 
@@ -217,33 +283,56 @@ export function ChatScreen({ navigation, route }) {
                 </SharedElement>
                 <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: 8 }, { translateX: 0 }] }}>{name}</Text>
             </View>
-            {/* <Overlay isVisible={true} fullScreen={false}
-
-                backdropStyle={{ backgroundColor: "rgba(100,0,0,0.5)", }}
-
-                style={{ position: "absolute", top: 0, left: 0, backgroundColor: "pink", }}>
-                <Text style={{}}>fsdf</Text>
-            </Overlay> */}
 
             <GiftedChat
                 user={{ _id: "chen" }}
+                keyboardShouldPersistTaps={"never"}
                 renderAvatarOnTop={true}
                 messages={messages}
                 showUserAvatar={false}
-
+                placeholder="Enter..."
                 alignTop={false}
                 inverted={false}
                 renderUsernameOnMessage={false}
+                alwaysShowSend={true}
 
-                onSend={function (msg) {
+                listViewProps={{
+                    ref: (element) => { scrollRef.current = element },
+                    onContentSizeChange: (e) => {
 
-                    setMessages(pre => [...pre, ...msg])
+                        //  if (canMoveDown.current) {
+                        scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
+
+                        //  }
+                    }
                 }}
 
+
+
+                messagesContainerStyle={{
+
+
+                    //height: "100%",
+                    position: "relative",
+                    //    backgroundColor: "lightgray",
+                    transform: [{ translateY: -getStatusBarHeight() - keyboardHeight }],
+
+                    height: height - HEADER_HEIGHT - HEADER_HEIGHT - BOTTOM_HEIGHT,
+                    // backgroundColor: "brown",
+
+                    marginEnd: 0,
+                }}
+
+
+
                 renderMessage={function (props) {
+
                     const currentMessage = props.currentMessage
                     if (currentMessage.video) { return }
-                    return <MessageBlock outerProps={props} currentMessage={currentMessage} />
+
+
+                    //  return <View style={[messageBlockStyle]}><MessageBlock {...props} /></View>
+                    return <MessageBlock {...props} />
                 }}
                 renderAvatar={function (props) {
 
@@ -327,18 +416,218 @@ export function ChatScreen({ navigation, route }) {
                 renderMessageAudio={function (props) {
                     return <AudioBlock {...props} />
                 }}
+
+                renderInputToolbar={function (props) {
+
+                    return (
+
+
+
+                        <InputToolbar {...props}
+                            containerStyle={{
+
+                                // opacity: 0.5,
+                                backgroundColor: "skyblue",
+                                marginVertical: 0,
+                                height: 60
+                            }}
+
+                            primaryStyle={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                //     backgroundColor: bgColor,
+                                width,
+                                minHeight: 60,
+                                padding: 0,
+                                paddingHorizontal: 0,
+                            }}
+                        //  accessoryStyle={{ backgroundColor: "orange", width:200,   height: 60,     }}
+                        >
+                            {props.children}
+
+                        </InputToolbar>
+
+
+                    )
+
+
+
+                }}
+
+                renderComposer={function (props) {
+
+
+                    return (
+                        <Composer {...props}
+
+                            disableComposer={false}
+                            textInputProps={{
+                                ref: function (element) { inputRef.current = element },
+                                numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
+                                style: {
+                                    backgroundColor: "white", minHeight: 52, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
+                                },
+                                onPressIn: function () {
+                                    inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
+                                    // inputHeight.value = 0
+                                },
+                                onLayout: function (e) {
+                                    //  console.log(e.nativeEvent.layout) no providing absoute coordinate
+                                    // const handle = findNodeHandle(inputRef.current);
+
+                                    // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+
+                                    //     console.log(fx, fy, compoWidth, compoHeight, px, py)
+                                    // })
+
+                                }
+
+                            }}
+
+                        />
+                    )
+                }}
+
+                onInputTextChanged={function (text) {
+
+
+                    //  if ([...inputText.current].filter(c => c === "\n").length !== [...text.current].filter(c => c === "\n")) {
+                    // const handle = findNodeHandle(inputRef.current);
+                    // //  console.log(handle)
+                    // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+
+                    //     console.log(compoHeight)
+                    // })
+                    //     }
+                    inputText.current = text
+                    //  console.log(inputText.current)
+
+                }}
+
+
+                shouldUpdateMessage={function (props, nextProps) {
+
+                    // console.log("---", Date.now(), nextProps.currentMessage.text)
+                    // return false
+
+                    // return Boolean(props.currentMessage.text)
+                    return true
+                }}
+
+                renderSend={function (props) {
+
+                    return (
+
+                        <View style={{ backgroundColor: "orange", width: 60, height: 60 }}>
+                            <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)} style={{ backgroundColor: "pink", position: "absolute" }}>
+                                <Send {...props}>
+                                    <Icon
+                                        name='send'
+                                        type='ionicon'
+                                        color='#517fa4'
+                                        size={40}
+                                        containerStyle={{
+                                            width: 60, height: 60,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
+                                    />
+                                </Send>
+                            </AnimatedComponent>
+                            {!inputText.current && <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)} style={{ backgroundColor: "brown", position: "absolute" }}>
+                                <Icon
+                                    name='add-circle-outline'
+                                    type='ionicon'
+                                    color='#517fa4'
+                                    size={50}
+                                    containerStyle={{
+                                        width: 60, height: 60,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }} />
+                            </AnimatedComponent>}
+                        </View>
+
+                    )
+                }}
+                onSend={function (msg) {
+
+
+                    setMessages(pre => [...pre, ...msg])
+                }}
+
+                // renderAccessory={function (props) {
+                //     return <View style={{ backgroundColor: "orange", height: 300, width: 360, display: "flex", flexDirection: "row" }} >
+
+
+                //         <Icon
+
+                //             name="image-outline"
+                //             type='ionicon'
+                //             color='#517fa4'
+                //             size={50}
+                //         />
+
+                //         <Icon
+                //             name="camera-outline"
+                //             type='ionicon'
+                //             color='#517fa4'
+                //             size={50}
+                //         />
+
+                //     </View>
+                // }}
+                renderActions={function (props) {
+
+
+                    return <Actions {...props}
+                        containerStyle={{
+                            backgroundColor: bgColor,
+                            width: 60, height: 60, marginLeft: 0, marginBottom: 0, marginRight: 0,
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+
+                        //replaced by icon={function...
+                        // wrapperStyle={{
+                        // }}
+
+
+                        icon={function () {
+
+                            return <Icon
+
+                                name="mic-outline"
+                                type='ionicon'
+                                color='#517fa4'
+                                size={50}
+                            />
+                        }}
+                    />
+                }}
+
+                onPressActionButton={function (props) {
+
+
+                }}
+
             />
         </>
     )
 
 }
 
-// MessageBlock is used for wraping the entire message block (message bubble) , including image block
-function MessageBlock({ outerProps, currentMessage, ...props }) {
+
+function MessageBlock({ ...props }) {
 
     return (
-
-        <Message {...outerProps} />
+        <View style={{ backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) }}>
+            <Message {...props} />
+        </View>
 
     )
 }
@@ -346,9 +635,11 @@ function MessageBlock({ outerProps, currentMessage, ...props }) {
 
 function BubbleBlock({ ...props }) {
 
+
     const currentMessage = props.currentMessage
-
-
+    const name = props.currentMessage.user.name
+    const avatarString = multiavatar(name)
+    const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     return (
 
         <AnimatedComponent entering={ZoomIn.duration(200)}
@@ -361,7 +652,7 @@ function BubbleBlock({ ...props }) {
 
                 wrapperStyle={{
                     left: {
-                        backgroundColor: "lightgray",
+                        backgroundColor: bgColor,
                         overflow: "hidden",
                         justifyContent: 'flex-start',
                         //transform: [{ translateX: -9 }],
@@ -601,3 +892,49 @@ export function ChatScreenHeaderTitle({ ...props }) {
         </>
     )
 }
+
+
+
+
+
+
+
+const useKeyboardHeight = function (platforms = ['ios', 'android']) {
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    useEffect(() => {
+        if (isEventRequired(platforms)) {
+            const listen1 = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+            const listen2 = Keyboard.addListener('keyboardDidHide', keyboardDidHide); // cleanup function
+
+            return () => {
+                // Keyboard.removeListener('keyboardDidShow', keyboardDidShow);
+                // Keyboard.removeListener('keyboardDidHide', keyboardDidHide);
+
+                listen1.remove()
+                listen2.remove()
+            };
+        } else {
+            return () => { };
+        }
+    }, []);
+
+    const isEventRequired = platforms => {
+        try {
+            return (platforms === null || platforms === void 0 ? void 0 : platforms.map(p => p === null || p === void 0 ? void 0 : p.toLowerCase()).indexOf(Platform.OS)) !== -1 || !platforms;
+        } catch (ex) { }
+
+        return false;
+    };
+
+    const keyboardDidShow = frames => {
+        setKeyboardHeight(frames.endCoordinates.height);
+    };
+
+    const keyboardDidHide = () => {
+        setKeyboardHeight(0);
+    };
+
+    return keyboardHeight;
+};
+
+//export default useKeyboardHeight;
