@@ -213,35 +213,10 @@ export function ChatScreen({ navigation, route }) {
 
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
 
-            //   scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
-            console.log("keyboard show")
-
-            // const handle = findNodeHandle(inputRef.current);
-            // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-            //     //  console.log(fx, fy, compoWidth, compoHeight, px, py)
-            //     keyboardShowPos.current = py
-            // })
-
-         //   setKeyboardHeight(300)
-
-
-
         });
         const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
             console.log("keyboard hide")
 
-            // const handle = findNodeHandle(inputRef.current);
-
-            // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-            //     //  console.log(fx, fy, compoWidth, compoHeight, px, py)
-
-            //     keyboardHidePos.current = py
-
-            //         setKeyboardHeight(0)
-
-
-            // })
-       //     setKeyboardHeight(0)
         })
 
         return function () {
@@ -471,17 +446,10 @@ export function ChatScreen({ navigation, route }) {
                                 },
                                 onPressIn: function () {
                                     inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
-                                    // inputHeight.value = 0
+                                   
                                 },
                                 onLayout: function (e) {
-                                    //  console.log(e.nativeEvent.layout) no providing absoute coordinate
-                                    // const handle = findNodeHandle(inputRef.current);
-
-                                    // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-
-                                    //     console.log(fx, fy, compoWidth, compoHeight, px, py)
-                                    // })
-
+                                  
                                 }
 
                             }}
