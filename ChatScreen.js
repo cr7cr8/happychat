@@ -77,7 +77,7 @@ export function ChatScreen({ navigation, route }) {
     // const keyboardHidePos = useRef(0)
     // const [keyboardHeight, setKeyboardHeight] = useState(0)
     const keyboardHeight = useKeyboardHeight()
-
+    const [toolBarHeight, setToolBarHeight] = useState(60)
     const [messages, setMessages] = useState([
         {
             _id: Math.random(),
@@ -290,7 +290,7 @@ export function ChatScreen({ navigation, route }) {
                     //height: "100%",
                     position: "relative",
                     //    backgroundColor: "lightgray",
-                    transform: [{ translateY: -getStatusBarHeight() - keyboardHeight }],
+                    transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - toolBarHeight + 60 }],
 
                     height: height - HEADER_HEIGHT - HEADER_HEIGHT - BOTTOM_HEIGHT,
                     // backgroundColor: "brown",
@@ -404,7 +404,7 @@ export function ChatScreen({ navigation, route }) {
                                 // opacity: 0.5,
                                 backgroundColor: "skyblue",
                                 marginVertical: 0,
-                                height: 60
+                                height: toolBarHeight
                             }}
 
                             primaryStyle={{
@@ -414,15 +414,17 @@ export function ChatScreen({ navigation, route }) {
                                 justifyContent: "flex-start",
                                 //     backgroundColor: bgColor,
                                 width,
-                                minHeight: 60,
+
                                 padding: 0,
                                 paddingHorizontal: 0,
                             }}
                         //  accessoryStyle={{ backgroundColor: "orange", width:200,   height: 60,     }}
-                        >
-                            {props.children}
 
-                        </InputToolbar>
+                        />
+
+
+
+
 
 
                     )
@@ -446,10 +448,10 @@ export function ChatScreen({ navigation, route }) {
                                 },
                                 onPressIn: function () {
                                     inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
-                                   
+
                                 },
                                 onLayout: function (e) {
-                                  
+
                                 }
 
                             }}
@@ -488,24 +490,36 @@ export function ChatScreen({ navigation, route }) {
 
                     return (
 
-                        <View style={{ backgroundColor: "orange", width: 60, height: 60 }}>
-                            <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)} style={{ backgroundColor: "pink", position: "absolute" }}>
-                                <Send {...props}>
+                        <View style={{ backgroundColor: "yellow", width: 60, height: 60, position: "relative" }}>
+                            <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)}
+                                style={{ backgroundColor: "pink", position: "absolute", width: 60, height: 60, }}>
+                                <Send {...props} sendButtonProps={{
+                                    style: {
+                                        backgroundColor: "green",
+                                        width: 60, height: 60,
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center"
+                                    }
+                                }}>
                                     <Icon
                                         name='send'
                                         type='ionicon'
                                         color='#517fa4'
                                         size={40}
                                         containerStyle={{
-                                            width: 60, height: 60,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
+                                            // width: 60, height: 60,
+                                            // backgroundColor: "green",
+
+                                            // alignItems: "center",
+                                            // justifyContent: "center",
+
                                         }}
                                     />
                                 </Send>
                             </AnimatedComponent>
-                            {!inputText.current && <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)} style={{ backgroundColor: "brown", position: "absolute" }}>
+                            {!inputText.current && <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)}
+                                style={{ backgroundColor: "brown", position: "absolute", }}>
                                 <Icon
                                     name='add-circle-outline'
                                     type='ionicon'
@@ -516,7 +530,12 @@ export function ChatScreen({ navigation, route }) {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                    }} />
+                                    }}
+                                    onPress={function () {
+                                        setToolBarHeight(pre => pre === 60 ? 120 : 60)
+                                    }}
+
+                                />
                             </AnimatedComponent>}
                         </View>
 
@@ -528,27 +547,38 @@ export function ChatScreen({ navigation, route }) {
                     setMessages(pre => [...pre, ...msg])
                 }}
 
-                // renderAccessory={function (props) {
-                //     return <View style={{ backgroundColor: "orange", height: 300, width: 360, display: "flex", flexDirection: "row" }} >
+                renderAccessory={function (props) {
+                    return (
+                        <AnimatedComponent style={{
+                            backgroundColor: "orange",
+                            height: 60,
+                            width,
+                            display: "flex", flexDirection: "row", justifyContent: "space-around",alignItems:"center"
+                        }}
+                            onLayout={function (e) {
+                                console.log("bottomBar", e.nativeEvent.layout)
+                            }}
+                        >
 
 
-                //         <Icon
+                            <Icon
 
-                //             name="image-outline"
-                //             type='ionicon'
-                //             color='#517fa4'
-                //             size={50}
-                //         />
+                                name="image-outline"
+                                type='ionicon'
+                                color='#517fa4'
+                                size={50}
+                            />
 
-                //         <Icon
-                //             name="camera-outline"
-                //             type='ionicon'
-                //             color='#517fa4'
-                //             size={50}
-                //         />
+                            <Icon
+                                name="camera-outline"
+                                type='ionicon'
+                                color='#517fa4'
+                                size={50}
+                            />
 
-                //     </View>
-                // }}
+                        </AnimatedComponent>
+                    )
+                }}
                 renderActions={function (props) {
 
 
