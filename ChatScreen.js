@@ -78,6 +78,106 @@ export function ChatScreen({ navigation, route }) {
     // const [keyboardHeight, setKeyboardHeight] = useState(0)
     const keyboardHeight = useKeyboardHeight()
     const [toolBarHeight, setToolBarHeight] = useState(60)
+
+    const micBarWidth = useSharedValue(0)
+    const micBarStyle = useAnimatedStyle(() => ({
+        zIndex: 800, width: withTiming(micBarWidth.value), position: "relative", justifyContent: "center", alignItems: "center",
+        height: 60, backgroundColor: "yellow", top: 0,
+        marginLeft: 0,
+    }))
+
+    const inputBarWidth = useSharedValue(width - 120)
+    const inputBarStyle = useAnimatedStyle(() => {
+
+        return {
+            width: withTiming(micBarWidth.value === 0 ? width - 120 : 0),
+            overflow:"hidden"
+        }
+
+    })
+
+
+    const isReleased = useSharedValue(1)
+    const releasedStyle = useAnimatedStyle(() => {
+        return {
+            display: isReleased.value === 1 ? "flex" : "none",
+            color: "#666",
+            fontSize: 20,
+        }
+    })
+
+    const onHoldStyle = useAnimatedStyle(() => {
+        return {
+            display: isReleased.value === 1 ? "none" : "flex",
+            alignItems: "center",
+            justifyContent: "center"
+            //    color: "#666",
+        }
+    })
+
+
+    const backGesture = useAnimatedGestureHandler({
+
+
+        onStart: (event, obj) => {
+            isReleased.value = 0
+            obj.translationX = event.translationX
+            obj.translationY = event.translationY
+
+            //runOnJS(callStartRecording)()
+
+        },
+        onActive: (event, obj) => {
+            isReleased.value = 0
+            obj.translationX = event.translationX
+            obj.translationY = event.translationY
+
+            console.log(event.translationX)
+
+        },
+        onEnd: (event, obj) => {
+            obj.translationX = event.translationX
+            obj.translationY = event.translationY
+
+
+
+
+        },
+        onFail: (event, obj) => {
+            obj.translationX = event.translationX
+            obj.translationY = event.translationY
+
+            console.log("gesture fail")
+        },
+        onCancel: (event, obj) => {
+            obj.translationX = event.translationX
+            obj.translationY = event.translationY
+
+
+            console.log("gesture cancel")
+
+
+        },
+        onFinish: (event, obj) => {
+
+            if ((obj.translationY < -60) && (isReleased.value === 0)) {
+                //  runOnJS(callCancelRecording)()
+            }
+            else if ((obj.translationX < -60) && (isReleased.value === 0)) {
+                // runOnJS(callCancelRecording)()
+                micBarWidth.value = 0
+            }
+            else if ((obj.translationY >= -60) && (isReleased.value === 0)) {
+                //  runOnJS(callStopRecording)()
+            }
+
+
+            isReleased.value = 1
+        }
+
+    })
+
+
     const [messages, setMessages] = useState([
         {
             _id: Math.random(),
@@ -437,26 +537,51 @@ export function ChatScreen({ navigation, route }) {
 
 
                     return (
-                        <Composer {...props}
+                        <View style={{width:width-120, overflow:"hidden",flexDirection:"row"}}>
+                            <PanGestureHandler onGestureEvent={backGesture}>
+                                <View style={[micBarStyle]}>
+                                    <Text style={[releasedStyle]}>Hold to talk</Text>
 
-                            disableComposer={false}
-                            textInputProps={{
-                                ref: function (element) { inputRef.current = element },
-                                numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
-                                style: {
-                                    backgroundColor: "white", minHeight: 52, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
-                                },
-                                onPressIn: function () {
-                                    inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
 
-                                },
-                                onLayout: function (e) {
+                                    <View style={[onHoldStyle]}>
+                                        <LinearProgress style={{ height: 60, width: width - 120 }} color="#aaa" />
 
-                                }
+                                        <Text style={{
+                                            fontSize: 20,
+                                            color: "#666",
+                                            position: "absolute",
+                                            textAlign: "center",
+                                        }}>Move up to cancel</Text>
 
-                            }}
+                                    </View>
 
-                        />
+                                </View>
+                            </PanGestureHandler>
+
+                            
+                                <Composer {...props}
+
+                                    disableComposer={false}
+                                    textInputProps={{
+                                        ref: function (element) { inputRef.current = element },
+                                        numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
+                                        style: {
+                                            backgroundColor: "white", minHeight: 60, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
+                                            elevation: 5,
+                                        },
+                                        onPressIn: function () {
+                                            inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
+
+                                        },
+                                        onLayout: function (e) {
+
+                                        }
+
+                                    }}
+
+                                />
+                          
+                        </View>
                     )
                 }}
 
@@ -553,10 +678,10 @@ export function ChatScreen({ navigation, route }) {
                             backgroundColor: "orange",
                             height: 60,
                             width,
-                            display: "flex", flexDirection: "row", justifyContent: "space-around",alignItems:"center"
+                            display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"
                         }}
                             onLayout={function (e) {
-                                console.log("bottomBar", e.nativeEvent.layout)
+                                //   console.log("bottomBar", e.nativeEvent.layout)
                             }}
                         >
 
@@ -609,7 +734,7 @@ export function ChatScreen({ navigation, route }) {
                 }}
 
                 onPressActionButton={function (props) {
-
+                    micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
 
                 }}
 
