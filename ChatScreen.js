@@ -50,6 +50,8 @@ import {
     StyleSheet, Dimensions, TouchableOpacity, TouchableNativeFeedback, Pressable, TouchableHighlight, TouchableWithoutFeedback, Vibration, Button,
     findNodeHandle, UIManager, Keyboard, Platform
 } from 'react-native';
+
+import { OverlayDownloader } from './OverlayDownloader';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
 import Image from 'react-native-scalable-image';
 import * as FileSystem from 'expo-file-system';
@@ -893,64 +895,99 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
 
+
     return (
-        <Pressable
-            ref={function (element) { viewRef.current = element }}
-            onPress={function () {
+        <>
+            <Pressable
+                ref={function (element) { viewRef.current = element }}
+                onPress={function () {
 
-                navigation.navigate('ImageScreen', {
+                    navigation.navigate('ImageScreen', {
 
-                    imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
-                    currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
-                    name: route.params.name
+                        imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
+                        currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
+                        name: route.params.name
 
-                })
-            }}
-            onLongPress={function () {
-
-                const handle = findNodeHandle(viewRef.current);
-                UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-                    console.log(fx, fy, compoWidth, compoHeight, px, py)
-                    setLeft(px)
-                    setTop(Math.max(0, py - STATUS_HEIGHT - 60))
-                    setVisible(true)
-                })
-            }}
-        >
-            <SharedElement id={currentMessage._id}  >
-                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
-            </SharedElement>
-
-
-            <Overlay isVisible={visible} fullScreen={false}
-                onBackdropPress={function () {
-                    setVisible(false)
+                    })
                 }}
-                backdropStyle={{ backgroundColor: "transparent" }}
-                overlayStyle={{
-                    //  backgroundColor: "rgba(50,50,50,0)",
-                    backgroundColor: "transparent",
-                    position: "absolute",
-                    left,
-                    top,
-                    elevation: 0,
+                onLongPress={function () {
+
+                    const handle = findNodeHandle(viewRef.current);
+                    UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+                        console.log(fx, fy, compoWidth, compoHeight, px, py)
+                        setLeft(px)
+                        setTop(Math.max(0, py - STATUS_HEIGHT - 60))
+                        setVisible(true)
+                    })
                 }}
             >
-
-                <AnimatedComponent entering={ZoomIn.duration(200)} style={{
-                    display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
-                    borderRadius: 8
-                }}>
-
-                    <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />
-                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
-
-                </AnimatedComponent>
-            </Overlay>
+                <SharedElement id={currentMessage._id}  >
+                    <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+                </SharedElement>
 
 
-        </Pressable>
+                <Overlay isVisible={visible} fullScreen={false}
+                    onBackdropPress={function () {
+                        setVisible(false)
+                    }}
+                    backdropStyle={{ backgroundColor: "transparent" }}
+                    overlayStyle={{
+                        //  backgroundColor: "rgba(50,50,50,0)",
+                        backgroundColor: "transparent",
+                        position: "absolute",
+                        left,
+                        top,
+                        elevation: 0,
+                    }}
+                >
 
+                    <AnimatedComponent entering={ZoomIn.duration(200)} style={{
+                        display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
+                        borderRadius: 8
+                    }}>
+
+                        <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }}
+
+                            onPress={async function () {
+
+                                setVisible(false)
+                                const uri = currentImage
+                                const fileUri = `${FileSystem.documentDirectory}${Date.now()}.jpg`
+
+                                const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
+
+                                const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
+
+                                if (status == 200) {
+                                    const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                                    if (!granted) { setBtnText("100%"); return }
+
+                                    const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
+                                    let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
+
+                                    if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
+                                    else {
+                                        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
+                                    }
+                                    await FileSystem.deleteAsync(fileUri, { idempotent: true })
+
+                                }
+                                else { alert("server refuse to send"); }
+
+
+                            }}
+                        />
+                        <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
+
+                    </AnimatedComponent>
+                </Overlay>
+
+
+            </Pressable>
+
+
+
+        </>
     )
 
 
@@ -986,7 +1023,7 @@ function AudioBlock({ ...props }) {
 //     })
 
 // })
-      
+
 
 
 

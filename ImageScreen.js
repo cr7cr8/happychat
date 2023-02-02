@@ -144,7 +144,7 @@ export function ImageScreen({ navigation, route, }) {
 
 ImageScreen.sharedElements = (route, otherRoute, showing) => {
 
-  console.log("image screen other route ---", otherRoute.params.name)
+ // console.log("image screen other route ---", otherRoute.params.name)
   const imageMessageArr = route.params.imageMessageArr
   const currentPos = route.params.currentPos
   //console.log(route)

@@ -104,7 +104,7 @@ export function OverlayDownloader({ overLayOn, setOverLayOn, uri, fileName, ...p
 }
 
 async function downloadFromUri(uri, fileName, setBtnText) {
-console.log("xxxxxxxxxxxxxxxxxxxxxxxx",uri,fileName)
+
   setBtnText("0%")
 
   const fileUri = `${FileSystem.documentDirectory}${fileName}`
