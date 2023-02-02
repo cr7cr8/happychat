@@ -842,7 +842,7 @@ function TextBlock({ ...props }) {
             onLongPress={function () {
                 const handle = findNodeHandle(viewRef.current);
                 UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-                    console.log(fx, fy, compoWidth, compoHeight, px, py)
+               //     console.log(fx, fy, compoWidth, compoHeight, px, py)
                     setLeft(Math.min(px, width - 150))
                     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                     setVisible(true)
@@ -914,7 +914,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
                     const handle = findNodeHandle(viewRef.current);
                     UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-                        console.log(fx, fy, compoWidth, compoHeight, px, py)
+                    //    console.log(fx, fy, compoWidth, compoHeight, px, py)
                         setLeft(px)
                         setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                         setVisible(true)

@@ -97,7 +97,7 @@ function renderItem(props) {
 
     const panelCss = useAnimatedStyle(() => {
 
-        console.log("HOME", name)
+       // console.log("HOME", name)
         return {
             backgroundColor: bgColor,
             height: 80,
