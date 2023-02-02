@@ -43,7 +43,6 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { useHeaderHeight } from '@react-navigation/elements';
 //import Image from 'react-native-scalable-image';
-import { OverlayDownloader } from './OverlayDownloader';
 
 export function ImageScreen({ navigation, route, }) {
 
@@ -55,8 +54,7 @@ export function ImageScreen({ navigation, route, }) {
 
   const { currentPos, imageMessageArr } = route.params
   const scrollRef = useRef()
-  const scrollX = useSharedValue(currentPos * width)
-  const [overLayOn, setOverLayOn] = useState(false)
+  const scrollX = useSharedValue(route.params.imagePos * width)
   return (
     <>
       <View style={{
@@ -68,7 +66,7 @@ export function ImageScreen({ navigation, route, }) {
         <SharedElement id={route.params.name}  >
           <SvgUri style={{
             margin: 10,
-            transform: [{ translateY: 6 }, { translateX: -width / 2 - 40 }, { scale: 1 }]
+            transform: [{ translateY: 6 }, { translateX: -width/2-40 },{scale:1}]
 
           }} width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
         </SharedElement>
@@ -111,13 +109,9 @@ export function ImageScreen({ navigation, route, }) {
                   }
                 }}
               >
-                <Pressable onLongPress={function () { Vibration.vibrate(50);setOverLayOn(true) }}>
-                  <SharedElement id={String(item._id)}>
-
-                    <Image source={{ uri: item.image, headers: { token: "hihihi" } }} resizeMode="contain" style={{ width, height: height - HEADER_HEIGHT - getStatusBarHeight() }} />
-
-                  </SharedElement>
-                </Pressable>
+                <SharedElement id={String(item._id)}>
+                  <Image source={{ uri: item.image, headers: { token: "hihihi" } }} resizeMode="contain" style={{ width, height: height - HEADER_HEIGHT - getStatusBarHeight() }} />
+                </SharedElement>
               </ViewTransformer>
 
             )
@@ -125,14 +119,10 @@ export function ImageScreen({ navigation, route, }) {
           })
 
         }
-      </ScrollView>
 
-      <OverlayDownloader
-        overLayOn={overLayOn}
-        setOverLayOn={setOverLayOn}
-        uri={imageMessageArr[Math.floor(scrollX.value / width)].image}
-        fileName={Date.now() + ".jpg"}
-      />
+
+
+      </ScrollView>
     </>
 
 
@@ -144,9 +134,9 @@ export function ImageScreen({ navigation, route, }) {
 
 ImageScreen.sharedElements = (route, otherRoute, showing) => {
 
-  console.log("image screen other route ---", otherRoute.params.name)
-  const imageMessageArr = route.params.imageMessageArr
-  const currentPos = route.params.currentPos
+   console.log("image screen other route ---", otherRoute.params.name)
+   const imageMessageArr = route.params.imageMessageArr
+   const currentPos = route.params.currentPos
   //console.log(route)
   //  return [
   // { id: route.params.item, animation: "move", resize: "auto", align: "left", },

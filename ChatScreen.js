@@ -35,11 +35,10 @@ import {
     GiftedChat, Bubble, InputToolbar, Avatar as AvatarIcon, Message, Time, MessageContainer, MessageText, SystemMessage, Day, Send, Composer, MessageImage,
     Actions,
 } from 'react-native-gifted-chat'
-import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
+import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
 import { useHeaderHeight } from '@react-navigation/elements';
 import { PanGestureHandler, ScrollView, FlatList, NativeViewGestureHandler } from 'react-native-gesture-handler';
-//import useKeyboardHeight from 'react-native-use-keyboard-height'; // causing error!!! 
-//import { useKeyboard } from "react-native-keyboard-height"; // causing error
+import { Video, AVPlaybackStatus, Audio, ExponentAV } from 'expo-av';
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 const { width, height } = Dimensions.get('screen');
@@ -53,10 +52,14 @@ import {
 } from 'react-native';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
 import Image from 'react-native-scalable-image';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
-
+let recording = new Audio.Recording();
+let audioSound = new Audio.Sound();
 
 
 export function ChatScreen({ navigation, route }) {
@@ -91,7 +94,7 @@ export function ChatScreen({ navigation, route }) {
 
         return {
             width: withTiming(micBarWidth.value === 0 ? width - 120 : 0),
-            overflow:"hidden"
+            overflow: "hidden"
         }
 
     })
@@ -124,7 +127,7 @@ export function ChatScreen({ navigation, route }) {
             obj.translationX = event.translationX
             obj.translationY = event.translationY
 
-            //runOnJS(callStartRecording)()
+            runOnJS(callStartRecording)()
 
         },
         onActive: (event, obj) => {
@@ -132,7 +135,7 @@ export function ChatScreen({ navigation, route }) {
             obj.translationX = event.translationX
             obj.translationY = event.translationY
 
-            console.log(event.translationX)
+            // console.log(event.translationX)
 
         },
         onEnd: (event, obj) => {
@@ -140,7 +143,7 @@ export function ChatScreen({ navigation, route }) {
             obj.translationY = event.translationY
 
 
-
+            console.log("gesture end")
 
         },
         onFail: (event, obj) => {
@@ -168,7 +171,7 @@ export function ChatScreen({ navigation, route }) {
                 micBarWidth.value = 0
             }
             else if ((obj.translationY >= -60) && (isReleased.value === 0)) {
-                //  runOnJS(callStopRecording)()
+                runOnJS(callStopRecording)()
             }
 
 
@@ -537,7 +540,7 @@ export function ChatScreen({ navigation, route }) {
 
 
                     return (
-                        <View style={{width:width-120, overflow:"hidden",flexDirection:"row"}}>
+                        <View style={{ width: width - 120, overflow: "hidden", flexDirection: "row" }}>
                             <PanGestureHandler onGestureEvent={backGesture}>
                                 <View style={[micBarStyle]}>
                                     <Text style={[releasedStyle]}>Hold to talk</Text>
@@ -558,29 +561,29 @@ export function ChatScreen({ navigation, route }) {
                                 </View>
                             </PanGestureHandler>
 
-                            
-                                <Composer {...props}
 
-                                    disableComposer={false}
-                                    textInputProps={{
-                                        ref: function (element) { inputRef.current = element },
-                                        numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
-                                        style: {
-                                            backgroundColor: "white", minHeight: 60, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
-                                            elevation: 5,
-                                        },
-                                        onPressIn: function () {
-                                            inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
+                            <Composer {...props}
 
-                                        },
-                                        onLayout: function (e) {
+                                disableComposer={false}
+                                textInputProps={{
+                                    ref: function (element) { inputRef.current = element },
+                                    numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
+                                    style: {
+                                        backgroundColor: "white", minHeight: 60, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
+                                        elevation: 5,
+                                    },
+                                    onPressIn: function () {
+                                        inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
 
-                                        }
+                                    },
+                                    onLayout: function (e) {
 
-                                    }}
+                                    }
 
-                                />
-                          
+                                }}
+
+                            />
+
                         </View>
                     )
                 }}
@@ -961,6 +964,240 @@ function AudioBlock({ ...props }) {
     return <Text>AudioBlock</Text>
 
 }
+
+// FileSystem.readDirectoryAsync(FileSystem.cacheDirectory).then(data => {
+//     data.forEach(filename_ => {
+//         console.log("=cacheDirctory==" + filename_)
+//         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
+//         //     console.log(info)
+//         // })
+//          FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
+//     })
+// })
+
+
+// FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
+//     data.forEach(filename_ => {
+//         console.log("=documentDirctory==" + filename_)
+//         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
+//         //     console.log(info)
+//         // })
+//           FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+//     })
+
+// })
+      
+
+
+
+
+
+function callStartRecording() {
+    startRecording()
+    // console.log(FileSystem.cacheDirectory)
+
+
+    // FileSystem.readDirectoryAsync(FileSystem.cacheDirectory+"Audio").then(data => {
+    //     data.forEach(filename_ => {
+    //          console.log(Date.now() + "=cached audio==***===" + filename_)
+    //          FileSystem.deleteAsync(FileSystem.cacheDirectory+"/Audio/" + filename_, { idempotent: true })
+    //     })
+
+    // })
+
+}
+
+
+
+function callStopRecording() {
+    stopRecording()
+
+    //FileSystem.documentDirectory
+}
+
+function startRecording() {
+    recording = new Audio.Recording()
+
+    Audio.requestPermissionsAsync()
+        .then((info) => {
+            //  console.log("permissions", info)
+            if (info.granted) {
+                return recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY)
+            }
+            else {
+                return Promise.reject("recording permissions denied")
+            }
+
+        })
+        .then(info => {
+
+            // console.log("about to record", info)
+
+            if (info.canRecord && (!info.isRecording)) {
+                return recording.startAsync()
+            }
+            else {
+                return Promise.reject("cannot start recording")
+            }
+
+        })
+        .then(info => {
+            return info
+        })
+        .catch(err => {
+            console.log("error in startRecording promise ==>")
+        })
+}
+
+function stopRecording() {
+
+    let uri = ""
+    let audioName = ""
+    let audioFolder = ""
+    let audioUri = ""
+    let durationMillis = ""
+    let time = ""
+    let audioMsg = ""
+    console.log("stop recording")
+    recording.getStatusAsync()
+        .then(info => {
+
+            //     console.log("about to stop Recording", info)
+            if (info.isRecording) {
+
+                return recording.stopAndUnloadAsync()
+            }
+            else {
+
+                //     recording.stopAndUnloadAsync()
+                return Promise.reject(info)
+            }
+        })
+        .then(info => {
+            //     console.log("recording stopped", info)
+            if (info.isDoneRecording) {
+                durationMillis = info.durationMillis
+                uri = recording.getURI();
+
+                audioName = uri.replace(/^.*[\\\/]/, '')
+                //    audioFolder = FileSystem.documentDirectory + "Audio/" + item.name + "/"
+                audioFolder = FileSystem.documentDirectory
+                audioUri = audioFolder + audioName
+
+                recording = new Audio.Recording()
+                console.log(uri, audioUri)
+                return FileSystem.moveAsync({ from: uri, to: audioUri })
+            }
+            else {
+                //   recording.stopAndUnloadAsync()
+                return Promise.reject(info)
+            }
+
+
+        })
+
+
+        // .then(() => {
+
+        //     time = Date.now()
+        //     audioMsg = {
+        //         _id: time,
+        //         text: '',
+        //         createdAt: new Date(),
+        //         createdTime: time,
+        //         user: { _id: userName },
+        //         sender: userName,
+        //         audio: audioUri,
+        //         audioName: audioName,
+
+
+        //         durationMillis: durationMillis,
+        //         toPerson: item.name,
+        //     }
+
+        //     canMoveDown.current = true
+        //     setMessages(pre => {
+        //         if (pre.length >= 20) {
+        //             previousMessages.current = previousMessages.current.concat(pre.slice(0, pre.length - 10))
+        //             if (!shouldDisplayNotice && (previousMessages.current.length > 0)) { setShouldDisplayNotice(true) }
+        //             return GiftedChat.prepend(pre.slice(-10), { ...audioMsg, isLocal: true })
+        //         }
+        //         else {
+        //             return GiftedChat.prepend(pre, { ...audioMsg, isLocal: true })
+        //         }
+        //     })
+
+
+        //     const folderUri = FileSystem.documentDirectory + "MessageFolder/" + item.name + "/"
+        //     const fileUri = folderUri + item.name + "---" + audioMsg.createdTime
+        //     FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...audioMsg, isLocal: true }))
+        //     latestChattingMsg.current = audioMsg
+
+        //     return uploadAudio({ localUri: audioUri, filename: audioName || Date.now() + ".m4a", sender: userName, toPerson: item.name, durationMillis })
+
+        // })
+        // .then(response => {
+        //     //   console.log(ExponentAV)
+        //     socket.emit("sendMessage", {
+        //         sender: userName, toPerson: item.name,
+        //         msgArr: [{ ...audioMsg, sender: userName, mongooseID: response.data.mongooseID }]
+        //     })
+
+        //     //console.log(recording._cleanupForUnloadedRecorder)
+
+        // })
+        .catch(err => {
+            console.log("cannot stop recording", err)
+            // if (err.message.includes("Stop encountered an error: recording not stopped")) {
+            //   await ExponentAV.unloadAudioRecorder();
+            //   await recordRef.current._cleanupForUnloadedRecorder({ durationMillis: 0 } as any);
+            // } else {
+            //   await handleError(e, { userMessage: "An error occurred stopping the recording." });
+            // }
+
+            recording._cleanupForUnloadedRecorder({
+                canRecord: false,
+                durationMillis: 0,
+                isRecording: false,
+                isDoneRecording: false,
+            });
+
+
+            recording = new Audio.Recording()
+        })
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
