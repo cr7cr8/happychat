@@ -240,7 +240,7 @@ export function ChatScreen({ navigation, route }) {
             _id: Math.random(),
             text: "",
             createdAt: new Date(),
-            image: "https://picsum.photos/100/200",
+            image: "https://picsum.photos/200/300",
 
             user: {
                 _id: name,
@@ -251,7 +251,7 @@ export function ChatScreen({ navigation, route }) {
             _id: Math.random(),
             text: "",
             createdAt: new Date(),
-            image: "https://picsum.photos/200/400",
+            image: "https://picsum.photos/200/600",
 
             user: {
                 _id: userName,
@@ -262,7 +262,7 @@ export function ChatScreen({ navigation, route }) {
             _id: Math.random(),
             text: "",
             createdAt: new Date(),
-            image: "https://picsum.photos/500/300",
+            image: "https://picsum.photos/700/300",
 
             user: {
                 _id: name,
@@ -283,7 +283,7 @@ export function ChatScreen({ navigation, route }) {
             _id: Math.random(),
             text: "",
             createdAt: new Date(),
-            image: "https://picsum.photos/620/300",
+            image: "https://picsum.photos/600/300",
 
             user: {
                 _id: userName,
@@ -835,19 +835,16 @@ function TextBlock({ ...props }) {
     const [visible, setVisible] = useState(false)
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
-   // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
     return (
 
         <Pressable ref={function (element) { viewRef.current = element }}
             onLongPress={function () {
                 const handle = findNodeHandle(viewRef.current);
                 UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-                    //console.log(fx, fy, compoWidth, compoHeight, px, py)
+                    //     console.log(fx, fy, compoWidth, compoHeight, px, py)
                     setLeft(Math.min(px, width - 150))
                     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                     setVisible(true)
-
-                    //  showOverLayText(Math.min(px, width - 150), Math.max(0, py - STATUS_HEIGHT - 60))
                 })
             }}
 
@@ -875,7 +872,7 @@ function TextBlock({ ...props }) {
                     borderRadius: 8
                 }}>
 
-                    <Icon name="copy-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />
+                    <Icon name="copy-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }}  />
                     <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
 
                 </AnimatedComponent>
@@ -897,7 +894,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
 
-    const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
+
     return (
         <>
             <Pressable
@@ -954,8 +951,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
                                 setVisible(false)
                                 const uri = currentImage
-                                const fileName = Date.now()
-                                const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
+                                const fileUri = `${FileSystem.documentDirectory}${Date.now()}.jpg`
 
                                 const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
 
@@ -973,7 +969,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
                                         await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
                                     }
                                     await FileSystem.deleteAsync(fileUri, { idempotent: true })
-                                    showSnackBar(fileName + ".jpg downloaded")
+
                                 }
                                 else { alert("server refuse to send"); }
 

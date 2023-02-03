@@ -11,12 +11,27 @@ import SnackBar from './SnackBar';
 export default function ContextProvider(props) {
 
     const [userName, setUserName] = useState("hihih")
-    const [isSnackVisible, setSnackVisible] = useState(true)
+    const [isSnackVisible, setSnackVisible] = useState(false)
     const [snackMessage, setSnackMessage] = useState("aaabbbaaaaaaaa")
 
     const showSnackBar = useCallback(function (message = "doed") {
         setSnackVisible(true)
         setSnackMessage(message)
+    }, [])
+
+    const [isOverLayTextVisible, setOverLayTextVisible] = useState(false)
+    const [overLayTextLeft, setOverLayTextLeft] = useState(0)
+    const [overLayTextTop, setOverLayTextTop] = useState(0)
+    const [overLayTextFn1, setOverLayTextFn1] = useState(function () { () => { } })
+    const [overLayTextFn2, setOverLayTextFn2] = useState(function () { () => { } })
+
+
+    const showOverLayText = useCallback(function (left, top, fn1 = () => { }, fn2 = () => { }) {
+        setOverLayTextVisible(true)
+        setOverLayTextLeft(left)
+        setOverLayTextTop(top)
+        setOverLayTextFn1(fn1)
+        setOverLayTextFn2(fn2)
     }, [])
 
 
@@ -44,7 +59,13 @@ export default function ContextProvider(props) {
             peopleList, setPeopleList,
             isSnackVisible, setSnackVisible,
             snackMessage, setSnackMessage,
-            showSnackBar
+            showSnackBar,
+            isOverLayTextVisible, setOverLayTextVisible,
+            overLayTextLeft,
+            overLayTextTop,
+            showOverLayText,
+            overLayTextFn1, setOverLayTextFn1,
+            overLayTextFn2, setOverLayTextFn2
 
         }}>
 

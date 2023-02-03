@@ -53,9 +53,9 @@ export function HomeScreen({ navigation, route }) {
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
-   
-   
-   
+
+
+
 
 
 
@@ -97,7 +97,7 @@ function renderItem(props) {
 
     const panelCss = useAnimatedStyle(() => {
 
-       // console.log("HOME", name)
+        // console.log("HOME", name)
         return {
             backgroundColor: bgColor,
             height: 80,
@@ -115,7 +115,7 @@ function renderItem(props) {
         <AnimatedComponent entering={SlideInRight.delay(getIndex() * 50)}>
             <Pressable onLongPress={drag} onPress={function () {
                 navigation.navigate("ChatScreen", { name: name })
-               showSnackBar(name)
+                //showSnackBar(name)
             }}>
 
                 <View style={[panelCss]}>

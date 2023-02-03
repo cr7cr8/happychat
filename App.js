@@ -9,6 +9,7 @@ import StackNavigator from "./StackNavigator";
 
 
 import SnackBar from './SnackBar';
+import OverLayText from './OverLayText';
 
 export default function App() { return (<AppStarter />); }
 
@@ -25,6 +26,7 @@ function AppStarter() {
 
           <StackNavigator />
           <SnackBar />
+          <OverLayText />
         </NavigationContainer>
       </ContextProvider>
     </>
