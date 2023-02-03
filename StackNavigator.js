@@ -56,7 +56,7 @@ export default function StackNavigator() {
 
   return (
     <>
-    
+
       <Stack.Navigator
         initialRouteName={"HomeScreen"}
         screenOptions={screenOptions}
@@ -81,18 +81,19 @@ export default function StackNavigator() {
 
               headerLeft: () => null,
               headerStyle: {
-                height: getStatusBarHeight() > 24 ? 70 : 60,
+                //   height: getStatusBarHeight() > 24 ? 70 : 60,
+                height: 60,
                 elevation: 0,
-                backgroundColor: "tomato"
+                backgroundColor: "wheat"
               },
-              headerRight: () => (
-                <Button
-                  title={"Home"}
-                  onPress={function () {
-                    navigation.navigate("ChatScreen")
-                  }}
-                />
-              ),
+              // headerRight: () => (
+              //   <Button
+              //     title={"Home"}
+              //     onPress={function () {
+              //       navigation.navigate("ChatScreen")
+              //     }}
+              //   />
+              // ),
 
               // color:"#fff",   
 
@@ -124,7 +125,8 @@ export default function StackNavigator() {
 
               //   headerLeft: () => null,
               headerStyle: {
-                height: getStatusBarHeight() > 24 ? 70 : 60,
+                //  height: getStatusBarHeight() > 24 ? 70 : 60,
+                height: 60,
                 elevation: 0,
                 //backgroundColor: bgColor
                 // backgroundColor:"transparent"
@@ -151,7 +153,7 @@ export default function StackNavigator() {
             return {
               headerShown: true,
               gestureEnabled: false,
-             // header: (props) => <Header {...props} />,
+              // header: (props) => <Header {...props} />,
               header: (props) => <></>,
               headerTitle: function (props) { return <></> },
               headerStyle: {
@@ -159,7 +161,7 @@ export default function StackNavigator() {
                 elevation: 0,
                 //backgroundColor: "lightgreen",
                 backgroundColor: "#333",
-                
+
               },
               // headerRight: () => (
               //   <Button

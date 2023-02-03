@@ -355,8 +355,9 @@ export function ChatScreen({ navigation, route }) {
                 <SharedElement id={route.params.name}  >
 
                     <SvgUri style={{
-                        margin: 10, transform: [{ translateY: 6 }, { translateX: 0 }]
-
+                        margin: 10, 
+                        //transform: [{ translateY: 6 }, { translateX: 0 }]
+                      
                     }}
 
                         width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
