@@ -165,15 +165,15 @@ export function ChatScreen({ navigation, route }) {
         },
         onFinish: (event, obj) => {
 
-            if ((obj.translationY < -60) && (isReleased.value === 0)) {
-                //  runOnJS(callCancelRecording)()
-            }
-            else if ((obj.translationX < -60) && (isReleased.value === 0)) {
-                // runOnJS(callCancelRecording)()
-                micBarWidth.value = 0
-            }
-            else if ((obj.translationY >= -60) && (isReleased.value === 0)) {
+            if ((Math.abs(obj.translationY) < 60) && (Math.abs(obj.translationX) < 60) && (isReleased.value === 0)) {
                 runOnJS(callStopRecording)()
+            }
+            // else if ((obj.translationX < -60) && (isReleased.value === 0)) {
+            //     runOnJS(callCancelRecording)()
+            //     micBarWidth.value = 0
+            // }
+            else {// else if ((obj.translationY >= -60) && (isReleased.value === 0)) {
+                runOnJS(callCancelRecording)()
             }
 
 
@@ -842,7 +842,7 @@ function TextBlock({ ...props }) {
             onLongPress={function () {
                 const handle = findNodeHandle(viewRef.current);
                 UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-               //     console.log(fx, fy, compoWidth, compoHeight, px, py)
+                    //     console.log(fx, fy, compoWidth, compoHeight, px, py)
                     setLeft(Math.min(px, width - 150))
                     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                     setVisible(true)
@@ -914,7 +914,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
 
                     const handle = findNodeHandle(viewRef.current);
                     UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-                    //    console.log(fx, fy, compoWidth, compoHeight, px, py)
+                        //    console.log(fx, fy, compoWidth, compoHeight, px, py)
                         setLeft(px)
                         setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                         setVisible(true)
@@ -1043,13 +1043,13 @@ function callStartRecording() {
     // })
 
 }
-
-
-
 function callStopRecording() {
     stopRecording()
 
     //FileSystem.documentDirectory
+}
+function callCancelRecording() {
+    cancelRecording()
 }
 
 function startRecording() {
@@ -1208,7 +1208,57 @@ function stopRecording() {
 
 }
 
+function cancelRecording() {
+    console.log('Cancel recording..');
 
+
+    recording.getStatusAsync()
+        .then(info => {
+
+            ////     console.log("about to cancel Recording", info)
+            if (info.isRecording) {
+                return recording.stopAndUnloadAsync()
+            }
+            else {
+                //recording = new Audio.Recording()
+                return Promise.reject(info)
+            }
+        })
+        .then(info => {
+            //    console.log("recording cancelled", info)
+            if (info.isDoneRecording) {
+                // const durationMillis = info.durationMillis
+                const uri = recording.getURI();
+                //      console.log("cancel uri===>>>>>>>>",uri)
+
+                FileSystem.deleteAsync(uri, { idempotent: true }).then(() => {
+
+                    //      console.log("caneled file deleted ")
+                })
+
+
+
+            }
+            else {
+                //  recording = new Audio.Recording()
+                return Promise.reject(info)
+            }
+        })
+        .catch(err => {
+            console.log("cancel recording error")
+            recording._cleanupForUnloadedRecorder({
+                canRecord: false,
+                durationMillis: 0,
+                isRecording: false,
+                isDoneRecording: false,
+            });
+
+            recording = new Audio.Recording()
+        })
+
+
+
+}
 
 
 
