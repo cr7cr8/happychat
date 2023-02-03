@@ -16,7 +16,7 @@ import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitv
 import multiavatar from '@multiavatar/multiavatar';
 import SvgUri from 'react-native-svg-uri';
 import { SharedElement } from 'react-navigation-shared-element';
-
+import SnackBar from './SnackBar';
 
 const Stack = createSharedElementStackNavigator()
 const screenOptions = function ({ navigation, route }) {
@@ -55,126 +55,129 @@ export default function StackNavigator() {
 
 
   return (
-    <Stack.Navigator
-      initialRouteName={"HomeScreen"}
-      screenOptions={screenOptions}
-      // headerMode="float"
-      headerMode="screen"
-    >
+    <>
+    
+      <Stack.Navigator
+        initialRouteName={"HomeScreen"}
+        screenOptions={screenOptions}
+        // headerMode="float"
+        headerMode="screen"
+      >
 
 
-      <Stack.Screen name="HomeScreen"
+        <Stack.Screen name="HomeScreen"
 
-        component={HomeScreen}
+          component={HomeScreen}
 
-        // header={function (props) {     console.log(props)  return <Header {...props} /> }}
+          // header={function (props) {     console.log(props)  return <Header {...props} /> }}
 
-        options={function ({ navigation, route }) {
+          options={function ({ navigation, route }) {
 
-          return {
-            headerShown: true,
-            gestureEnabled: false,
+            return {
+              headerShown: true,
+              gestureEnabled: false,
 
-            header: (props) => <Header {...props} />,
+              header: (props) => <Header {...props} />,
 
-            headerLeft: () => null,
-            headerStyle: {
-              height: getStatusBarHeight() > 24 ? 70 : 60,
-              elevation: 0,
-              backgroundColor: "tomato"
-            },
-            headerRight: () => (
-              <Button
-                title={"Home"}
-                onPress={function () {
-                  navigation.navigate("ChatScreen")
-                }}
-              />
-            ),
+              headerLeft: () => null,
+              headerStyle: {
+                height: getStatusBarHeight() > 24 ? 70 : 60,
+                elevation: 0,
+                backgroundColor: "tomato"
+              },
+              headerRight: () => (
+                <Button
+                  title={"Home"}
+                  onPress={function () {
+                    navigation.navigate("ChatScreen")
+                  }}
+                />
+              ),
 
-            // color:"#fff",   
+              // color:"#fff",   
 
+
+            }
+
+          }}
+
+        />
+
+
+        <Stack.Screen name="ChatScreen"
+
+          component={ChatScreen}
+
+          // header={function (props) {     console.log(props)  return <Header {...props} /> }}
+
+          options={function ({ navigation, route }) {
+            const name = route.params.item
+            const avatarString = multiavatar(name)
+            const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+
+
+            return {
+              headerShown: true,
+              gestureEnabled: false,
+              //     headerTintColor: 'orange',
+              header: (props) => <Header {...props} />,
+
+              //   headerLeft: () => null,
+              headerStyle: {
+                height: getStatusBarHeight() > 24 ? 70 : 60,
+                elevation: 0,
+                //backgroundColor: bgColor
+                // backgroundColor:"transparent"
+                backgroundColor: "rgba(0,0,255 ,0)",
+              },
+              headerTitle: function (props) { return <></> },
+              // headerRight: () => (
+              //   <Button
+              //     title={"Chat"}
+              //     onPress={function () {
+              //       navigation.navigate("HomeScreen")
+              //     }}
+              //   />
+              // ),
+
+            }
+
+          }}
+
+        />
+        <Stack.Screen name="ImageScreen"
+          component={ImageScreen}
+          options={function ({ navigation, route }) {
+            return {
+              headerShown: true,
+              gestureEnabled: false,
+              header: (props) => <Header {...props} />,
+              headerTitle: function (props) { return <></> },
+              headerStyle: {
+                height: getStatusBarHeight() > 24 ? 70 : 60,
+                elevation: 0,
+                //backgroundColor: "lightgreen",
+                backgroundColor: "transparent",
+              },
+              // headerRight: () => (
+              //   <Button
+              //     title={"Image"}
+              //     onPress={function () {
+              //       navigation.navigate("ChatScreen")
+              //     }}
+              //   />
+              // ),
+
+            }
+          }
 
           }
 
-        }}
-
-      />
+        />
 
 
-      <Stack.Screen name="ChatScreen"
-
-        component={ChatScreen}
-
-        // header={function (props) {     console.log(props)  return <Header {...props} /> }}
-
-        options={function ({ navigation, route }) {
-          const name = route.params.item
-          const avatarString = multiavatar(name)
-          const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
-
-
-          return {
-            headerShown: true,
-            gestureEnabled: false,
-            //     headerTintColor: 'orange',
-            header: (props) => <Header {...props} />,
-
-            //   headerLeft: () => null,
-            headerStyle: {
-              height: getStatusBarHeight() > 24 ? 70 : 60,
-              elevation: 0,
-              //backgroundColor: bgColor
-             // backgroundColor:"transparent"
-             backgroundColor:"rgba(0,0,255 ,0)",
-            },
-            headerTitle: function (props) { return <></> },
-            // headerRight: () => (
-            //   <Button
-            //     title={"Chat"}
-            //     onPress={function () {
-            //       navigation.navigate("HomeScreen")
-            //     }}
-            //   />
-            // ),
-
-          }
-
-        }}
-
-      />
-      <Stack.Screen name="ImageScreen"
-        component={ImageScreen}
-        options={function ({ navigation, route }) {
-          return {
-            headerShown: true,
-            gestureEnabled: false,
-            header: (props) => <Header {...props} />,
-            headerTitle: function (props) { return <></> },
-            headerStyle: {
-              height: getStatusBarHeight() > 24 ? 70 : 60,
-              elevation: 0,
-              //backgroundColor: "lightgreen",
-              backgroundColor:"transparent",
-            },
-            // headerRight: () => (
-            //   <Button
-            //     title={"Image"}
-            //     onPress={function () {
-            //       navigation.navigate("ChatScreen")
-            //     }}
-            //   />
-            // ),
-
-          }
-        }
-
-        }
-
-      />
-
-
-    </Stack.Navigator>
+      </Stack.Navigator>
+    </>
   )
 
 }

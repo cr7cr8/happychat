@@ -53,9 +53,9 @@ export function HomeScreen({ navigation, route }) {
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
-
    
-
+   
+   
 
 
 
@@ -90,7 +90,7 @@ function renderItem(props) {
 
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
-
+    const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
     // console.log(avatarString)
 
     const scale = useDerivedValue(() => isActive ? 0.8 : 1)
@@ -115,6 +115,7 @@ function renderItem(props) {
         <AnimatedComponent entering={SlideInRight.delay(getIndex() * 50)}>
             <Pressable onLongPress={drag} onPress={function () {
                 navigation.navigate("ChatScreen", { name: name })
+               showSnackBar(name)
             }}>
 
                 <View style={[panelCss]}>
