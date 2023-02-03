@@ -71,8 +71,8 @@ export function ImageScreen({ navigation, route, }) {
         position: "absolute", display: "flex", justifyContent: "center", alignItems: "center",
         transform: [{ translateY: -HEADER_HEIGHT }],
         backgroundColor: "skyblue", width,
-        flexDirection: "row", height: HEADER_HEIGHT,
-        opacity: 0,
+        flexDirection: "row", height: HEADER_HEIGHT+6,
+    
       }}>
         <SharedElement id={route.params.name}  >
           <SvgUri style={{
