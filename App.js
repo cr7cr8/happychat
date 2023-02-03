@@ -7,7 +7,6 @@ import ContextProvider from './ContextProvider';
 import { NavigationContainer } from '@react-navigation/native';
 import StackNavigator from "./StackNavigator";
 
-
 import SnackBar from './SnackBar';
 import OverLayText from './OverLayText';
 
@@ -19,7 +18,7 @@ function AppStarter() {
 
   return (
     <>
-    
+      <StatusBar />
       <ContextProvider>
       
         <NavigationContainer  >

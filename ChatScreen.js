@@ -351,18 +351,18 @@ export function ChatScreen({ navigation, route }) {
                 backgroundColor: bgColor, width,
                 flexDirection: "row", height: HEADER_HEIGHT,
                 zIndex: 100
-            }}>
+            }}>  
                 <SharedElement id={route.params.name}  >
 
                     <SvgUri style={{
                         margin: 10, 
-                        //transform: [{ translateY: 6 }, { translateX: 0 }]
+                        transform: [{ translateY: 6 }, { translateX: 0 }]
                       
                     }}
 
                         width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
                 </SharedElement>
-                <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: 8 }, { translateX: 0 }] }}>{name}</Text>
+                <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: 6 }, { translateX: 0 }] }}>{name}</Text>
             </View>
 
             <GiftedChat

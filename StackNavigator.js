@@ -34,13 +34,13 @@ const screenOptions = function ({ navigation, route }) {
     //},
 
 
-    headerStyle: {
-      height: getStatusBarHeight() > 24 ? 70 : 60,
-      elevation: 1,
-      // backgroundColor: bgColor
-    },
+    // headerStyle: {
+    //   height: getStatusBarHeight() > 24 ? 70 : 60,
+    //   elevation: 1,
+    //   // backgroundColor: bgColor
+    // },
 
-
+  
 
 
   }
@@ -81,8 +81,8 @@ export default function StackNavigator() {
 
               headerLeft: () => null,
               headerStyle: {
-                //   height: getStatusBarHeight() > 24 ? 70 : 60,
-                height: 60,
+                height: getStatusBarHeight() > 24 ? 70 : 60,
+                //height: 60,
                 elevation: 0,
                 backgroundColor: "wheat"
               },
@@ -125,8 +125,8 @@ export default function StackNavigator() {
 
               //   headerLeft: () => null,
               headerStyle: {
-                //  height: getStatusBarHeight() > 24 ? 70 : 60,
-                height: 60,
+                height: getStatusBarHeight() > 24 ? 70 : 60,
+                //height: 60,
                 elevation: 0,
                 //backgroundColor: bgColor
                 // backgroundColor:"transparent"
