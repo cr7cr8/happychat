@@ -151,13 +151,15 @@ export default function StackNavigator() {
             return {
               headerShown: true,
               gestureEnabled: false,
-              header: (props) => <Header {...props} />,
+             // header: (props) => <Header {...props} />,
+              header: (props) => <></>,
               headerTitle: function (props) { return <></> },
               headerStyle: {
                 height: getStatusBarHeight() > 24 ? 70 : 60,
                 elevation: 0,
                 //backgroundColor: "lightgreen",
-                backgroundColor: "transparent",
+                backgroundColor: "#333",
+                
               },
               // headerRight: () => (
               //   <Button

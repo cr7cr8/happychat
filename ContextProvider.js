@@ -19,20 +19,20 @@ export default function ContextProvider(props) {
         setSnackMessage(message)
     }, [])
 
-    const [isOverLayTextVisible, setOverLayTextVisible] = useState(false)
-    const [overLayTextLeft, setOverLayTextLeft] = useState(0)
-    const [overLayTextTop, setOverLayTextTop] = useState(0)
-    const [overLayTextFn1, setOverLayTextFn1] = useState(function () { () => { } })
-    const [overLayTextFn2, setOverLayTextFn2] = useState(function () { () => { } })
+    // const [isOverLayTextVisible, setOverLayTextVisible] = useState(false)
+    // const [overLayTextLeft, setOverLayTextLeft] = useState(0)
+    // const [overLayTextTop, setOverLayTextTop] = useState(0)
+    // const [overLayTextFn1, setOverLayTextFn1] = useState(function () { () => { } })
+    // const [overLayTextFn2, setOverLayTextFn2] = useState(function () { () => { } })
 
 
-    const showOverLayText = useCallback(function (left, top, fn1 = () => { }, fn2 = () => { }) {
-        setOverLayTextVisible(true)
-        setOverLayTextLeft(left)
-        setOverLayTextTop(top)
-        setOverLayTextFn1(fn1)
-        setOverLayTextFn2(fn2)
-    }, [])
+    // const showOverLayText = useCallback(function (left, top, fn1 = () => { }, fn2 = () => { }) {
+    //     setOverLayTextVisible(true)
+    //     setOverLayTextLeft(left)
+    //     setOverLayTextTop(top)
+    //     setOverLayTextFn1(fn1)
+    //     setOverLayTextFn2(fn2)
+    // }, [])
 
 
 
@@ -60,12 +60,12 @@ export default function ContextProvider(props) {
             isSnackVisible, setSnackVisible,
             snackMessage, setSnackMessage,
             showSnackBar,
-            isOverLayTextVisible, setOverLayTextVisible,
-            overLayTextLeft,
-            overLayTextTop,
-            showOverLayText,
-            overLayTextFn1, setOverLayTextFn1,
-            overLayTextFn2, setOverLayTextFn2
+            // isOverLayTextVisible, setOverLayTextVisible,
+            // overLayTextLeft,
+            // overLayTextTop,
+            // showOverLayText,
+            // overLayTextFn1, setOverLayTextFn1,
+            // overLayTextFn2, setOverLayTextFn2
 
         }}>
 

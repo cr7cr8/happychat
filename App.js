@@ -26,7 +26,7 @@ function AppStarter() {
 
           <StackNavigator />
           <SnackBar />
-          <OverLayText />
+          {/* <OverLayText /> */}
         </NavigationContainer>
       </ContextProvider>
     </>

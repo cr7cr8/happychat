@@ -23,14 +23,12 @@ import ReAnimated, {
   useAnimatedProps,
   withSequence,
   withDecay,
-  ZoomIn
 
 } from 'react-native-reanimated';
-import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
 //import Image from 'react-native-scalable-image';
 import multiavatar from '@multiavatar/multiavatar';
-const { View, Text, ScrollView: ScrollV, Image, createAnimatedComponent } = ReAnimated
-const AnimatedComponent = createAnimatedComponent(View)
+const { View, Text, ScrollView: ScrollV, Image } = ReAnimated
+
 import { PanGestureHandler, ScrollView, FlatList, NativeViewGestureHandler, PinchGestureHandler } from 'react-native-gesture-handler';
 const { width, height } = Dimensions.get('screen');
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -42,28 +40,24 @@ import { Context } from "./ContextProvider";
 import ViewTransformer from "react-native-easy-view-transformer";
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
-import { createContext, useContextSelector } from 'use-context-selector';
+
 import { useHeaderHeight } from '@react-navigation/elements';
 //import Image from 'react-native-scalable-image';
 import { OverlayDownloader } from './OverlayDownloader';
-import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
-import * as FileSystem from 'expo-file-system';
-import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
+
+
 
 export function ImageScreen({ navigation, route, }) {
 
 
   const HEADER_HEIGHT = useHeaderHeight()
 
-  // console.log(height, getStatusBarHeight(), HEADER_HEIGHT, route.params.name)
+  console.log(height, getStatusBarHeight(), HEADER_HEIGHT, route.params.name)
 
-  const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
+
   const { currentPos, imageMessageArr } = route.params
   const scrollRef = useRef()
   const scrollX = useSharedValue(currentPos * width)
-
-  const [visible, setVisible] = useState(false)
   const [overLayOn, setOverLayOn] = useState(false)
   return (
     <>
@@ -71,14 +65,12 @@ export function ImageScreen({ navigation, route, }) {
         position: "absolute", display: "flex", justifyContent: "center", alignItems: "center",
         transform: [{ translateY: -HEADER_HEIGHT }],
         backgroundColor: "skyblue", width,
-        flexDirection: "row", height: HEADER_HEIGHT,
-        opacity: 0,
+        flexDirection: "row", height: HEADER_HEIGHT
       }}>
         <SharedElement id={route.params.name}  >
           <SvgUri style={{
             margin: 10,
-            // transform: [{ translateY: 6 }, { translateX: -width / 2 - 40 }, { scale: 1 }]
-            transform: [{ translateY: HEADER_HEIGHT }, { translateX: -width / 2 - 40 }, { scale: 1 }]
+            transform: [{ translateY: 6 }, { translateX: -width / 2 - 40 }, { scale: 1 }]
 
           }} width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
         </SharedElement>
@@ -96,9 +88,8 @@ export function ImageScreen({ navigation, route, }) {
           display: "flex", justifyContent: "center", alignItems: "center",
           //backgroundColor: "pink"
           // backgroundColor: "#333"
-          //backgroundColor: "pink",
-          backgroundColor: "#333",
-          height: height,
+          backgroundColor: "pink",
+          height: height - HEADER_HEIGHT,
         }}
 
       >
@@ -122,15 +113,10 @@ export function ImageScreen({ navigation, route, }) {
                   }
                 }}
               >
-                <Pressable onLongPress={function () { Vibration.vibrate(50); setVisible(true) }}>
+                <Pressable onLongPress={function () { Vibration.vibrate(50);setOverLayOn(true) }}>
                   <SharedElement id={String(item._id)}>
 
-                    <Image source={{ uri: item.image, headers: { token: "hihihi" } }} resizeMode="contain"
-                      // style={{ width, height: height - HEADER_HEIGHT - getStatusBarHeight() }}
-                      // style={{ width, height: height - HEADER_HEIGHT - getStatusBarHeight() }}
-                      style={{ width, height }}
-
-                    />
+                    <Image source={{ uri: item.image, headers: { token: "hihihi" } }} resizeMode="contain" style={{ width, height: height - HEADER_HEIGHT - getStatusBarHeight() }} />
 
                   </SharedElement>
                 </Pressable>
@@ -143,70 +129,12 @@ export function ImageScreen({ navigation, route, }) {
         }
       </ScrollView>
 
-      {/* <OverlayDownloader
+      <OverlayDownloader
         overLayOn={overLayOn}
         setOverLayOn={setOverLayOn}
         uri={imageMessageArr[Math.floor(scrollX.value / width)].image}
         fileName={Date.now() + ".jpg"}
-      /> */}
-      <Overlay isVisible={visible} fullScreen={false}
-        onBackdropPress={function () {
-          setVisible(false)
-        }}
-        backdropStyle={{ backgroundColor: "transparent" }}
-        overlayStyle={{
-          //  backgroundColor: "rgba(50,50,50,0)",
-          backgroundColor: "transparent",
-          position: "absolute",
-          left: width / 2 - 35,
-          top: height / 3,
-          elevation: 0,
-        }}
-      >
-
-        <AnimatedComponent entering={ZoomIn.duration(200)} style={{
-          display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
-          borderRadius: 8,justifyContent:"center",alignItems:"center",
-          width:60, height:60
-        }}>
-
-          <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} 
-
-            onPress={async function () {
-              setVisible(false)
-              const uri = imageMessageArr[Math.floor(scrollX.value / width)].image
-              const fileName = Date.now()
-              const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
-
-              const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
-
-              const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
-
-              if (status == 200) {
-                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
-                if (!granted) { setBtnText("100%"); return }
-
-                const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
-                let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
-
-                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
-                else {
-                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
-                }
-                await FileSystem.deleteAsync(fileUri, { idempotent: true })
-                showSnackBar(fileName + ".jpg downloaded")
-              }
-              else { alert("server refuse to send"); }
-
-
-            }}
-
-
-          />
-
-
-        </AnimatedComponent>
-      </Overlay>
+      />
     </>
 
 
@@ -218,7 +146,7 @@ export function ImageScreen({ navigation, route, }) {
 
 ImageScreen.sharedElements = (route, otherRoute, showing) => {
 
-  // console.log("image screen other route ---", otherRoute.params.name)
+ // console.log("image screen other route ---", otherRoute.params.name)
   const imageMessageArr = route.params.imageMessageArr
   const currentPos = route.params.currentPos
   //console.log(route)

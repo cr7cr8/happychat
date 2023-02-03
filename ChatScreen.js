@@ -840,6 +840,7 @@ function TextBlock({ ...props }) {
 
         <Pressable ref={function (element) { viewRef.current = element }}
             onLongPress={function () {
+                Vibration.vibrate(50);
                 const handle = findNodeHandle(viewRef.current);
                 UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
                     //console.log(fx, fy, compoWidth, compoHeight, px, py)
@@ -913,7 +914,7 @@ function ImageBlock({ currentMessage, imageMessageArr, ...props }) {
                     })
                 }}
                 onLongPress={function () {
-
+                    Vibration.vibrate(50);
                     const handle = findNodeHandle(viewRef.current);
                     UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
                         //    console.log(fx, fy, compoWidth, compoHeight, px, py)
