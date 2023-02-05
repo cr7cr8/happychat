@@ -121,7 +121,7 @@ export default function StackNavigator() {
                 />
               ),
 
-              // color:"#fff",   
+              // color:"#fff",    
 
 
             }
