@@ -31,7 +31,7 @@ import DraggableFlatList, {
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import {
@@ -53,8 +53,35 @@ export function HomeScreen({ navigation, route }) {
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
+    useEffect(() => {
 
 
+
+        setPeopleList((pre) =>
+        (uniqByKeepFirst([
+            ...pre,
+            { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+            { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+            { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
+            { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#afa" },
+            { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
+            { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+            { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+            { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
+            { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
+            { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+            { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+            { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
+
+
+
+        ], function (msg) { return msg.name })
+
+
+        ))
+
+
+    }, [])
 
 
 
@@ -72,7 +99,7 @@ export function HomeScreen({ navigation, route }) {
 
                     setPeopleList(data)
                 }}
-                keyExtractor={(item) => item.key}
+                keyExtractor={(item) => (item.name)}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={true}
 
@@ -86,6 +113,7 @@ export function HomeScreen({ navigation, route }) {
 function renderItem(props) {
 
     const navigation = useNavigation()
+    const route = useRoute()
     const { drag, isActive, getIndex, item: { name, barColor } } = props
 
     const avatarString = multiavatar(name)
@@ -112,7 +140,9 @@ function renderItem(props) {
     })
 
     return (
-        <AnimatedComponent entering={SlideInRight.delay(getIndex() * 50)}>
+
+        // <AnimatedComponent entering={name === "chen" ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
+        <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
             <Pressable onLongPress={drag} onPress={function () {
                 navigation.navigate("ChatScreen", { name: name })
                 //showSnackBar(name)
@@ -132,11 +162,19 @@ function renderItem(props) {
     )
 }
 
+// HomeScreen.sharedElements = (route, otherRoute, showing) => {
+
+
+//     return route.params?.name && [
+//         { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
+//         { id:"Bob", animation: "move", resize: "auto", align: "left", },
+//     ]
+// };
 
 // HomeScreen.sharedElements = (route, otherRoute, showing) => {
 
-//      console.log("====+++",route)
+//     //console.log("====+++", route)
 //     return route.params && route.params.item && [
-//       { id: route.params.item, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
+//         { id: route.params.item, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
 //     ]
-//   };
+// };

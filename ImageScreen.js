@@ -183,17 +183,18 @@ export function ImageScreen({ navigation, route, }) {
               const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
 
               if (status == 200) {
-                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e);alert(JSON.stringify(e)) })
                 if (!granted) { setBtnText("100%"); return }
 
-                const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
-                let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
+                const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e);alert(JSON.stringify(e)) });
+                let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e);alert(JSON.stringify(e)) });
 
-                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
+                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e);alert(JSON.stringify(e)) }); }
                 else {
-                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
+                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) ;alert(JSON.stringify(e))});
                 }
                 await FileSystem.deleteAsync(fileUri, { idempotent: true })
+                console.log(asset);alert(JSON.stringify(asset))
                 showSnackBar(fileName + ".jpg downloaded")
               }
               else { alert("server refuse to send"); }

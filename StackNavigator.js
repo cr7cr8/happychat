@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useTransition } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 
 import { createStackNavigator, CardStyleInterpolators, TransitionPresets, HeaderTitle, Header } from '@react-navigation/stack';
@@ -8,6 +8,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import { RegScreen } from './RegScreen';
 import { HomeScreen } from './HomeScreen';
 import { ChatScreen } from './ChatScreen';
 import { ImageScreen } from './ImageScreen';
@@ -40,7 +41,7 @@ const screenOptions = function ({ navigation, route }) {
     //   // backgroundColor: bgColor
     // },
 
-  
+
 
 
   }
@@ -52,18 +53,29 @@ const screenOptions = function ({ navigation, route }) {
 export default function StackNavigator() {
 
   const navigation = useNavigation()
-
+  const [isTransitionPending, startTrasition] = useTransition()
 
   return (
     <>
 
       <Stack.Navigator
-        initialRouteName={"HomeScreen"}
+        initialRouteName={"RegScreen"}
         screenOptions={screenOptions}
         // headerMode="float"
         headerMode="screen"
       >
 
+        <Stack.Screen name="RegScreen"
+          component={RegScreen}
+
+          options={function ({ navigation, router }) {
+
+            return {
+              headerShown: false,
+            }
+
+          }}
+        />
 
         <Stack.Screen name="HomeScreen"
 
@@ -86,14 +98,28 @@ export default function StackNavigator() {
                 elevation: 0,
                 backgroundColor: "wheat"
               },
-              // headerRight: () => (
-              //   <Button
-              //     title={"Home"}
-              //     onPress={function () {
-              //       navigation.navigate("ChatScreen")
-              //     }}
-              //   />
-              // ),
+              headerRight: () => (
+                <Button
+                  title={"reg"}
+                  onPress={function () {
+
+
+                  //  navigation.navigate("RegScreen", { name: "chen" })
+
+                  navigation.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: 'RegScreen',
+                     //   params: { name: userName, fromRegScreen: true },
+                      },
+                    ],
+                  })
+
+
+                  }}
+                />
+              ),
 
               // color:"#fff",   
 

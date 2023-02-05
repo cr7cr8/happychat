@@ -66,8 +66,9 @@ let audioSound = new Audio.Sound();
 
 export function ChatScreen({ navigation, route }) {
     const name = route.params.name
-    const userName = "chen"
+    const userName = useContextSelector(Context, (state) => (state.userName))
 
+    // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     const HEADER_HEIGHT = useHeaderHeight()
@@ -351,13 +352,13 @@ export function ChatScreen({ navigation, route }) {
                 backgroundColor: bgColor, width,
                 flexDirection: "row", height: HEADER_HEIGHT,
                 zIndex: 100
-            }}>  
+            }}>
                 <SharedElement id={route.params.name}  >
 
                     <SvgUri style={{
-                        margin: 10, 
+                        margin: 10,
                         transform: [{ translateY: 6 }, { translateX: 0 }]
-                      
+
                     }}
 
                         width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
@@ -836,7 +837,7 @@ function TextBlock({ ...props }) {
     const [visible, setVisible] = useState(false)
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
-   // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
+    // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
     return (
 
         <Pressable ref={function (element) { viewRef.current = element }}
@@ -849,7 +850,7 @@ function TextBlock({ ...props }) {
                     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
                     setVisible(true)
 
-                    //  showOverLayText(Math.min(px, width - 150), Math.max(0, py - STATUS_HEIGHT - 60))
+
                 })
             }}
 
@@ -1014,7 +1015,7 @@ function AudioBlock({ ...props }) {
 //         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
 //         //     console.log(info)
 //         // })
-//          FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
+//       //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
 //     })
 // })
 
@@ -1025,8 +1026,8 @@ function AudioBlock({ ...props }) {
 //         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
 //         //     console.log(info)
 //         // })
-//           FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
-//     })
+//        //     FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+//     }) 
 
 // })
 
