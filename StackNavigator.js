@@ -104,17 +104,17 @@ export default function StackNavigator() {
                   onPress={function () {
 
 
-                  //  navigation.navigate("RegScreen", { name: "chen" })
+                //    navigation.navigate("RegScreen", { name: "chen" })
 
-                  navigation.reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'RegScreen',
-                     //   params: { name: userName, fromRegScreen: true },
-                      },
-                    ],
-                  })
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'RegScreen',
+                          //   params: { name: userName, fromRegScreen: true },
+                        },
+                      ],
+                    })
 
 
                   }}

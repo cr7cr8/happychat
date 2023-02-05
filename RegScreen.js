@@ -182,8 +182,8 @@ export function RegScreen({ navigation, route }) {
 
           // setPeopleList(pre => ([
           //   { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-         
-         
+
+
           //   { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
           //   { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
           //   { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
@@ -199,7 +199,7 @@ export function RegScreen({ navigation, route }) {
           // ]))
 
 
-          // navigation.navigate("HomeScreen", { name: "chen" })
+       //   navigation.navigate("HomeScreen", { name: "chen",fromRegScreen: true })
 
 
           navigation.reset({
@@ -224,11 +224,11 @@ export function RegScreen({ navigation, route }) {
 
 }
 
-// RegScreen.sharedElements = (route, otherRoute, showing) => {
+RegScreen.sharedElements = (route, otherRoute, showing) => {
 
 
-//   return route.params && route.params.name && [
-//     { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
-//   ]
+  return route.params && route.params.name && [
+    { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
+  ]
 
-// };
+};

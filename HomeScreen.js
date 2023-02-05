@@ -164,10 +164,10 @@ function renderItem(props) {
 
 // HomeScreen.sharedElements = (route, otherRoute, showing) => {
 
-
+//     console.log(route.params)
 //     return route.params?.name && [
 //         { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
-//         { id:"Bob", animation: "move", resize: "auto", align: "left", },
+
 //     ]
 // };
 
