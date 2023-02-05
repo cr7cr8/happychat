@@ -142,7 +142,7 @@ function renderItem(props) {
     return (
 
         // <AnimatedComponent entering={name === "chen" ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
-        <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
+        <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 5000))} >
             <Pressable onLongPress={drag} onPress={function () {
                 navigation.navigate("ChatScreen", { name: name })
                 //showSnackBar(name)
