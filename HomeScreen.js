@@ -62,81 +62,37 @@ export function HomeScreen({ }) {
 
 
 
-        const unsubscribe = navigation.addListener('focus', () => {
-
-            setTimeout(() => {
-                setPeopleList((pre) =>
-                (uniqByKeepFirst([
-                    ...pre,
-                    { name: "Mike", description: "fewfas", },
-                    { name: "Tilandson", description: "fewfas", },
-                    { name: "SmithJohn", description: "fewfas", },
-                    { name: "chen", description: "fewfas", },
-                    { name: "Gergeo", description: "fewfas", },
-                    { name: "Bob", description: "fewfas", },
-                    { name: "JameBond", description: "fewfas", },
-                    { name: "toxNeil", description: "fewfas", },
-                    { name: "TomCox", description: "fewfas", },
-                    { name: "bentt", description: "fewfas", },
-                    { name: "tilda", description: "fewfas", },
-                    { name: "phillen", description: "fewfas", },
 
 
-
-                ], function (msg) { return msg.name })))
-
-
-            }, 0);
+        setTimeout(() => {
+            setPeopleList((pre) =>
+            (uniqByKeepFirst([
+                ...pre,
+                { name: "Mike", description: "fewfas", },
+                { name: "Tilandson", description: "fewfas", },
+                { name: "SmithJohn", description: "fewfas", },
+                { name: "chen", description: "fewfas", },
+                { name: "Gergeo", description: "fewfas", },
+                { name: "Bob", description: "fewfas", },
+                { name: "JameBond", description: "fewfas", },
+                { name: "toxNeil", description: "fewfas", },
+                { name: "TomCox", description: "fewfas", },
+                { name: "bentt", description: "fewfas", },
+                { name: "tilda", description: "fewfas", },
+                { name: "phillen", description: "fewfas", },
 
 
 
-        });
-
-        // Return the function to unsubscribe from the event so it gets removed on unmount
-        return unsubscribe;
+            ], function (msg) { return msg.name })))
 
 
+        }, 0);
 
+        HomeScreen.sharedElements = null
 
     }, [])
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener("state", function (e) {
-            console.log(e.data.state.routes.length)
-            console.log("=====================")
-            HomeScreen.sharedElements = null
-            // if (e.data.state.routes[0].name === "RegScreen") {
-            //     setTimeout(() => {
-            //         navigation.reset({
-            //             index: 0,
-            //             routes: [
-            //                 {
-            //                     name: 'HomeScreen',
-            //                     params: { name: "chen", fromRegScreen: false },
-            //                 },
-            //             ],
-            //         })
-            //     }, 3000);
 
-
-            // }
-
-        })
-
-        return unsubscribe
-        // console.log("fist route ---",navigation.getState().routes[0].name)
-        // if (navigation.getState().routes[0].name === "RegScreen") {
-        //     navigation.reset({
-        //         index: 0,
-        //         routes: [
-        //             {
-        //                 name: 'HomeScreen',
-        //                 params: { name: "chen", fromRegScreen: false },
-        //             },
-        //         ],
-        //     })
-        // }
-    }, [])
 
 
 

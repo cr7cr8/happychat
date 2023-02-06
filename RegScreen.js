@@ -179,17 +179,11 @@ export function RegScreen({ }) {
 
           disabled={disabled}
           onPress={function () {
-            //    display.value = "none"
+           // display.value = "none"
 
 
             setPeopleList([{ name: "chen" }])
 
-            // navigation.navigate("HomeScreen", {
-            //   name: value,
-            //   fromRegScreen: true,
-            // })
-
-            //directly using reset casing glich, navigate to homescrren and then reset to delete the regscreen
             navigation.reset({
               index: 0,
               routes: [
