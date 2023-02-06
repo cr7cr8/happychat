@@ -58,40 +58,38 @@ export function HomeScreen({ navigation, route }) {
 
 
 
-        const unsubscribe = navigation.addListener('focus', () => {
+        //   const unsubscribe = navigation.addListener('focus', () => {
 
-            setTimeout(() => {
-                setPeopleList((pre) =>
-                (uniqByKeepFirst([
-                    ...pre,
-                    { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                    { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                    { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-                    { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#afa" },
-                    { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-                    { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                    { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                    { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-                    { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-                    { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                    { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                    { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-
-
-
-                ], function (msg) { return msg.name })))
-            }, 0);
+        setTimeout(() => {
+            setPeopleList((pre) =>
+            (uniqByKeepFirst([
+                ...pre,
+                { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+                { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+                { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
+                { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#afa" },
+                { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
+                { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+                { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+                { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
+                { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
+                { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
+                { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
+                { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
 
 
 
+            ], function (msg) { return msg.name })))
+         
 
-            HomeScreen.sharedElements = null
+        }, 0);
 
 
-        });
+
+        //   });
 
         // Return the function to unsubscribe from the event so it gets removed on unmount
-        return unsubscribe;
+        //      return unsubscribe;
 
 
 
@@ -159,13 +157,13 @@ function renderItem(props) {
             flexDirection: "row",
             alignItems: "center",
 
-        }  
+        }
 
     })
 
     return (
 
-        <AnimatedComponent entering={(name === userName && route.params?.fromRegScreen) ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
+        <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
             {/* <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 5000))} > */}
             <Pressable onLongPress={drag} onPress={function () {
                 navigation.navigate("ChatScreen", { name: name })
@@ -186,19 +184,3 @@ function renderItem(props) {
     )
 }
 
-HomeScreen.sharedElements = (route, otherRoute, showing) => {
-
-
-    return [
-        { id: "chen", animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
-
-    ]
-};
-
-// HomeScreen.sharedElements = (route, otherRoute, showing) => {
-
-//     //console.log("====+++", route)
-//     return route.params && route.params.item && [
-//         { id: route.params.item, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
-//     ]
-// };

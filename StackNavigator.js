@@ -59,7 +59,7 @@ export default function StackNavigator() {
     <>
 
       <Stack.Navigator
-        initialRouteName={"HomeScreen"}
+        initialRouteName={"RegScreen"}
         screenOptions={screenOptions}
         // headerMode="float"
         headerMode="screen"

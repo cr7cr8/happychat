@@ -158,7 +158,7 @@ export function RegScreen({ navigation, route }) {
 
         style={{ backgroundColor: "wheat", width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
 
-        <SharedElement id={userName}  >
+   
           <SvgUri style={{
             margin: 10,
             //transform: [{ translateY: 6 }, { translateX: 0 }]
@@ -166,7 +166,7 @@ export function RegScreen({ navigation, route }) {
           }}
 
             width={120} height={120} svgXmlData={multiavatar(userName)} />
-        </SharedElement>
+      
 
       </AnimatedComponent>
 
@@ -180,26 +180,7 @@ export function RegScreen({ navigation, route }) {
         }} />
         <Button title="Sign Up" onPress={function () {
 
-          setPeopleList(pre => ([
-            { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-
-
-            //   { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-            //   { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-            //   { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-            //   { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-            //   { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-            //   { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-            //   { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-            //   { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-            //   { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-            //   { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-            //   { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-
-          ]))
-
-
-          //   navigation.navigate("HomeScreen", { name: "chen",fromRegScreen: true })
+        
 
 
           navigation.reset({
@@ -224,11 +205,3 @@ export function RegScreen({ navigation, route }) {
 
 }
 
-RegScreen.sharedElements = (route, otherRoute, showing) => {
-
-
-  return route.params && route.params.name && [
-    { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
-  ]
-
-};
