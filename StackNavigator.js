@@ -98,28 +98,28 @@ export default function StackNavigator() {
                 elevation: 0,
                 backgroundColor: "wheat"
               },
-              headerRight: () => (
-                <Button
-                  title={"reg"}
-                  onPress={function () {
+              // headerRight: () => (
+              //   <Button
+              //     title={"reg"}
+              //     onPress={function () {
 
 
-                //    navigation.navigate("RegScreen", { name: "chen" })
+              //   //    navigation.navigate("RegScreen", { name: "chen" })
 
-                    navigation.reset({
-                      index: 0,
-                      routes: [
-                        {
-                          name: 'RegScreen',
-                          //   params: { name: userName, fromRegScreen: true },
-                        },
-                      ],
-                    })
+              //       navigation.reset({
+              //         index: 0,
+              //         routes: [
+              //           {
+              //             name: 'RegScreen',
+              //             //   params: { name: userName, fromRegScreen: true },
+              //           },
+              //         ],
+              //       })
 
 
-                  }}
-                />
-              ),
+              //     }}
+              //   />
+              // ),
 
               // color:"#fff",    
 
