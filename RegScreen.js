@@ -30,7 +30,11 @@ import ReAnimated, {
   Transition,
   Layout,
   CurvedTransition,
-  ZoomIn
+  ZoomIn,
+  PinwheelIn,
+  PinwheelOut,
+  BounceIn,
+  BounceInDown
 } from 'react-native-reanimated';
 //import Svg, { Circle, Rect, SvgUri } from 'react-native-svg';
 import SvgUri from 'react-native-svg-uri';
@@ -56,41 +60,19 @@ import * as ImagePicker from 'expo-image-picker';
 //import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
+import { useNavigation } from '@react-navigation/native';
 
 
 
-const keyframe = new Keyframe({
-  0: {
-    transform: [{ rotate: '0deg' }],
-  },
-  25: {
-    transform: [{ rotate: '45deg' }],
-  },
-  50: {
-    transform: [{ rotate: '0deg' }],
-  },
-  75: {
-    transform: [{ rotate: '-45deg' }],
-  },
-  100: {
-    transform: [{ rotate: '0deg' }],
-  },
 
 
-
-})
-
-export function RegScreen({ navigation, route }) {
+export function RegScreen({ }) {
 
   const userName = useContextSelector(Context, (state) => (state.userName))
-
-
-
-  const avatarString = multiavatar(userName)
-  const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
-  const HEADER_HEIGHT = useHeaderHeight()
-  const peopleList = useContextSelector(Context, (state) => (state.peopleList));
   const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
+
+  const navigation = useNavigation()
+
 
 
 
@@ -127,78 +109,101 @@ export function RegScreen({ navigation, route }) {
     }
   })
 
-  // const entering = (values) => {
-  //   'worklet';
-  //   console.log(values)
-  //   const animations = {
-  //     //   originX: withTiming(width, { duration: 3000 }),
-  //     //   opacity: withTiming(0.1, { duration: 5000 }),
-  //     height: withTiming(values.targetHeight, { duration: 2000 }),
-  //     opacity: withTiming(1, { duration: 2000 })
-  //   };
-  //   const initialValues = {
-  //     originX: values.targetOriginX + 50,
-  //     originY: values.targetOriginY + 50,
-  //     width: values.targetWidth,
-  //     height: 0,
-  //     overflow: "hidden",
-  //     opacity: 0
-  //   };
-  //   return {
-  //     initialValues,
-  //     animations,
-  //   }
-  // }
+  const inputRef = useRef()
+  const [disabled, setDisabled] = useState(false)
+  // const [value, setValue] = useState("Guest" + Number(Math.random() * 1000).toFixed(0))
+  const [value, setValue] = useState("chen")
+  const reg = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5]{2,14}$/g;
+  const avatarString = multiavatar(value)
+
+  const bgColor = avatarString ? hexify(hexToRgbA(avatarString?.match(/#[a-zA-z0-9]*/)[0])) : "#ccc"
+  const display = useSharedValue("flex")
+  const style = useAnimatedStyle(() => ({
+
+    flex: 1,
+    display: display.value,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    // backgroundColor: "red"
+
+  }))
+
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("beforeRemove", function () {
+  //     display.value = "none"
+  //   })
+  //   return unsubscribe
+
+
+
+  // }, [])
+
+
+
+
   return (
-    <AnimatedComponent
+    <View
+
+      style={style}
 
     //layout={CurvedTransition.duration(10000).delay(120)}
     >
-      <AnimatedComponent
+      <AnimatedComponent entering={BounceIn}
+        // exiting={PinwheelOut.duration(1000)}
 
-        style={{ backgroundColor: "wheat", width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
+        style={{ backgroundColor: bgColor, width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
+        <SharedElement id={"chen"}>
+          <SvgUri style={{ margin: 10, }} width={120} height={120} svgXmlData={multiavatar(value)} />
 
-   
-          <SvgUri style={{
-            margin: 10,
-            //transform: [{ translateY: 6 }, { translateX: 0 }]
-            //  transform:[{scale:8}]
+        </SharedElement>
+
+      </AnimatedComponent>
+      {/* <AnimatedComponent entering={BounceInDown.delay(300)}>
+        <Input ref={inputRef} placeholder='Enter a name'
+          inputContainerStyle={{ width: 0.8 * width, }}
+          style={{ fontSize: 25 }}
+          value={value}
+          textAlign={'center'}
+          onPressIn={function () { inputRef.current.blur(); inputRef.current.focus() }}
+          errorMessage={value.match(reg) ? "" : value ? "At least 3 characters" : ""}
+          onChangeText={function (text) {
+            setValue(text)
+            //opacity.value = opacity.value===1?0.5:1
           }}
-
-            width={120} height={120} svgXmlData={multiavatar(userName)} />
-      
-
-      </AnimatedComponent>
-
-
+        />
+      </AnimatedComponent> */}
       <AnimatedComponent style={cssStyle}>
-        <Button title="Sign Up" onPress={function () {
-          if (doAction.value) { }
-          else {
-            doAction.value = true
-          }
-        }} />
-        <Button title="Sign Up" onPress={function () {
+        <Button title="Sign Up" onPress={function () { if (doAction.value) { } else { doAction.value = true } }} />
 
-        
+        <Button title="Sign up"
+
+          disabled={disabled}
+          onPress={function () {
+            //    display.value = "none"
 
 
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeScreen',
-                params: { name: userName, fromRegScreen: true },
-              },
-            ],
-          })
+            setPeopleList([{ name: "chen" }])
 
+            // navigation.navigate("HomeScreen", {
+            //   name: value,
+            //   fromRegScreen: true,
+            // })
 
+            //directly using reset casing glich, navigate to homescrren and then reset to delete the regscreen
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeScreen',
+                  params: { name: userName, fromRegScreen: true },
+                },
+              ],
+            })
 
-        }} />
+          }} />
       </AnimatedComponent>
 
-    </AnimatedComponent>
+    </View>
 
   )
 

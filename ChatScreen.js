@@ -754,7 +754,10 @@ export function ChatScreen({ navigation, route }) {
 function MessageBlock({ ...props }) {
 
     return (
-        <View style={{ backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) }}>
+        <View style={{
+            // backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) 
+
+        }}>
             <Message {...props} />
         </View>
 

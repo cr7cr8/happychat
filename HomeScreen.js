@@ -14,7 +14,8 @@ import ReAnimated, {
     withDecay,
 
     ZoomIn,
-    SlideInRight
+    SlideInRight,
+    BounceInRight
 
 } from 'react-native-reanimated';
 
@@ -31,7 +32,7 @@ import DraggableFlatList, {
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import {
@@ -47,9 +48,12 @@ const { View, Text, Image, ScrollView: ScrollV, Extrapolate, createAnimatedCompo
 
 const AnimatedComponent = createAnimatedComponent(View)
 
-export function HomeScreen({ navigation, route }) {
+export function HomeScreen({ }) {
 
+    const navigation = useNavigation()
+    const route = useRoute()
 
+    //  console.log("========", route.params)
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
@@ -58,59 +62,94 @@ export function HomeScreen({ navigation, route }) {
 
 
 
-        //   const unsubscribe = navigation.addListener('focus', () => {
+        const unsubscribe = navigation.addListener('focus', () => {
 
-        setTimeout(() => {
-            setPeopleList((pre) =>
-            (uniqByKeepFirst([
-                ...pre,
-                { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-                { name: "chen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#afa" },
-                { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-                { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-                { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-                { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-                { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-                { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-
-
-
-            ], function (msg) { return msg.name })))
-         
-
-        }, 0);
+            setTimeout(() => {
+                setPeopleList((pre) =>
+                (uniqByKeepFirst([
+                    ...pre,
+                    { name: "Mike", description: "fewfas", },
+                    { name: "Tilandson", description: "fewfas", },
+                    { name: "SmithJohn", description: "fewfas", },
+                    { name: "chen", description: "fewfas", },
+                    { name: "Gergeo", description: "fewfas", },
+                    { name: "Bob", description: "fewfas", },
+                    { name: "JameBond", description: "fewfas", },
+                    { name: "toxNeil", description: "fewfas", },
+                    { name: "TomCox", description: "fewfas", },
+                    { name: "bentt", description: "fewfas", },
+                    { name: "tilda", description: "fewfas", },
+                    { name: "phillen", description: "fewfas", },
 
 
 
-        //   });
+                ], function (msg) { return msg.name })))
+
+
+            }, 0);
+
+
+
+        });
 
         // Return the function to unsubscribe from the event so it gets removed on unmount
-        //      return unsubscribe;
+        return unsubscribe;
 
 
 
 
     }, [])
 
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("state", function (e) {
+            console.log(e.data.state.routes.length)
+            console.log("=====================")
+            HomeScreen.sharedElements = null
+            // if (e.data.state.routes[0].name === "RegScreen") {
+            //     setTimeout(() => {
+            //         navigation.reset({
+            //             index: 0,
+            //             routes: [
+            //                 {
+            //                     name: 'HomeScreen',
+            //                     params: { name: "chen", fromRegScreen: false },
+            //                 },
+            //             ],
+            //         })
+            //     }, 3000);
+
+
+            // }
+
+        })
+
+        return unsubscribe
+        // console.log("fist route ---",navigation.getState().routes[0].name)
+        // if (navigation.getState().routes[0].name === "RegScreen") {
+        //     navigation.reset({
+        //         index: 0,
+        //         routes: [
+        //             {
+        //                 name: 'HomeScreen',
+        //                 params: { name: "chen", fromRegScreen: false },
+        //             },
+        //         ],
+        //     })
+        // }
+    }, [])
+
+
 
 
 
     return (
         <>
-
-            {/* <SharedElement id={"ttt"}  >
-                <SvgUri style={{
-                    margin: 10,
-                    //transform: [{ translateY: 6 }, { translateX: 0 }]
-                    //  transform:[{scale:8}]
-                }}
-
-                    width={120} height={120} svgXmlData={multiavatar("chen")} />
-            </SharedElement> */}
+            {/* <View style={{ width: 120, height: 120, backgroundColor: "pink" }}>
+                <SharedElement id={"chen"}  >
+                    <SvgUri style={{}}
+                        width={120} height={120} svgXmlData={multiavatar("chen")} />
+                </SharedElement>
+            </View> */}
             <DraggableFlatList
                 data={peopleList}
                 //  onDragEnd={({ data }) => setData(data)}
@@ -156,6 +195,7 @@ function renderItem(props) {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            paddingLeft: 10
 
         }
 
@@ -163,24 +203,35 @@ function renderItem(props) {
 
     return (
 
-        <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 2000))} >
-            {/* <AnimatedComponent entering={route.params?.fromRegScreen ? null : SlideInRight.delay(Math.min(getIndex() * 50, 5000))} > */}
-            <Pressable onLongPress={drag} onPress={function () {
-                navigation.navigate("ChatScreen", { name: name })
-                //showSnackBar(name)
-            }}>
+        // <AnimatedComponent entering={getIndex() === 0 ? null : SlideInRight.delay(Math.min(getIndex() * 150,))} >
+        <AnimatedComponent entering={route.params?.fromRegScreen && getIndex() === 0 ? null : SlideInRight.delay(Math.min(getIndex() * 150, 3000)).duration(300)}  >
+
+            < Pressable onLongPress={drag} onPress={
+                function () {
+                    navigation.navigate("ChatScreen", { name: name })
+                    //showSnackBar(name)
+                }
+            } >
 
                 <View style={[panelCss]}>
                     <SharedElement id={name}  >
-                        <SvgUri style={{ margin: 10 }} width={60} height={60} svgXmlData={multiavatar(name)} />
+                        <SvgUri style={{ margin: 0 }} width={60} height={60} svgXmlData={multiavatar(name)} />
                     </SharedElement>
 
-                    <View><Text>{name}</Text></View>
+                    <View style={{ marginHorizontal: 10 }}><Text>{name}</Text></View>
                 </View>
 
 
-            </Pressable>
+            </Pressable >
         </AnimatedComponent >
     )
 }
 
+
+HomeScreen.sharedElements = (route, otherRoute, showing) => {
+
+    // console.log("====+++",route)
+    return [
+        { id: "chen", animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
+    ]
+};
