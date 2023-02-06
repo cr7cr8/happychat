@@ -37,7 +37,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 import {
     StyleSheet, Dimensions, TouchableOpacity, TouchableNativeFeedback, Pressable, TouchableHighlight, TouchableWithoutFeedback, Vibration, Button,
-
+    BackHandler
 
 } from 'react-native';
 //import Svg, { Circle, Rect, SvgUri } from 'react-native-svg';
@@ -60,10 +60,6 @@ export function HomeScreen({ }) {
 
     useEffect(() => {
 
-
-
-
-
         setTimeout(() => {
             setPeopleList((pre) =>
             (uniqByKeepFirst([
@@ -81,10 +77,7 @@ export function HomeScreen({ }) {
                 { name: "tilda", description: "fewfas", },
                 { name: "phillen", description: "fewfas", },
 
-
-
             ], function (msg) { return msg.name })))
-
 
         }, 0);
 
@@ -92,11 +85,26 @@ export function HomeScreen({ }) {
 
     }, [])
 
+    useEffect(() => {
+
+        if (navigation.getState().routes[0].name === "RegScreen") {
+            const unsubscribe = navigation.addListener("beforeRemove", function (e) {
+
+                // console.log(navigation.getState().routes[0].name === "RegScreen")
+
+
+                e.preventDefault()
+                BackHandler.exitApp()
 
 
 
 
 
+            })
+
+            return unsubscribe
+        }
+    }, [])
 
     return (
         <>
@@ -186,7 +194,7 @@ function renderItem(props) {
 
 HomeScreen.sharedElements = (route, otherRoute, showing) => {
 
-    // console.log("====+++",route)
+
     return [
         { id: "chen", animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
     ]

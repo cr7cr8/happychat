@@ -183,16 +183,17 @@ export function RegScreen({ }) {
 
 
             setPeopleList([{ name: "chen" }])
+            navigation.navigate("HomeScreen",{name:userName,fromRegScreen:true})
 
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'HomeScreen',
-                  params: { name: userName, fromRegScreen: true },
-                },
-              ],
-            })
+            // navigation.reset({
+            //   index: 0,
+            //   routes: [
+            //     {
+            //       name: 'HomeScreen',
+            //       params: { name: userName, fromRegScreen: true },
+            //     },
+            //   ],
+            // })
 
           }} />
       </AnimatedComponent>
