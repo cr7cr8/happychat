@@ -17,7 +17,7 @@ import * as Notifications from 'expo-notifications';
 
 export default function ContextProvider(props) {
 
-    const [userName, setUserName] = useState("chen")
+    const [userName, setUserName] = useState("yuan")
 
 
 

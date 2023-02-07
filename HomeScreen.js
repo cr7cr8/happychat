@@ -54,9 +54,13 @@ export function HomeScreen({ }) {
     const route = useRoute()
 
     //  console.log("========", route.params)
+    const userName = useContextSelector(Context, (state) => (state.userName));
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
+
+    console.log("homescreen username",userName)
+    console.log("homeScreen route params",route.params)
 
     useEffect(() => {
 
@@ -109,9 +113,9 @@ export function HomeScreen({ }) {
     return (
         <>
             {/* <View style={{ width: 120, height: 120, backgroundColor: "pink" }}>
-                <SharedElement id={"chen"}  >
+                <SharedElement id={userName}  >
                     <SvgUri style={{}}
-                        width={120} height={120} svgXmlData={multiavatar("chen")} />
+                        width={120} height={120} svgXmlData={multiavatar(userName)} />
                 </SharedElement>
             </View> */}
             <DraggableFlatList
@@ -193,9 +197,9 @@ function renderItem(props) {
 
 
 HomeScreen.sharedElements = (route, otherRoute, showing) => {
-
+    console.log("sharedElements",route.params.name)
 
     return [
-        { id: "chen", animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
+        { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off
     ]
 };

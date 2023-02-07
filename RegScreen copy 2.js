@@ -69,7 +69,6 @@ import { useNavigation } from '@react-navigation/native';
 export function RegScreen({ }) {
 
   const userName = useContextSelector(Context, (state) => (state.userName))
-  const setUserName = useContextSelector(Context, (state) => (state.setUserName))
   const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
 
   const navigation = useNavigation()
@@ -113,23 +112,31 @@ export function RegScreen({ }) {
   const inputRef = useRef()
   const [disabled, setDisabled] = useState(false)
   // const [value, setValue] = useState("Guest" + Number(Math.random() * 1000).toFixed(0))
-  
+  const [value, setValue] = useState("chen")
   const reg = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5]{2,14}$/g;
-  const avatarString = multiavatar(userName)
+  const avatarString = multiavatar(value)
 
   const bgColor = avatarString ? hexify(hexToRgbA(avatarString?.match(/#[a-zA-z0-9]*/)[0])) : "#ccc"
-
+  const display = useSharedValue("flex")
   const style = useAnimatedStyle(() => ({
 
     flex: 1,
-
+    display: display.value,
     alignItems: 'center',
     justifyContent: 'flex-start',
-
+    // backgroundColor: "red"
 
   }))
 
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("beforeRemove", function () {
+  //     display.value = "none"
+  //   })
+  //   return unsubscribe
 
+
+
+  // }, [])
 
 
 
@@ -145,42 +152,48 @@ export function RegScreen({ }) {
         // exiting={PinwheelOut.duration(1000)}
 
         style={{ backgroundColor: bgColor, width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
-        <SharedElement id={userName}>
-          <SvgUri style={{ margin: 10, }} width={120} height={120} svgXmlData={multiavatar(userName)} />
+        <SharedElement id={"chen"}>
+          <SvgUri style={{ margin: 10, }} width={120} height={120} svgXmlData={multiavatar(value)} />
 
         </SharedElement>
 
       </AnimatedComponent>
-      <AnimatedComponent entering={BounceInDown.delay(300)}>
+      {/* <AnimatedComponent entering={BounceInDown.delay(300)}>
         <Input ref={inputRef} placeholder='Enter a name'
           inputContainerStyle={{ width: 0.8 * width, }}
           style={{ fontSize: 25 }}
-          value={userName}
+          value={value}
           textAlign={'center'}
           onPressIn={function () { inputRef.current.blur(); inputRef.current.focus() }}
-          errorMessage={userName.match(reg) ? "" : userName ? "At least 3 characters" : ""}
+          errorMessage={value.match(reg) ? "" : value ? "At least 3 characters" : ""}
           onChangeText={function (text) {
-            setUserName(text)
-
+            setValue(text)
+            //opacity.value = opacity.value===1?0.5:1
           }}
         />
-      </AnimatedComponent>
+      </AnimatedComponent> */}
       <AnimatedComponent style={cssStyle}>
-        {/* <Button title="Sign Up" onPress={function () { if (doAction.value) { } else { doAction.value = true } }} /> */}
+        <Button title="Sign Up" onPress={function () { if (doAction.value) { } else { doAction.value = true } }} />
 
         <Button title="Sign up"
 
           disabled={disabled}
           onPress={function () {
-            //******* check name if duplicates
-
-            ///////////////////////////////////
+           // display.value = "none"
 
 
-            setPeopleList([{ name: userName }])
-            navigation.navigate("HomeScreen", { name: userName, fromRegScreen: true })
+            setPeopleList([{ name: "chen" }])
+            navigation.navigate("HomeScreen",{name:userName,fromRegScreen:true})
 
-
+            // navigation.reset({
+            //   index: 0,
+            //   routes: [
+            //     {
+            //       name: 'HomeScreen',
+            //       params: { name: userName, fromRegScreen: true },
+            //     },
+            //   ],
+            // })
 
           }} />
       </AnimatedComponent>

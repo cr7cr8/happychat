@@ -367,7 +367,7 @@ export function ChatScreen({ navigation, route }) {
             </View>
 
             <GiftedChat
-                user={{ _id: "chen" }}
+                user={{ _id: userName }}
                 keyboardShouldPersistTaps={"never"}
                 renderAvatarOnTop={true}
                 messages={messages}
