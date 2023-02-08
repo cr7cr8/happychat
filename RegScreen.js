@@ -8,7 +8,7 @@ import {
   Animated,
   Vibration
 } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+
 
 
 import ReAnimated, {
@@ -56,14 +56,14 @@ const BOTTOM_HEIGHT = Math.max(0, height - WINDOW_HEIGHT - STATUS_HEIGHT);
 import { createContext, useContextSelector } from 'use-context-selector';
 import { SharedElement } from 'react-navigation-shared-element';
 import { Context } from "./ContextProvider";
-import * as ImagePicker from 'expo-image-picker';
+
 //import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
 import { useNavigation } from '@react-navigation/native';
 
-
-
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 
 export function RegScreen({ }) {
@@ -80,30 +80,30 @@ export function RegScreen({ }) {
   const transX = useSharedValue(0)
 
 
-  const doAction = useSharedValue(false)
+  const shouldShake = useSharedValue(false)
 
-  const [isTransitionPending, startTrasition] = useTransition()
+
 
   const cssStyle = useAnimatedStyle(() => {
     return {
       position: "relative", display: "flex", justifyContent: "center", alignItems: "center",
       //   transform: [{ translateY: -HEADER_HEIGHT }],
 
-      backgroundColor: "pink",
+      //backgroundColor: "pink",
       // width,
       // height: HEADER_HEIGHT,
-      //  width: width,
+      width: width,
 
       flexDirection: "column",
 
       transform:
         [{
           translateX:
-            doAction.value ?
+            shouldShake.value ?
               withRepeat(
                 withSequence(withTiming(10, { duration: 25 }), withTiming(transX.value - 10, { duration: 50 }), withTiming(transX.value, { duration: 50 })),
                 3, true,
-                function (isFinished) { if (isFinished) doAction.value = false }
+                function (isFinished) { if (isFinished) shouldShake.value = false }
               )
               : 0
         }]
@@ -113,44 +113,58 @@ export function RegScreen({ }) {
   const inputRef = useRef()
   const [disabled, setDisabled] = useState(false)
   // const [value, setValue] = useState("Guest" + Number(Math.random() * 1000).toFixed(0))
-  
+
   const reg = /^[a-zA-Z\u4e00-\u9fa5][a-zA-Z_0-9\u4e00-\u9fa5]{2,14}$/g;
   const avatarString = multiavatar(userName)
 
   const bgColor = avatarString ? hexify(hexToRgbA(avatarString?.match(/#[a-zA-z0-9]*/)[0])) : "#ccc"
 
-  const style = useAnimatedStyle(() => ({
-
-    flex: 1,
-
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-
-
-  }))
 
 
 
+  const [avatarUri, setAvatarUri] = useState("")
 
 
 
   return (
-    <View
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
 
-      style={style}
 
-    //layout={CurvedTransition.duration(10000).delay(120)}
-    >
-      <AnimatedComponent entering={BounceIn}
-        // exiting={PinwheelOut.duration(1000)}
 
-        style={{ backgroundColor: bgColor, width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
+
+      <AnimatedComponent entering={BounceIn} style={{ backgroundColor: bgColor, width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
+     
+
+
+        {avatarUri && <Icon name="trash-outline" type='ionicon' color='gray' containerStyle={{ position: "absolute", top: 0 + getStatusBarHeight() + 10, right: 50 }} size={30}
+          onPress={function () {
+            FileSystem.readDirectoryAsync(FileSystem.cacheDirectory + "ImagePicker/").then(data => {
+              data.forEach(filename_ => {
+                console.log(FileSystem.cacheDirectory + "ImagePicker/" + filename_)
+                FileSystem.deleteAsync(FileSystem.cacheDirectory + "ImagePicker/" + filename_, { idempotent: true })
+              })
+
+            })
+
+            setAvatarUri("")
+          }}
+        />}
+
         <SharedElement id={userName}>
-          <SvgUri style={{ margin: 10, }} width={120} height={120} svgXmlData={multiavatar(userName)} />
+          <Pressable onPress={function () {
+            pickImage(setAvatarUri)
 
+          }}>
+            {
+              avatarUri
+                ? <Image source={{ uri: avatarUri }} resizeMode="cover" style={{ width: 120, height: 120, borderRadius: 1000 }} />
+                : <SvgUri style={{ margin: 10, }} width={120} height={120} svgXmlData={multiavatar(userName || Math.random())} />
+            }
+          </Pressable>
         </SharedElement>
 
       </AnimatedComponent>
+
       <AnimatedComponent entering={BounceInDown.delay(300)}>
         <Input ref={inputRef} placeholder='Enter a name'
           inputContainerStyle={{ width: 0.8 * width, }}
@@ -158,32 +172,51 @@ export function RegScreen({ }) {
           value={userName}
           textAlign={'center'}
           onPressIn={function () { inputRef.current.blur(); inputRef.current.focus() }}
-          errorMessage={userName.match(reg) ? "" : userName ? "At least 3 characters" : ""}
+          errorMessage={userName.match(reg) ? "" : userName ? "At least 3  letters andor kanji " : ""}
           onChangeText={function (text) {
             setUserName(text)
 
           }}
         />
       </AnimatedComponent>
+
+
+
+
       <AnimatedComponent style={cssStyle}>
         {/* <Button title="Sign Up" onPress={function () { if (doAction.value) { } else { doAction.value = true } }} /> */}
 
-        <Button title="Sign up"
+        <Button title="Sign up" containerStyle={{ width: width * 0.8, }} buttonStyle={{ backgroundColor: bgColor, }} titleStyle={{ color: "gray" }}
 
-          disabled={disabled}
+          disabled={!userName.match(reg)}
           onPress={function () {
-            //******* check name if duplicates
-
-            ///////////////////////////////////
-
-
-            setPeopleList([{ name: userName }])
-            navigation.navigate("HomeScreen", { name: userName, fromRegScreen: true })
 
 
 
+            Promise.resolve(
+              //***** checking duplicate here */
+
+              ////////////////////
+            )
+              .then((isDuplicate = true) => {
+                if (isDuplicate) {
+                  shouldShake.value = true
+                }
+                else {
+                  setPeopleList([{ name: userName }])
+                  navigation.navigate("HomeScreen", { name: userName, fromRegScreen: true })
+                }
+              })
           }} />
       </AnimatedComponent>
+
+
+
+
+
+
+
+
 
     </View>
 
@@ -192,3 +225,21 @@ export function RegScreen({ }) {
 
 }
 
+
+
+async function pickImage(setAvatarUri) {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1,
+    base64: false,
+  });
+
+  if (!result.canceled) {
+
+    console.log(result.assets[0].uri)
+    setAvatarUri(result.assets[0].uri)
+
+  }
+};
