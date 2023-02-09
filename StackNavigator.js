@@ -5,19 +5,23 @@ import { createStackNavigator, CardStyleInterpolators, TransitionPresets, Header
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
+import { AdressScreen } from './AddressScreen';
 import { RegScreen } from './RegScreen';
 import { HomeScreen } from './HomeScreen';
 import { ChatScreen } from './ChatScreen';
 import { ImageScreen } from './ImageScreen';
+import { Context } from "./ContextProvider";
 
-import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
+import { createContext, useContextSelector } from 'use-context-selector';
+import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, deleteFolder } from "./config";
 import multiavatar from '@multiavatar/multiavatar';
 import SvgUri from 'react-native-svg-uri';
 import { SharedElement } from 'react-navigation-shared-element';
 import SnackBar from './SnackBar';
+import jwtDecode from 'jwt-decode';
 
 const Stack = createSharedElementStackNavigator()
 const screenOptions = function ({ navigation, route }) {
@@ -54,16 +58,46 @@ export default function StackNavigator() {
 
   const navigation = useNavigation()
   const [isTransitionPending, startTrasition] = useTransition()
-
+  const initialRouter = useContextSelector(Context, (state) => (state.initialRouter))
   return (
     <>
 
       <Stack.Navigator
-        initialRouteName={"RegScreen"}
+        initialRouteName={initialRouter}
         screenOptions={screenOptions}
         // headerMode="float"
         headerMode="screen"
       >
+
+        <Stack.Screen name="AddressScreen"
+          component={AdressScreen}
+          options={function ({ navigation, router }) {
+
+            return {
+              headerShown: true,
+              headerTitle: "Address"
+              // headerRight: () => (
+              //   <Button
+              //     title="delete"
+              //     onPress={function () {
+
+              //       AsyncStorage.getItem("token").then(token => {
+              //         console.log(token)
+              //         token && deleteFolder(token.userName)
+              //         token && AsyncStorage.removeItem("token")
+              //       })
+
+
+
+
+              //     }}
+              //   />
+              // ),
+            }
+
+          }}
+        />
+
 
         <Stack.Screen name="RegScreen"
           component={RegScreen}
@@ -72,6 +106,30 @@ export default function StackNavigator() {
 
             return {
               headerShown: false,
+              header: (props) => <Header {...props} />,
+              headerStyle: {
+                backgroundColor: "wheat",
+                elevation:0
+              },
+              headerRight: () => (
+                <Button
+                  title="delete"
+                  onPress={function () {
+
+                    AsyncStorage.getItem("token").then(token => {
+                      console.log(token)
+                      token && deleteFolder(token.userName)
+                      token && AsyncStorage.removeItem("token")
+                    })
+
+                    AsyncStorage.getItem("serverAddress").then(serverAddress => {
+                      serverAddress && AsyncStorage.removeItem("serverAddress")
+                    })
+
+
+                  }}
+                />
+              ),
             }
 
           }}
@@ -98,28 +156,24 @@ export default function StackNavigator() {
                 elevation: 0,
                 backgroundColor: "wheat"
               },
-              // headerRight: () => (
-              //   <Button
-              //     title={"reg"}
-              //     onPress={function () {
+              headerRight: () => (
+                <Button
+                  title="delete"
+                  onPress={function () {
+                    AsyncStorage.getItem("token").then(token => {
+                      console.log(token)
+                      token && deleteFolder(token.userName)
+                      token && AsyncStorage.removeItem("token")
+                    })
+
+                    AsyncStorage.getItem("serverAddress").then(serverAddress => {
+                      serverAddress && AsyncStorage.removeItem("serverAddress")
+                    })
 
 
-              //   //    navigation.navigate("RegScreen", { name: "chen" })
-
-              //       navigation.reset({
-              //         index: 0,
-              //         routes: [
-              //           {
-              //             name: 'RegScreen',
-              //             //   params: { name: userName, fromRegScreen: true },
-              //           },
-              //         ],
-              //       })
-
-
-              //     }}
-              //   />
-              // ),
+                  }}
+                />
+              ),
 
               // color:"#fff",    
 

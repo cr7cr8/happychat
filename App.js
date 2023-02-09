@@ -1,6 +1,6 @@
 //eas build --profile production --platform android
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import ContextProvider from './ContextProvider';
@@ -10,26 +10,64 @@ import StackNavigator from "./StackNavigator";
 import SnackBar from './SnackBar';
 import OverLayText from './OverLayText';
 
-export default function App() { return (<AppStarter />); }
+import { createContext, useContextSelector } from 'use-context-selector';
+
+import { Context } from "./ContextProvider";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import jwtDecode from 'jwt-decode';
+import defaultUrl from "./config";
+
+export default function App() {
+  return (
+    <ContextProvider><StatusBar /><AppStarter /></ContextProvider>
+  );
+}
 
 
 
 function AppStarter() {
 
-  return (
-    <>
-      <StatusBar />
-      <ContextProvider>
-      
-        <NavigationContainer  >
 
-          <StackNavigator />
-          <SnackBar />
-          {/* <OverLayText /> */}
-        </NavigationContainer>
-      </ContextProvider>
-    </>
-  )
+  const initialRouter = useContextSelector(Context, (state) => (state.initialRouter))
+  const setInitialRouter = useContextSelector(Context, (state) => (state.setInitialRouter))
+  const setUserName = useContextSelector(Context, (state) => (state.setUserName))
+  const setToken = useContextSelector(Context, (state) => (state.setToken))
+
+  const serverAddress = useContextSelector(Context, (state) => (state.serverAddress))
+  const setServerAddress = useContextSelector(Context, (state) => (state.setServerAddress))
+
+  useEffect(() => {
+    AsyncStorage.getItem("token").then((token) => {
+      // console.log("token is", token, token && jwtDecode(token).userName)
+      // console.log("userName is", token && jwtDecode(token).userName)
+      token && setUserName(jwtDecode(token).userName)
+      token && setToken(token)
+
+      Boolean(token)
+        ? setInitialRouter("HomeScreen")
+        : setInitialRouter("RegScreen")
+    })
+
+
+    AsyncStorage.getItem("serverAddress").then((serverAddress) => {
+
+      Boolean(serverAddress)
+        ? setServerAddress(serverAddress)
+        : AsyncStorage.setItem("serverAddress", defaultUrl, function () { setServerAddress(defaultUrl) })
+
+
+
+
+    })
+  }, [])
+
+
+  return initialRouter && serverAddress
+    ? <><NavigationContainer><StackNavigator /></NavigationContainer><SnackBar /></>
+    : <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Text style={{fontSize:25}}>Loading</Text></View>
+
+
 
 
 }

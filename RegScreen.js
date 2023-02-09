@@ -59,27 +59,28 @@ import { Context } from "./ContextProvider";
 
 //import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
+import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder, useKeyboardHeight } from "./config";
 import { useNavigation } from '@react-navigation/native';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-
+import axios from 'axios';
 
 export function RegScreen({ }) {
+
+
+  const url = useContextSelector(Context, (state) => (state.serverAddress))
+
 
   const userName = useContextSelector(Context, (state) => (state.userName))
   const setUserName = useContextSelector(Context, (state) => (state.setUserName))
   const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
+  const setToken = useContextSelector(Context, (state) => (state.setToken));
+
+  const serverAddress = useContextSelector(Context, (state) => (state.serverAddress));
 
   const navigation = useNavigation()
-
-
-
-
   const transX = useSharedValue(0)
-
-
   const shouldShake = useSharedValue(false)
 
 
@@ -87,11 +88,7 @@ export function RegScreen({ }) {
   const cssStyle = useAnimatedStyle(() => {
     return {
       position: "relative", display: "flex", justifyContent: "center", alignItems: "center",
-      //   transform: [{ translateY: -HEADER_HEIGHT }],
 
-      //backgroundColor: "pink",
-      // width,
-      // height: HEADER_HEIGHT,
       width: width,
 
       flexDirection: "column",
@@ -111,6 +108,7 @@ export function RegScreen({ }) {
   })
 
   const inputRef = useRef()
+  const inputRef2 = useRef()
   const [disabled, setDisabled] = useState(false)
   // const [value, setValue] = useState("Guest" + Number(Math.random() * 1000).toFixed(0))
 
@@ -119,28 +117,30 @@ export function RegScreen({ }) {
 
   const bgColor = avatarString ? hexify(hexToRgbA(avatarString?.match(/#[a-zA-z0-9]*/)[0])) : "#ccc"
 
-
-
-
   const [avatarUri, setAvatarUri] = useState("")
 
+  const keyboardHeight = useKeyboardHeight()
+  const viewStyle = useAnimatedStyle(() => ({
+
+    alignItems: "center", justifyContent: "flex-start", backgroundColor: "pink",
+    // transform:[{translateY:withTiming(-keyboardHeight)}]
+
+  }))
 
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
-
-
+    <View style={{ width, height, backgroundColor: "wheat" }}>
 
 
       <AnimatedComponent entering={BounceIn} style={{ backgroundColor: bgColor, width, height: height / 3, justifyContent: "center", alignItems: "center" }}>
-     
+
 
 
         {avatarUri && <Icon name="trash-outline" type='ionicon' color='gray' containerStyle={{ position: "absolute", top: 0 + getStatusBarHeight() + 10, right: 50 }} size={30}
           onPress={function () {
             FileSystem.readDirectoryAsync(FileSystem.cacheDirectory + "ImagePicker/").then(data => {
               data.forEach(filename_ => {
-                console.log(FileSystem.cacheDirectory + "ImagePicker/" + filename_)
+                //console.log(FileSystem.cacheDirectory + "ImagePicker/" + filename_)
                 FileSystem.deleteAsync(FileSystem.cacheDirectory + "ImagePicker/" + filename_, { idempotent: true })
               })
 
@@ -167,7 +167,7 @@ export function RegScreen({ }) {
 
       <AnimatedComponent entering={BounceInDown.delay(300)}>
         <Input ref={inputRef} placeholder='Enter a name'
-          inputContainerStyle={{ width: 0.8 * width, }}
+          inputContainerStyle={{ width: 0.8 * width, left: -10 + width * 0.1 }}
           style={{ fontSize: 25 }}
           value={userName}
           textAlign={'center'}
@@ -184,30 +184,43 @@ export function RegScreen({ }) {
 
 
       <AnimatedComponent style={cssStyle}>
-        {/* <Button title="Sign Up" onPress={function () { if (doAction.value) { } else { doAction.value = true } }} /> */}
 
-        <Button title="Sign up" containerStyle={{ width: width * 0.8, }} buttonStyle={{ backgroundColor: bgColor, }} titleStyle={{ color: "gray" }}
 
-          disabled={!userName.match(reg)}
+        <Button title="Sign up" containerStyle={{ width: width * 0.8, }} buttonStyle={{}} titleStyle={{}}
+
+          disabled={!userName.match(reg) || disabled}
           onPress={function () {
 
+            // setDisabled(true)
+
+            axios.post(`${url}/api/user/isnewname`, { userName }).then(async ({ data: isnewname }) => {
+
+              setDisabled(true)
+              if (isnewname) {
+
+                const response = avatarUri
+                  ? await regUserWithAvatar(userName, avatarUri, url)
+                  : await regUser(userName, url)
+
+                await createFolder(userName)
+                setToken(response.headers["x-auth-token"])
+                await AsyncStorage.setItem("token", response.headers["x-auth-token"])
+               
+                setPeopleList([{ name: userName, hasAvatar: avatarUri ? true : false, localImage: avatarUri || null }])
+                navigation.navigate("HomeScreen", { name: userName, fromRegScreen: true, })
+
+              }
+              else {
+
+                shouldShake.value = true
+                setDisabled(false)
+              }
 
 
-            Promise.resolve(
-              //***** checking duplicate here */
+            })
+          }}
 
-              ////////////////////
-            )
-              .then((isDuplicate = true) => {
-                if (isDuplicate) {
-                  shouldShake.value = true
-                }
-                else {
-                  setPeopleList([{ name: userName }])
-                  navigation.navigate("HomeScreen", { name: userName, fromRegScreen: true })
-                }
-              })
-          }} />
+        />
       </AnimatedComponent>
 
 
@@ -218,8 +231,23 @@ export function RegScreen({ }) {
 
 
 
-    </View>
 
+
+
+      <Button title={serverAddress}
+        containerStyle={{ position: "absolute", bottom: 10, width: width * 0.8, left: width * 0.1 }}
+        type="clear"
+        //    buttonStyle={{ backgroundColor: "transparent" }}
+        titleStyle={{ color: "blue" }}
+
+        onPress={function () {
+
+          navigation.navigate("AddressScreen")
+
+        }}
+      />
+
+    </View>
   )
 
 
@@ -238,8 +266,43 @@ async function pickImage(setAvatarUri) {
 
   if (!result.canceled) {
 
-    console.log(result.assets[0].uri)
+    //console.log(result.assets[0].uri)
     setAvatarUri(result.assets[0].uri)
 
   }
 };
+
+
+function regUserWithAvatar(userName, avatarUri, url) {
+
+
+  const localUri = avatarUri
+
+
+  let match = /\.(\w+)$/.exec(localUri.split('/').pop());
+  let type = match ? `image/${match[1]}` : `image`;
+  let filename = userName
+
+  const formData = new FormData();
+
+  formData.append('file', { uri: localUri, name: filename, type });
+  formData.append("obj", JSON.stringify({ ownerName: userName }))
+  formData.append("userName", userName)
+
+
+  return axios.post(`${url}/api/image/upload`, formData, { headers: { 'content-type': 'multipart/form-data' }, })
+    .then(response => {
+
+      //  FileSystem.deleteAsync(localUri, { idempotent: true })
+      return response
+    })
+
+}
+
+function regUser(userName, url) {
+
+  return axios.post(`${url}/api/user/reguser`, { userName }).then(response => {
+    return response
+  })
+
+}

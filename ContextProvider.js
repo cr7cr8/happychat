@@ -12,12 +12,23 @@ import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as Notifications from 'expo-notifications';
-//import { Camera } from 'expo-camera';
 
+
+
+
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import jwtDecode from 'jwt-decode';
 
 export default function ContextProvider(props) {
 
-    const [userName, setUserName] = useState("yuan")
+
+    const [token, setToken] = useState(false)
+
+    const [userName, setUserName] = useState("")
+    const [initialRouter, setInitialRouter] = useState("")
+    const [serverAddress, setServerAddress] = useState("")
 
 
 
@@ -34,31 +45,26 @@ export default function ContextProvider(props) {
         MediaLibrary.requestPermissionsAsync()
         Notifications.requestPermissionsAsync()
         Notifications.getPermissionsAsync()
-      //  Camera.requestCameraPermissionsAsync();
+        //  Camera.requestCameraPermissionsAsync();
     }, [])
 
 
 
-    const [peopleList, setPeopleList] = useState([
-    
-        // { name: "Mike", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-        // { name: "Tilandson", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-        // { name: "SmithJohn", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-        // { name: "Gergeo", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-        // { name: "Bob", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-        // { name: "JameBond", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-        // { name: "toxNeil", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-        // { name: "TomCox", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#aff" },
-        // { name: "bentt", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#ffa" },
-        // { name: "tilda", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faf" },
-        // { name: "phillen", description: "fewfas", personID: "user-" + (Math.random() * 1000).toFixed(0), key: "id-" + (Math.random() * 1000000).toFixed(0), barColor: "#faa" },
-    ])
+
+
+
+    const [peopleList, setPeopleList] = useState([])
 
 
     return (
         <Context.Provider value={{
 
             userName, setUserName,
+            token, setToken,
+            initialRouter, setInitialRouter,
+
+            serverAddress, setServerAddress,
+
             peopleList, setPeopleList,
             isSnackVisible, setSnackVisible,
             snackMessage, setSnackMessage,

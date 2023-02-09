@@ -35,7 +35,7 @@ import {
     GiftedChat, Bubble, InputToolbar, Avatar as AvatarIcon, Message, Time, MessageContainer, MessageText, SystemMessage, Day, Send, Composer, MessageImage,
     Actions,
 } from 'react-native-gifted-chat'
-import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
+import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
 import { useHeaderHeight } from '@react-navigation/elements';
 import { PanGestureHandler, ScrollView, FlatList, NativeViewGestureHandler } from 'react-native-gesture-handler';
 import { Video, AVPlaybackStatus, Audio, ExponentAV } from 'expo-av';
@@ -50,14 +50,14 @@ import {
     StyleSheet, Dimensions, TouchableOpacity, TouchableNativeFeedback, Pressable, TouchableHighlight, TouchableWithoutFeedback, Vibration, Button,
     findNodeHandle, UIManager, Keyboard, Platform
 } from 'react-native';
-
+import axios from 'axios';
 import { OverlayDownloader } from './OverlayDownloader';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
 import Image from 'react-native-scalable-image';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent } = ReAnimated
+const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent,Image:ImageV } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
 let recording = new Audio.Recording();
@@ -65,9 +65,10 @@ let audioSound = new Audio.Sound();
 
 
 export function ChatScreen({ navigation, route }) {
-    const name = route.params.name
-    const userName = useContextSelector(Context, (state) => (state.userName))
+    const { name, hasAvatar, randomStr = Math.random(), localImage = null } = route.params
 
+    const userName = useContextSelector(Context, (state) => (state.userName))
+    const url = useContextSelector(Context, (state) => (state.serverAddress))
     // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
@@ -353,7 +354,7 @@ export function ChatScreen({ navigation, route }) {
                 flexDirection: "row", height: HEADER_HEIGHT,
                 zIndex: 100
             }}>
-                <SharedElement id={route.params.name}  >
+                {/* <SharedElement id={route.params.name}  >
 
                     <SvgUri style={{
                         margin: 10,
@@ -362,7 +363,23 @@ export function ChatScreen({ navigation, route }) {
                     }}
 
                         width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
+                </SharedElement> */}
+
+
+                <SharedElement id={name}  >
+                    {hasAvatar
+                        ? <ImageV source={{ uri: localImage || `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
+                            style={{ margin: 10, width: 40, height: 40,  transform: [{ translateY: 6 }, { translateX: 0 }],borderRadius: 1000 }}
+                        />
+                        : <SvgUri style={{
+                            margin: 10,
+                            transform: [{ translateY: 6 }, { translateX: 0 }]
+    
+                        }}width={40} height={40} svgXmlData={multiavatar(name)} />
+                    }
                 </SharedElement>
+
+
                 <Text style={{ fontSize: 15, color: "black", transform: [{ translateY: 6 }, { translateX: 0 }] }}>{name}</Text>
             </View>
 

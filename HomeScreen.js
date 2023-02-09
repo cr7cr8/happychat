@@ -19,9 +19,9 @@ import ReAnimated, {
 
 } from 'react-native-reanimated';
 
-
+import axios from 'axios';
 import multiavatar from '@multiavatar/multiavatar';
-import url, { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
+import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView } from "./config";
 import DraggableFlatList, {
     ScaleDecorator,
     useOnCellActiveAnimation,
@@ -50,6 +50,8 @@ const AnimatedComponent = createAnimatedComponent(View)
 
 export function HomeScreen({ }) {
 
+
+    const url = useContextSelector(Context, (state) => (state.serverAddress))
     const navigation = useNavigation()
     const route = useRoute()
 
@@ -57,33 +59,40 @@ export function HomeScreen({ }) {
     const userName = useContextSelector(Context, (state) => (state.userName));
     const peopleList = useContextSelector(Context, (state) => (state.peopleList));
     const setPeopleList = useContextSelector(Context, (state) => (state.setPeopleList));
+    const token = useContextSelector(Context, (state) => (state.token));
 
+    const initialRouter = useContextSelector(Context, (state) => (state.initialRouter));
 
-    console.log("homescreen username",userName)
-    console.log("homeScreen route params",route.params)
+    //console.log("homescreen username",userName)
+    //console.log("homeScreen route params",route.params)
 
     useEffect(() => {
 
-        setTimeout(() => {
-            setPeopleList((pre) =>
-            (uniqByKeepFirst([
-                ...pre,
-                { name: "Mike", description: "fewfas", },
-                { name: "Tilandson", description: "fewfas", },
-                { name: "SmithJohn", description: "fewfas", },
-                { name: "chen", description: "fewfas", },
-                { name: "Gergeo", description: "fewfas", },
-                { name: "Bob", description: "fewfas", },
-                { name: "JameBond", description: "fewfas", },
-                { name: "toxNeil", description: "fewfas", },
-                { name: "TomCox", description: "fewfas", },
-                { name: "bentt", description: "fewfas", },
-                { name: "tilda", description: "fewfas", },
-                { name: "phillen", description: "fewfas", },
 
-            ], function (msg) { return msg.name })))
 
-        }, 0);
+        setTimeout(function () {
+
+            axios.get(`${url}/api/user/fetchuserlist`, { headers: { "x-auth-token": token } }).then(response => {
+
+
+                setPeopleList((pre) => {
+
+
+                    console.log(uniqByKeepFirst([...pre, ...response.data], function (msg) { return msg.name }))
+
+                    return uniqByKeepFirst([...pre, ...response.data], function (msg) { return msg.name })
+
+
+
+                })
+
+            }).catch(e => console.log(e))
+
+        }, 0)
+
+
+
+
 
         HomeScreen.sharedElements = null
 
@@ -124,7 +133,7 @@ export function HomeScreen({ }) {
 
                 onDragEnd={function ({ data, ...props }) {
 
-
+                    axios.post(`${url}/api/user/resortuserlist`, data.map(item => item.name), { headers: { "x-auth-token": token } })
                     setPeopleList(data)
                 }}
                 keyExtractor={(item) => (item.name)}
@@ -139,10 +148,10 @@ export function HomeScreen({ }) {
 }
 
 function renderItem(props) {
-
+    const url = useContextSelector(Context, (state) => (state.serverAddress))
     const navigation = useNavigation()
     const route = useRoute()
-    const { drag, isActive, getIndex, item: { name, barColor } } = props
+    const { drag, isActive, getIndex, item: { name, hasAvatar, randomStr = Math.random(), localImage = null } } = props
 
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
@@ -176,15 +185,23 @@ function renderItem(props) {
 
             < Pressable onLongPress={drag} onPress={
                 function () {
-                    navigation.navigate("ChatScreen", { name: name })
+                    navigation.navigate("ChatScreen", { name: name, hasAvatar: hasAvatar, localImage, randomStr })
                     //showSnackBar(name)
                 }
             } >
 
                 <View style={[panelCss]}>
                     <SharedElement id={name}  >
-                        <SvgUri style={{ margin: 0 }} width={60} height={60} svgXmlData={multiavatar(name)} />
+                        {hasAvatar
+                            ? <Image source={{ uri: localImage || `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
+                                style={{ margin: 0, width: 60, height: 60, borderRadius: 1000 }}
+                            />
+                            : <SvgUri style={{ margin: 0 }} width={60} height={60} svgXmlData={multiavatar(name)} />
+                        }
                     </SharedElement>
+
+
+
 
                     <View style={{ marginHorizontal: 10 }}><Text>{name}</Text></View>
                 </View>
@@ -197,7 +214,7 @@ function renderItem(props) {
 
 
 HomeScreen.sharedElements = (route, otherRoute, showing) => {
-    console.log("sharedElements",route.params.name)
+    // console.log("sharedElements",route.params.name)
 
     return [
         { id: route.params.name, animation: "move", resize: "auto", align: "left", }, // ...messageArr,   // turn back image transition off

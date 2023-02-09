@@ -34,11 +34,11 @@ import {
   
   
   
-  const url = "http://192.168.0.100";
-  //const url = "https://noteschat.herokuapp.com";
+  const defaultUrl = "http://192.168.0.100";
+  //const defaultUrl = "https://noteschat.herokuapp.com";
   
   
-  export default url
+  export default defaultUrl
   
   export function uniqByKeepFirst(a, key) {
     let seen = new Set();
@@ -403,4 +403,40 @@ import {
   // }, [navigation]);
   
   
-  
+  export const useKeyboardHeight = function (platforms = ['ios', 'android']) {
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    useEffect(() => {
+        if (isEventRequired(platforms)) {
+            const listen1 = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+            const listen2 = Keyboard.addListener('keyboardDidHide', keyboardDidHide); // cleanup function
+
+            return () => {
+                // Keyboard.removeListener('keyboardDidShow', keyboardDidShow);
+                // Keyboard.removeListener('keyboardDidHide', keyboardDidHide);
+
+                listen1.remove()
+                listen2.remove()
+            };
+        } else {
+            return () => { };
+        }
+    }, []);
+
+    const isEventRequired = platforms => {
+        try {
+            return (platforms === null || platforms === void 0 ? void 0 : platforms.map(p => p === null || p === void 0 ? void 0 : p.toLowerCase()).indexOf(Platform.OS)) !== -1 || !platforms;
+        } catch (ex) { }
+
+        return false;
+    };
+
+    const keyboardDidShow = frames => {
+        setKeyboardHeight(frames.endCoordinates.height);
+    };
+
+    const keyboardDidHide = () => {
+        setKeyboardHeight(0);
+    };
+
+    return keyboardHeight;
+};  
