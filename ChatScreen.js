@@ -20,7 +20,9 @@ import ReAnimated, {
     ZoomInLeft,
     ZoomInEasyUp,
     ZoomOut,
-    SlideOutRight
+    SlideOutRight,
+    SlideOutUp,
+    SlideOutDown
 
 } from 'react-native-reanimated';
 import multiavatar from '@multiavatar/multiavatar';
@@ -57,39 +59,41 @@ import Image from 'react-native-scalable-image';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent,Image:ImageV } = ReAnimated
+const { View, Text, ScrollView: ScrollV, Extrapolate, createAnimatedComponent, Image: ImageV } = ReAnimated
 
 const AnimatedComponent = createAnimatedComponent(View)
 let recording = new Audio.Recording();
 let audioSound = new Audio.Sound();
 
 
-export function ChatScreen({ navigation, route }) {
+export function ChatScreen() {
+
+    const navigation = useNavigation()
+    const route = useRoute()
+
     const { name, hasAvatar, randomStr = Math.random(), localImage = null } = route.params
 
     const userName = useContextSelector(Context, (state) => (state.userName))
     const url = useContextSelector(Context, (state) => (state.serverAddress))
-    // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
+
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     const HEADER_HEIGHT = useHeaderHeight()
-    //let keyboardHeight = useKeyboardHeight()
+
 
 
     const scrollRef = useRef()
-    const inputText = useRef("")
+    const inputText = useRef("1\n2\n3\n4\n5\n6")
     const inputRef = useRef()
 
-    // const keyboardShowPos = useRef(0)
-    // const keyboardHidePos = useRef(0)
-    // const [keyboardHeight, setKeyboardHeight] = useState(0)
+
     const keyboardHeight = useKeyboardHeight()
-    const [toolBarHeight, setToolBarHeight] = useState(60)
+    const [accessoryBarHeight, setAccessoryBarHeight] = useState(0)
 
     const micBarWidth = useSharedValue(0)
     const micBarStyle = useAnimatedStyle(() => ({
         zIndex: 800, width: withTiming(micBarWidth.value), position: "relative", justifyContent: "center", alignItems: "center",
-        height: 60, backgroundColor: "yellow", top: 0,
+        height: 40, backgroundColor: "yellow", top: 0,
         marginLeft: 0,
     }))
 
@@ -117,7 +121,8 @@ export function ChatScreen({ navigation, route }) {
         return {
             display: isReleased.value === 1 ? "none" : "flex",
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
+            backgroundColor: "red"
             //    color: "#666",
         }
     })
@@ -168,7 +173,7 @@ export function ChatScreen({ navigation, route }) {
         onFinish: (event, obj) => {
 
             if ((Math.abs(obj.translationY) < 60) && (Math.abs(obj.translationX) < 60) && (isReleased.value === 0)) {
-                runOnJS(callStopRecording)()
+                runOnJS(callStopRecording)(name)
             }
             // else if ((obj.translationX < -60) && (isReleased.value === 0)) {
             //     runOnJS(callCancelRecording)()
@@ -185,155 +190,188 @@ export function ChatScreen({ navigation, route }) {
     })
 
 
-    const [messages, setMessages] = useState([
-        {
-            _id: Math.random(),
-            text: "1",
-            createdAt: new Date(222222222222),
-            user: {
-                _id: userName,
-                name: userName,
+    // const [messages, setMessages] = useState([
+    //     {
+    //         _id: Math.random(),
+    //         text: "1",
+    //         createdAt: new Date(222222222222),
+    //         user: {
+    //             _id: userName,
+    //             name: userName,
 
-            }
-        },
-        {
-            _id: Math.random(),
-            text: "11115555",
-            createdAt: new Date(222228222822),
-            user: {
-                _id: userName,
-                name: userName,
+    //         }
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "11115555",
+    //         createdAt: new Date(222228222822),
+    //         user: {
+    //             _id: userName,
+    //             name: userName,
 
-            }
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            audio: "audio",
-            createdAt: new Date(222228222822),
-            user: {
-                _id: userName,
-                name: userName,
+    //         }
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         audio: "audio",
+    //         createdAt: new Date(222228222822),
+    //         user: {
+    //             _id: userName,
+    //             name: userName,
 
-            }
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            audio: "audio",
-            createdAt: new Date(222228222822),
-            user: {
-                _id: name,
-                name: name,
+    //         }
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         audio: "audio",
+    //         createdAt: new Date(222228222822),
+    //         user: {
+    //             _id: name,
+    //             name: name,
 
-            }
-        },
-        {
-            _id: Math.random(),
-            text: '2',
-            createdAt: new Date(),
+    //         }
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: '2',
+    //         createdAt: new Date(),
 
-            user: {
-                _id: name,
-                name: name,
-            },
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            createdAt: new Date(),
-            image: "https://picsum.photos/100/200",
+    //         user: {
+    //             _id: name,
+    //             name: name,
+    //         },
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         createdAt: new Date(),
+    //         image: "https://picsum.photos/100/200",
 
-            user: {
-                _id: name,
-                name: name,
-            },
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            createdAt: new Date(),
-            image: "https://picsum.photos/200/400",
+    //         user: {
+    //             _id: name,
+    //             name: name,
+    //         },
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         createdAt: new Date(),
+    //         image: "https://picsum.photos/200/400",
 
-            user: {
-                _id: userName,
-                name: userName,
-            },
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            createdAt: new Date(),
-            image: "https://picsum.photos/500/300",
+    //         user: {
+    //             _id: userName,
+    //             name: userName,
+    //         },
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         createdAt: new Date(),
+    //         image: "https://picsum.photos/500/300",
 
-            user: {
-                _id: name,
-                name: name,
-            },
-        },
-        {
-            _id: Math.random(),
-            text: '222522222',
-            createdAt: new Date(),
+    //         user: {
+    //             _id: name,
+    //             name: name,
+    //         },
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: '222522222',
+    //         createdAt: new Date(),
 
-            user: {
-                _id: name,
-                name: name,
-            },
-        },
-        {
-            _id: Math.random(),
-            text: "",
-            createdAt: new Date(),
-            image: "https://picsum.photos/620/300",
+    //         user: {
+    //             _id: name,
+    //             name: name,
+    //         },
+    //     },
+    //     {
+    //         _id: Math.random(),
+    //         text: "",
+    //         createdAt: new Date(),
+    //         image: "https://picsum.photos/620/300",
 
-            user: {
-                _id: userName,
-                name: userName,
-            },
-        },
-        // {
-        //     _id: Math.random(),
-        //     text: "glrgfl;rekglglrgfl;rekglkrgodkfg",
-        //     createdAt: new Date(222228222822),
-        //     user: {
-        //         _id: userName,
-        //         name: userName,
-        //     }
-        // },
-    ]
-        .map(item => {
+    //         user: {
+    //             _id: userName,
+    //             name: userName,
+    //         },
+    //     },
+    //     // {
+    //     //     _id: Math.random(),
+    //     //     text: "glrgfl;rekglglrgfl;rekglkrgodkfg",
+    //     //     createdAt: new Date(222228222822),
+    //     //     user: {
+    //     //         _id: userName,
+    //     //         name: userName,
+    //     //     }
+    //     // },
+    // ]
+    //     .map(item => {
 
-            return {
-                ...item,
-                user: {
-                    ...item.user,
-                    avatar: () => (<SvgUri style={{ position: "relative" }} width={36} height={36} svgXmlData={multiavatar(item.user.name)} />)
-                }
-            }
+    //         return {
+    //             ...item,
+    //             user: {
+    //                 ...item.user,
+    //                 avatar: () => (<SvgUri style={{ position: "relative" }} width={36} height={36} svgXmlData={multiavatar(item.user.name)} />)
+    //             }
+    //         }
 
 
-        })
-    )
+    //     })
+    // )
 
+    const [messages, setMessages] = useState([])
     useEffect(function () {
 
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
-
-        });
-        const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
-            console.log("keyboard hide")
-
+        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "Audio/" + name + "/").then(data => {
+            data.forEach(filename_ => {
+                FileSystem.getInfoAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+                })
+                FileSystem.deleteAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { idempotent: true })
+            })
         })
 
-        return function () {
+        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/").then(data => {
+            data.forEach(filename_ => {
+                FileSystem.getInfoAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+                })
+                //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+            })
+        })
 
-            //    return Keyboard.removeSubscription(keyboardDidShowListener)
-            keyboardDidShowListener.remove()
-            keyboardDidHideListener.remove()
-        }
+        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/").then(data => {
+            data.forEach(filename_ => {
+                FileSystem.getInfoAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+                })
+                //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+            })
+        })
+
 
     }, [])
+
+    // useEffect(function () {
+
+    //     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
+
+    //     });
+    //     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
+    //         console.log("keyboard hide")
+
+    //     })
+
+    //     return function () {
+
+    //         //    return Keyboard.removeSubscription(keyboardDidShowListener)
+    //         keyboardDidShowListener.remove()
+    //         keyboardDidHideListener.remove()
+    //     }
+
+    // }, [])
 
     // const messageBlockStyle = useAnimatedStyle(() => {
     //     return {
@@ -369,13 +407,13 @@ export function ChatScreen({ navigation, route }) {
                 <SharedElement id={name}  >
                     {hasAvatar
                         ? <ImageV source={{ uri: localImage || `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
-                            style={{ margin: 10, width: 40, height: 40,  transform: [{ translateY: 6 }, { translateX: 0 }],borderRadius: 1000 }}
+                            style={{ margin: 10, width: 40, height: 40, transform: [{ translateY: 6 }, { translateX: 0 }], borderRadius: 1000 }}
                         />
                         : <SvgUri style={{
                             margin: 10,
                             transform: [{ translateY: 6 }, { translateX: 0 }]
-    
-                        }}width={40} height={40} svgXmlData={multiavatar(name)} />
+
+                        }} width={40} height={40} svgXmlData={multiavatar(name)} />
                     }
                 </SharedElement>
 
@@ -398,28 +436,33 @@ export function ChatScreen({ navigation, route }) {
                 listViewProps={{
                     ref: (element) => { scrollRef.current = element },
                     onContentSizeChange: (e) => {
-
-                        //  if (canMoveDown.current) {
-                        scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
-
-                        //  }
+                        scrollRef.current.scrollToEnd({ animated: false })
                     }
+                    //  if (canMoveDown.current) {
+                    //  scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
+
+                    //  }
+
                 }}
 
 
 
                 messagesContainerStyle={{
 
+                    paddingTop: keyboardHeight + (getStatusBarHeight() >= 24 ? 50 : 0),
 
                     //height: "100%",
                     position: "relative",
                     //    backgroundColor: "lightgray",
-                    transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - toolBarHeight + 60 }],
+                    //  transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - toolBarHeight + 60 }],
 
-                    height: height - HEADER_HEIGHT - HEADER_HEIGHT - BOTTOM_HEIGHT,
-                    // backgroundColor: "brown",
+                    height: height - HEADER_HEIGHT - 60,
 
-                    marginEnd: 0,
+
+                    transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - accessoryBarHeight - (getStatusBarHeight() >= 24 ? 45 : 0) }],
+                    backgroundColor: "#faa",
+
+                    //   marginEnd: 0,
                 }}
 
 
@@ -519,16 +562,13 @@ export function ChatScreen({ navigation, route }) {
                 renderInputToolbar={function (props) {
 
                     return (
-
-
-
                         <InputToolbar {...props}
                             containerStyle={{
 
                                 // opacity: 0.5,
                                 backgroundColor: "skyblue",
                                 marginVertical: 0,
-                                height: toolBarHeight
+                                //  height: toolBarHeight
                             }}
 
                             primaryStyle={{
@@ -542,19 +582,9 @@ export function ChatScreen({ navigation, route }) {
                                 padding: 0,
                                 paddingHorizontal: 0,
                             }}
-                        //  accessoryStyle={{ backgroundColor: "orange", width:200,   height: 60,     }}
-
+                            accessoryStyle={{ backgroundColor: "orange", width, height: accessoryBarHeight ? 45 : 0, }}
                         />
-
-
-
-
-
-
                     )
-
-
-
                 }}
 
                 renderComposer={function (props) {
@@ -568,7 +598,7 @@ export function ChatScreen({ navigation, route }) {
 
 
                                     <View style={[onHoldStyle]}>
-                                        <LinearProgress style={{ height: 60, width: width - 120 }} color="#aaa" />
+                                        <LinearProgress style={{ height: 40, width: width - 120 }} color="#aaa" />
 
                                         <Text style={{
                                             fontSize: 20,
@@ -588,10 +618,13 @@ export function ChatScreen({ navigation, route }) {
                                 disableComposer={false}
                                 textInputProps={{
                                     ref: function (element) { inputRef.current = element },
-                                    numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
+                                    //numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
                                     style: {
-                                        backgroundColor: "white", minHeight: 60, width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
+                                        minHeight: 45,
+                                        backgroundColor: "white", width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
                                         elevation: 5,
+                                        // transform:[{translateY:-50}],
+                                        // zIndex:999
                                     },
                                     onPressIn: function () {
                                         inputRef.current.blur(); inputRef.current.focus(); //expandWidth.value = 50;
@@ -680,7 +713,7 @@ export function ChatScreen({ navigation, route }) {
                                         justifyContent: "center",
                                     }}
                                     onPress={function () {
-                                        setToolBarHeight(pre => pre === 60 ? 120 : 60)
+                                        setAccessoryBarHeight(pre => pre === 0 ? 45 : 0)
                                     }}
 
                                 />
@@ -690,22 +723,24 @@ export function ChatScreen({ navigation, route }) {
                     )
                 }}
                 onSend={function (msg) {
-
+                    //  scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
 
                     setMessages(pre => [...pre, ...msg])
                 }}
 
                 renderAccessory={function (props) {
+
                     return (
-                        <AnimatedComponent style={{
+
+
+                        <View style={{
                             backgroundColor: "orange",
-                            height: 60,
+                            height: 45,
                             width,
-                            display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"
+                            display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "flex-start"
                         }}
-                            onLayout={function (e) {
-                                //   console.log("bottomBar", e.nativeEvent.layout)
-                            }}
+                        // entering={SlideInDown}
+                        // exiting={SlideOutDown}
                         >
 
 
@@ -714,53 +749,58 @@ export function ChatScreen({ navigation, route }) {
                                 name="image-outline"
                                 type='ionicon'
                                 color='#517fa4'
-                                size={50}
+                                size={45}
                             />
 
                             <Icon
                                 name="camera-outline"
                                 type='ionicon'
                                 color='#517fa4'
-                                size={50}
+                                size={45}
                             />
 
-                        </AnimatedComponent>
+                        </View>
                     )
                 }}
-                renderActions={function (props) {
+
+                renderActions={
+                    function (props) {
 
 
-                    return <Actions {...props}
-                        containerStyle={{
-                            backgroundColor: bgColor,
-                            width: 60, height: 60, marginLeft: 0, marginBottom: 0, marginRight: 0,
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}
+                        return <Actions {...props}
+                            containerStyle={{
+                                backgroundColor: bgColor,
+                                width: 60, height: 60, marginLeft: 0, marginBottom: 0, marginRight: 0,
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}
 
-                        //replaced by icon={function...
-                        // wrapperStyle={{
-                        // }}
+                            //replaced by icon={function...
+                            // wrapperStyle={{
+                            // }}
 
 
-                        icon={function () {
+                            icon={function () {
 
-                            return <Icon
+                                return <Icon
 
-                                name="mic-outline"
-                                type='ionicon'
-                                color='#517fa4'
-                                size={50}
-                            />
-                        }}
-                    />
-                }}
+                                    name="mic-outline"
+                                    type='ionicon'
+                                    color='#517fa4'
+                                    size={50}
+                                />
+                            }}
+                        />
+                    }
+                }
 
-                onPressActionButton={function (props) {
-                    micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
+                onPressActionButton={
+                    function (props) {
+                        micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
 
-                }}
-
+                    }
+                }
+                R
             />
         </>
     )
@@ -1031,23 +1071,23 @@ function AudioBlock({ ...props }) {
 
 // FileSystem.readDirectoryAsync(FileSystem.cacheDirectory).then(data => {
 //     data.forEach(filename_ => {
-//         console.log("=cacheDirctory==" + filename_)
-//         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
-//         //     console.log(info)
-//         // })
-//       //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
+//       //  console.log("=cacheDirctory==" + filename_)
+//         FileSystem.getInfoAsync(FileSystem.cacheDirectory + filename_, { md5: false, size: true }).then(info => {
+//                console.log(info.uri)
+//         })
+//      //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
 //     })
 // })
 
 
 // FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
 //     data.forEach(filename_ => {
-//         console.log("=documentDirctory==" + filename_)
-//         // FileSystem.getInfoAsync(FileSystem.documentDirectory+filename_,{md5:false,size:true}).then(info=>{
-//         //     console.log(info)
-//         // })
-//        //     FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
-//     }) 
+//       //  console.log("=documentDirctory==" + filename_)
+//         FileSystem.getInfoAsync(FileSystem.documentDirectory + filename_, { md5: false, size: true }).then(info => {
+//                console.log(info.uri) 
+//         })
+//      //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+//     })
 
 // })
 
@@ -1070,8 +1110,9 @@ function callStartRecording() {
     // })
 
 }
-function callStopRecording() {
-    stopRecording()
+function callStopRecording(name) {
+    console.log("call stop recording", name)
+    stopRecording(name)
 
     //FileSystem.documentDirectory
 }
@@ -1113,7 +1154,7 @@ function startRecording() {
         })
 }
 
-function stopRecording() {
+function stopRecording(name) {
 
     let uri = ""
     let audioName = ""
@@ -1145,7 +1186,7 @@ function stopRecording() {
 
                 audioName = uri.replace(/^.*[\\\/]/, '')
                 //    audioFolder = FileSystem.documentDirectory + "Audio/" + item.name + "/"
-                audioFolder = FileSystem.documentDirectory
+                audioFolder = FileSystem.documentDirectory + "Audio/" + name + "/"
                 audioUri = audioFolder + audioName
 
                 recording = new Audio.Recording()

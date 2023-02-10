@@ -16,7 +16,7 @@ import { Context } from "./ContextProvider";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import jwtDecode from 'jwt-decode';
-import defaultUrl from "./config";
+import defaultUrl, { createFolder } from "./config";
 
 export default function App() {
   return (
@@ -32,40 +32,46 @@ function AppStarter() {
   const initialRouter = useContextSelector(Context, (state) => (state.initialRouter))
   const setInitialRouter = useContextSelector(Context, (state) => (state.setInitialRouter))
   const setUserName = useContextSelector(Context, (state) => (state.setUserName))
+  const token = useContextSelector(Context, (state) => (state.token))
   const setToken = useContextSelector(Context, (state) => (state.setToken))
 
   const serverAddress = useContextSelector(Context, (state) => (state.serverAddress))
   const setServerAddress = useContextSelector(Context, (state) => (state.setServerAddress))
 
+  //initialize userName , token and server address
   useEffect(() => {
     AsyncStorage.getItem("token").then((token) => {
-      // console.log("token is", token, token && jwtDecode(token).userName)
-      // console.log("userName is", token && jwtDecode(token).userName)
       token && setUserName(jwtDecode(token).userName)
       token && setToken(token)
-
       Boolean(token)
         ? setInitialRouter("HomeScreen")
         : setInitialRouter("RegScreen")
     })
-
-
     AsyncStorage.getItem("serverAddress").then((serverAddress) => {
-
       Boolean(serverAddress)
         ? setServerAddress(serverAddress)
         : AsyncStorage.setItem("serverAddress", defaultUrl, function () { setServerAddress(defaultUrl) })
-
-
-
-
     })
   }, [])
+
+  //create folder for each contact once token and servre address is assigned
+  useEffect(() => {
+    if (serverAddress && token) {
+      axios.get(`${serverAddress}/api/user/fetchuserlist2`, { headers: { "x-auth-token": token } }).then(response => {
+        Array.from(response.data).forEach(item => {
+          createFolder(item)
+        })
+      })
+    }
+  }, [serverAddress, token])
+
+
+
 
 
   return initialRouter && serverAddress
     ? <><NavigationContainer><StackNavigator /></NavigationContainer><SnackBar /></>
-    : <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Text style={{fontSize:25}}>Loading</Text></View>
+    : <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Text style={{ fontSize: 25 }}>Loading</Text></View>
 
 
 

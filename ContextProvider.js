@@ -18,8 +18,10 @@ import * as Notifications from 'expo-notifications';
 
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from "axios";
 import jwtDecode from 'jwt-decode';
+
+import axios from 'axios';
+import { io } from "socket.io-client";
 
 export default function ContextProvider(props) {
 
@@ -38,9 +40,10 @@ export default function ContextProvider(props) {
         setSnackVisible(true)
         setSnackMessage(message)
     }, [])
+    const [peopleList, setPeopleList] = useState([])
+
 
     useEffect(function () {
-
         Audio.requestPermissionsAsync()
         MediaLibrary.requestPermissionsAsync()
         Notifications.requestPermissionsAsync()
@@ -48,12 +51,12 @@ export default function ContextProvider(props) {
         //  Camera.requestCameraPermissionsAsync();
     }, [])
 
+  
 
 
 
 
 
-    const [peopleList, setPeopleList] = useState([])
 
 
     return (

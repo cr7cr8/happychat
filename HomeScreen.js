@@ -68,31 +68,11 @@ export function HomeScreen({ }) {
 
     useEffect(() => {
 
-
-
-        setTimeout(function () {
-
-            axios.get(`${url}/api/user/fetchuserlist`, { headers: { "x-auth-token": token } }).then(response => {
-
-
-                setPeopleList((pre) => {
-
-
-                    console.log(uniqByKeepFirst([...pre, ...response.data], function (msg) { return msg.name }))
-
-                    return uniqByKeepFirst([...pre, ...response.data], function (msg) { return msg.name })
-
-
-
-                })
-
-            }).catch(e => console.log(e))
-
-        }, 0)
-
-
-
-
+        axios.get(`${url}/api/user/fetchuserlist`, { headers: { "x-auth-token": token } }).then(response => {
+            setPeopleList((pre) => {
+                return uniqByKeepFirst([...pre, ...response.data], function (msg) { return msg.name })
+            })
+        }).catch(e => console.log(e))
 
         HomeScreen.sharedElements = null
 
@@ -102,17 +82,9 @@ export function HomeScreen({ }) {
 
         if (navigation.getState().routes[0].name === "RegScreen") {
             const unsubscribe = navigation.addListener("beforeRemove", function (e) {
-
                 // console.log(navigation.getState().routes[0].name === "RegScreen")
-
-
                 e.preventDefault()
                 BackHandler.exitApp()
-
-
-
-
-
             })
 
             return unsubscribe
