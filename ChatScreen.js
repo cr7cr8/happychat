@@ -88,12 +88,15 @@ export function ChatScreen() {
 
 
     const keyboardHeight = useKeyboardHeight()
+
+
+
     const [accessoryBarHeight, setAccessoryBarHeight] = useState(0)
 
     const micBarWidth = useSharedValue(0)
     const micBarStyle = useAnimatedStyle(() => ({
         zIndex: 800, width: withTiming(micBarWidth.value), position: "relative", justifyContent: "center", alignItems: "center",
-        height: 60, backgroundColor: "yellow", top: 0,
+        height: 60, backgroundColor: bgColor, top: 0,
         marginLeft: 0,
     }))
 
@@ -126,7 +129,6 @@ export function ChatScreen() {
             //    color: "#666",
         }
     })
-
 
     const backGesture = useAnimatedGestureHandler({
 
@@ -322,56 +324,59 @@ export function ChatScreen() {
     // )
 
     const [messages, setMessages] = useState([])
-    useEffect(function () {
-
-        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "Audio/" + name + "/").then(data => {
-            data.forEach(filename_ => {
-                FileSystem.getInfoAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
-                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
-                })
-                FileSystem.deleteAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { idempotent: true })
-            })
-        })
-
-        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/").then(data => {
-            data.forEach(filename_ => {
-                FileSystem.getInfoAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
-                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
-                })
-                //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
-            })
-        })
-
-        FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/").then(data => {
-            data.forEach(filename_ => {
-                FileSystem.getInfoAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
-                    console.log(info.uri.replace(FileSystem.documentDirectory, ""))
-                })
-                //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
-            })
-        })
-
-
-    }, [])
-
     // useEffect(function () {
 
-    //     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
-
-    //     });
-    //     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
-    //         console.log("keyboard hide")
-
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "Audio/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             FileSystem.deleteAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { idempotent: true })
+    //         })
     //     })
 
-    //     return function () {
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+    //         })
+    //     })
 
-    //         //    return Keyboard.removeSubscription(keyboardDidShowListener)
-    //         keyboardDidShowListener.remove()
-    //         keyboardDidHideListener.remove()
-    //     }
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+    //         })
+    //     })
+
 
     // }, [])
+
+    useEffect(function () {
+
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
+            console.log("keyboard show")
+            // setTimeout(() => {
+            //     scrollRef.current.scrollToEnd({ animated: true })
+            // }, 3000);
+        });
+        const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
+            console.log("keyboard hide")
+
+        })
+
+        return function () {
+
+            //    return Keyboard.removeSubscription(keyboardDidShowListener)
+            keyboardDidShowListener.remove()
+            keyboardDidHideListener.remove()
+        }
+
+    }, [])
 
     // const messageBlockStyle = useAnimatedStyle(() => {
     //     return {
@@ -436,20 +441,23 @@ export function ChatScreen() {
                 listViewProps={{
                     ref: (element) => { scrollRef.current = element },
                     onContentSizeChange: (e) => {
-                        scrollRef.current.scrollToEnd({ animated: false })
-                    }
+                        scrollRef.current.scrollToEnd({ animated: true })
+                    },
                     //  if (canMoveDown.current) {
                     //  scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
 
                     //  }
 
+                    contentContainerStyle: { flexGrow: 1, justifyContent: keyboardHeight?"flex-end":'flex-start' }
                 }}
 
 
 
                 messagesContainerStyle={{
 
-                    paddingTop: keyboardHeight + (getStatusBarHeight() >= 24 ? 50 : 0),
+                    flexGrow: 1, justifyContent: 'flex-end',
+
+                    // paddingTop: keyboardHeight + (getStatusBarHeight() >= 24 ? 50 : 0),
 
                     //height: "100%",
                     position: "relative",
@@ -460,6 +468,7 @@ export function ChatScreen() {
 
 
                     transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - accessoryBarHeight - (getStatusBarHeight() >= 24 ? 45 : 0) }],
+                    // transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - accessoryBarHeight }],
                     backgroundColor: "#faa",
 
                     //   marginEnd: 0,
@@ -566,10 +575,11 @@ export function ChatScreen() {
                             containerStyle={{
 
                                 // opacity: 0.5,
-                                backgroundColor: "skyblue",
+                                //    backgroundColor: "skyblue",
+                                backgroundColor: bgColor,
                                 marginVertical: 0,
                                 //  height: toolBarHeight
-                                minHeight:60
+                                minHeight: 60
                             }}
 
                             primaryStyle={{
@@ -584,8 +594,9 @@ export function ChatScreen() {
                                 paddingHorizontal: 0,
                             }}
                             accessoryStyle={{
-                                backgroundColor: "orange",
-                                width, height: accessoryBarHeight ? 45 : 0,
+                                // backgroundColor: "orange",
+                                width,
+                                height: accessoryBarHeight ? 45 : 0,
                             }}
                         />
                     )
@@ -677,10 +688,10 @@ export function ChatScreen() {
 
                         <View style={{ backgroundColor: "yellow", width: 60, height: 60, position: "relative" }}>
                             <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)}
-                                style={{ backgroundColor: "pink", position: "absolute", width: 60, height: 60, }}>
+                                style={{ backgroundColor: bgColor, position: "absolute", width: 60, height: 60, }}>
                                 <Send {...props} sendButtonProps={{
                                     style: {
-                                        backgroundColor: "green",
+                                        //backgroundColor: "green",
                                         width: 60, height: 60,
                                         display: "flex",
                                         justifyContent: "center",
@@ -704,9 +715,9 @@ export function ChatScreen() {
                                 </Send>
                             </AnimatedComponent>
                             {!inputText.current && <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)}
-                                style={{ backgroundColor: "brown", position: "absolute", }}>
+                                style={{ backgroundColor: bgColor, position: "absolute", }}>
                                 <Icon
-                                    name='add-circle-outline'
+                                    name={accessoryBarHeight === 0 ? 'add-circle-outline' : 'remove-circle-outline'}
                                     type='ionicon'
                                     color='#517fa4'
                                     size={50}
@@ -726,10 +737,21 @@ export function ChatScreen() {
 
                     )
                 }}
-                onSend={function (msg) {
-                    //  scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
+                onSend={function (msgArr) {
+                    const msg = msgArr.map(msg => { return { ...msg, createdTime: Date.parse(msg.createdAt), sender: userName, toPerson: name } })[0]
 
-                    setMessages(pre => [...pre, ...msg])
+
+                    if (!msg.image && !msg.audio && !msg.video && msg.text.match(/^[\s]*$/g)) {
+                        return Keyboard.dismiss()
+                    }
+
+                    //writeMsg(name, userName, msg)
+
+
+                    setMessages(preMessages => {
+                        return GiftedChat.prepend(preMessages, [msg])
+
+                    })
                 }}
 
                 renderAccessory={function (props) {
@@ -738,7 +760,7 @@ export function ChatScreen() {
 
 
                         <View style={{
-                            backgroundColor: "orange",
+                            //   backgroundColor: "orange",
                             height: 45,
                             width,
                             display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "flex-start"
@@ -767,44 +789,41 @@ export function ChatScreen() {
                     )
                 }}
 
-                renderActions={
-                    function (props) {
+                renderActions={function (props) {
 
 
-                        return <Actions {...props}
-                            containerStyle={{
-                                backgroundColor: bgColor,
-                                width: 60, height: 60, marginLeft: 0, marginBottom: 0, marginRight: 0,
-                                alignItems: "center",
-                                justifyContent: "center"
-                            }}
 
-                            //replaced by icon={function...
-                            // wrapperStyle={{
-                            // }}
+                    return <Actions {...props}
+                        containerStyle={{
+                            backgroundColor: bgColor,
+                            width: 60, height: 60, marginLeft: 0, marginBottom: 0, marginRight: 0,
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+
+                        //replaced by icon={function...
+                        // wrapperStyle={{
+                        // }}
 
 
-                            icon={function () {
+                        icon={function () {
 
-                                return <Icon
+                            return <Icon
 
-                                    name="mic-outline"
-                                    type='ionicon'
-                                    color='#517fa4'
-                                    size={50}
-                                />
-                            }}
-                        />
-                    }
-                }
+                                name="mic-outline"
+                                type='ionicon'
+                                color='#517fa4'
+                                size={50}
+                            />
+                        }}
+                    />
 
-                onPressActionButton={
-                    function (props) {
-                        micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
+                }}
 
-                    }
-                }
-                R
+                onPressActionButton={function (props) {
+                    micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
+                }}
+
             />
         </>
     )
@@ -825,7 +844,6 @@ function MessageBlock({ ...props }) {
     )
 }
 
-
 function BubbleBlock({ ...props }) {
 
 
@@ -834,13 +852,7 @@ function BubbleBlock({ ...props }) {
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     return (
-
-        <AnimatedComponent entering={ZoomIn.duration(200)}
-            style={{
-                //  backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16)  //random color
-            }}
-        //     ref={function (element) { viewRef.current = element }}
-        >
+        
             <Bubble {...props}
 
                 wrapperStyle={{
@@ -849,7 +861,6 @@ function BubbleBlock({ ...props }) {
                         overflow: "hidden",
                         justifyContent: 'flex-start',
                         //transform: [{ translateX: -9 }],
-
                         //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
                     },
                     right: {
@@ -857,39 +868,16 @@ function BubbleBlock({ ...props }) {
                         overflow: "hidden",
                         justifyContent: 'flex-start',
                         //transform: [{ translateX: -9 }],
-
                         //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
                     },
                 }}
                 textStyle={{
                     left: { color: "black", ...currentMessage.image && { display: "none" } },
-
                     right: { color: "black", ...currentMessage.image && { display: "none" } },
-
                 }}
-                onLongPress={function () {
-
-                    // const handle = findNodeHandle(viewRef.current);
-                    // UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
-
-                    //     setLeft(px)
-                    //     setTop(Math.max(0, py - STATUS_HEIGHT - 60))
-                    //     setVisible(true)
-                    // })
-
-                }}
-
+                onLongPress={function () { }}
             />
-
-
-
-
-        </AnimatedComponent>
-
-
-
-
-
+       
     )
 
 }
@@ -1072,33 +1060,21 @@ function AudioBlock({ ...props }) {
 
 }
 
+///////////////////////////////////////////////////
 
-// FileSystem.readDirectoryAsync(FileSystem.cacheDirectory).then(data => {
-//     data.forEach(filename_ => {
-//       //  console.log("=cacheDirctory==" + filename_)
-//         FileSystem.getInfoAsync(FileSystem.cacheDirectory + filename_, { md5: false, size: true }).then(info => {
-//                console.log(info.uri)
-//         })
-//      //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
-//     })
-// })
+function writeMsg(name, userName, msg) {
+    const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
+    const fileUri = folderUri + name + "---" + msg.createdTime
 
+    FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...msg, isLocal: true }))
 
-// FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
-//     data.forEach(filename_ => {
-//       //  console.log("=documentDirctory==" + filename_)
-//         FileSystem.getInfoAsync(FileSystem.documentDirectory + filename_, { md5: false, size: true }).then(info => {
-//                console.log(info.uri) 
-//         })
-//      //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
-//     })
-
-// })
+    console.log(fileUri)
+}
 
 
 
 
-
+///////////////////////////////////////////////////
 
 function callStartRecording() {
     startRecording()
@@ -1123,7 +1099,6 @@ function callStopRecording(name) {
 function callCancelRecording() {
     cancelRecording()
 }
-
 function startRecording() {
     recording = new Audio.Recording()
 
@@ -1157,7 +1132,6 @@ function startRecording() {
             console.log("error in startRecording promise ==>")
         })
 }
-
 function stopRecording(name) {
 
     let uri = ""
@@ -1279,7 +1253,6 @@ function stopRecording(name) {
 
 
 }
-
 function cancelRecording() {
     console.log('Cancel recording..');
 
@@ -1413,6 +1386,27 @@ export function ChatScreenHeaderTitle({ ...props }) {
 }
 
 
+// FileSystem.readDirectoryAsync(FileSystem.cacheDirectory).then(data => {
+//     data.forEach(filename_ => {
+//       //  console.log("=cacheDirctory==" + filename_)
+//         FileSystem.getInfoAsync(FileSystem.cacheDirectory + filename_, { md5: false, size: true }).then(info => {
+//                console.log(info.uri)
+//         })
+//      //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
+//     })
+// })
+
+
+// FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
+//     data.forEach(filename_ => {
+//       //  console.log("=documentDirctory==" + filename_)
+//         FileSystem.getInfoAsync(FileSystem.documentDirectory + filename_, { md5: false, size: true }).then(info => {
+//                console.log(info.uri) 
+//         })
+//      //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+//     })
+
+// })
 
 
 
@@ -1446,10 +1440,12 @@ const useKeyboardHeight = function (platforms = ['ios', 'android']) {
     };
 
     const keyboardDidShow = frames => {
+
         setKeyboardHeight(frames.endCoordinates.height);
     };
 
     const keyboardDidHide = () => {
+
         setKeyboardHeight(0);
     };
 
