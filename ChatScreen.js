@@ -93,7 +93,7 @@ export function ChatScreen() {
     const micBarWidth = useSharedValue(0)
     const micBarStyle = useAnimatedStyle(() => ({
         zIndex: 800, width: withTiming(micBarWidth.value), position: "relative", justifyContent: "center", alignItems: "center",
-        height: 40, backgroundColor: "yellow", top: 0,
+        height: 60, backgroundColor: "yellow", top: 0,
         marginLeft: 0,
     }))
 
@@ -569,6 +569,7 @@ export function ChatScreen() {
                                 backgroundColor: "skyblue",
                                 marginVertical: 0,
                                 //  height: toolBarHeight
+                                minHeight:60
                             }}
 
                             primaryStyle={{
@@ -582,7 +583,10 @@ export function ChatScreen() {
                                 padding: 0,
                                 paddingHorizontal: 0,
                             }}
-                            accessoryStyle={{ backgroundColor: "orange", width, height: accessoryBarHeight ? 45 : 0, }}
+                            accessoryStyle={{
+                                backgroundColor: "orange",
+                                width, height: accessoryBarHeight ? 45 : 0,
+                            }}
                         />
                     )
                 }}
@@ -620,7 +624,7 @@ export function ChatScreen() {
                                     ref: function (element) { inputRef.current = element },
                                     //numberOfLines: Math.min([...inputText.current].filter(c => c === "\n").length + 1, 5),
                                     style: {
-                                        minHeight: 45,
+                                        minHeight: 60,
                                         backgroundColor: "white", width: width - 120, paddingHorizontal: 8, fontSize: 20, lineHeight: 25,
                                         elevation: 5,
                                         // transform:[{translateY:-50}],
