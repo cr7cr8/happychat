@@ -36,7 +36,7 @@ import { createContext, useContextSelector } from 'use-context-selector';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
     GiftedChat, Bubble, InputToolbar, Avatar as AvatarIcon, Message, Time, MessageContainer, MessageText, SystemMessage, Day, Send, Composer, MessageImage,
-    Actions
+    Actions,
 } from 'react-native-gifted-chat'
 import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, createFolder, deleteFolder } from "./config";
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -73,7 +73,7 @@ export function ChatScreen() {
     const route = useRoute()
 
     const { name, hasAvatar, randomStr = Math.random(), localImage = null } = route.params
-    const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
+
     const userName = useContextSelector(Context, (state) => (state.userName))
     const url = useContextSelector(Context, (state) => (state.serverAddress))
 
@@ -323,73 +323,70 @@ export function ChatScreen() {
 
     //     })
     // )
-    const canMoveDown = useRef(true)
-    const scrollDepth = useRef(999999)
-    const allMessages = useRef([])
+
     const [messages, setMessages] = useState([])
-    useEffect(function () {
+    // useEffect(function () {
+
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "Audio/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             FileSystem.deleteAsync(FileSystem.documentDirectory + "Audio/" + name + "/" + filename_, { idempotent: true })
+    //         })
+    //     })
+
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "MessageFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+    //         })
+    //     })
+
+    //     FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/").then(data => {
+    //         data.forEach(filename_ => {
+    //             FileSystem.getInfoAsync(FileSystem.documentDirectory + "UnreadFolder/" + name + "/" + filename_, { md5: false, size: true }).then(info => {
+    //                 console.log(info.uri.replace(FileSystem.documentDirectory, ""))
+    //             })
+    //             //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
+    //         })
+    //     })
 
 
+    // }, [])
 
-        const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/";
-        FileSystem.readDirectoryAsync(folderUri).then(data => {
+    // useEffect(function () {
 
-            const messageHolder = []
+    //     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', function (e) {
+    //         console.log("keyboard show")
+    //         // setTimeout(() => {
+    //         //     scrollRef.current.scrollToEnd({ animated: true })
+    //         // }, 3000);
+    //     });
+    //     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", function (e) {
+    //         console.log("keyboard hide")
 
-            data.forEach(filename => {
-                messageHolder.push(
-                    FileSystem.readAsStringAsync(folderUri + filename).then(content => (JSON.parse(content)))
-                )
-            })
+    //     })
 
+    //     return function () {
 
-            Promise.all(messageHolder).then(contentArr => {
+    //         //    return Keyboard.removeSubscription(keyboardDidShowListener)
+    //         keyboardDidShowListener.remove()
+    //         keyboardDidHideListener.remove()
+    //     }
 
+    // }, [])
 
-                setMessages(pre => {
-
-
-                    contentArr.sort((msg1, msg2) => msg1.createdTime - msg2.createdTime)
-
-                    const msg10 = contentArr.pop();
-                    const msg9 = contentArr.pop();
-                    const msg8 = contentArr.pop();
-                    const msg7 = contentArr.pop();
-                    const msg6 = contentArr.pop();
-                    const msg5 = contentArr.pop();
-                    const msg4 = contentArr.pop();
-                    const msg3 = contentArr.pop();
-                    const msg2 = contentArr.pop();
-                    const msg1 = contentArr.pop();
-
-
-                    allMessages.current = contentArr
-
-                    return GiftedChat.prepend([], uniqByKeepFirst([msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10].filter(msg => Boolean(msg)),
-                        function (msg) { return msg._id }))
-                })
-
-            })
-        })
-
-
-
-
-
-
-
-    }, [])
-
-    useEffect(() => {
-
-        //    return function () {
-        //  canMoveDown.current = true
-        //    }
-
-
-    })
-
-
+    // const messageBlockStyle = useAnimatedStyle(() => {
+    //     return {
+    //         position: "relative",
+    //         transform: [{ translateY: withTiming(-STATUS_HEIGHT) }],
+    //         height: height - HEADER_HEIGHT - HEADER_HEIGHT - BOTTOM_HEIGHT,
+    //         marginEnd: 0,
+    //     }
+    // })
 
     return (
         <>
@@ -431,7 +428,6 @@ export function ChatScreen() {
             </View>
 
             <GiftedChat
-
                 user={{ _id: userName }}
                 keyboardShouldPersistTaps={"never"}
                 renderAvatarOnTop={true}
@@ -445,58 +441,9 @@ export function ChatScreen() {
 
                 listViewProps={{
                     ref: (element) => { scrollRef.current = element },
-                    onContentSizeChange: (contentWidth, contentHeight) => {
-                        console.log(contentWidth, contentHeight)
-                        scrollDepth.current = contentHeight
-
-
-                        canMoveDown.current && scrollRef.current.scrollToEnd({ animated: true })
-                        canMoveDown.current = true
+                    onContentSizeChange: (e) => {
+                        scrollRef.current.scrollToEnd({ animated: true })
                     },
-                    onScroll: function (e) {
-
-                        console.log(e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60, scrollDepth.current)
-
-                        if ((e.nativeEvent.contentOffset.y === 0) && allMessages.current.length === 0) {
-                            // console.log("no more left")
-                            showSnackBar("All loaded")
-                            return
-                        }
-
-
-                        else if (e.nativeEvent.contentOffset.y === 0) {
-                            const msg10 = allMessages.current.pop();
-                            const msg9 = allMessages.current.pop();
-                            const msg8 = allMessages.current.pop();
-                            const msg7 = allMessages.current.pop();
-                            const msg6 = allMessages.current.pop();
-                            const msg5 = allMessages.current.pop();
-                            const msg4 = allMessages.current.pop();
-                            const msg3 = allMessages.current.pop();
-                            const msg2 = allMessages.current.pop();
-                            const msg1 = allMessages.current.pop();
-
-
-
-                            setMessages(pre => {
-
-
-                                canMoveDown.current = false
-                                return GiftedChat.append(messages, uniqByKeepFirst([msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10].filter(msg => Boolean(msg)),
-                                    function (msg) { return msg._id }))
-                            })
-
-
-
-                        }
-                        else if ((e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60) >= (scrollDepth.current-1)) {
-                            console.log("end reached", scrollDepth.current)
-                        }
-                    },
-
-
-
-
                     //  if (canMoveDown.current) {
                     //  scrollRef.current.scrollToOffset({ offset: 9999, animated: true })
 
@@ -523,7 +470,7 @@ export function ChatScreen() {
 
                     transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - accessoryBarHeight - (getStatusBarHeight() >= 24 ? 45 : 0) }],
                     // transform: [{ translateY: -getStatusBarHeight() - keyboardHeight - accessoryBarHeight }],
-                    // backgroundColor: "#faa",
+                    backgroundColor: "#faa",
 
                     //   marginEnd: 0,
                 }}
@@ -540,9 +487,9 @@ export function ChatScreen() {
                     return (
 
 
-
-                        <MessageBlock {...props} />
-
+                        <AnimatedComponent  layout={Layout}>
+                            <MessageBlock {...props} />
+                        </AnimatedComponent>
                     )
 
                 }}
@@ -600,7 +547,7 @@ export function ChatScreen() {
 
                     return <Time {...props}
 
-                        timeFormat="H:mm:ss"
+                        timeFormat="H:mm"
                         timeTextStyle={{
 
 
@@ -719,12 +666,27 @@ export function ChatScreen() {
                 }}
 
                 onInputTextChanged={function (text) {
+
+
+                    //  if ([...inputText.current].filter(c => c === "\n").length !== [...text.current].filter(c => c === "\n")) {
+                    // const handle = findNodeHandle(inputRef.current);
+                    // //  console.log(handle)
+                    // handle && UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+
+                    //     console.log(compoHeight)
+                    // })
+                    //     }
                     inputText.current = text
+                    //  console.log(inputText.current)
+
                 }}
 
                 shouldUpdateMessage={function (props, nextProps) {
-                    //    console.log(props.currentMessage.text, nextProps.currentMessage.text)
 
+                    // console.log("---", Date.now(), nextProps.currentMessage.text)
+                    // return false
+
+                    // return Boolean(props.currentMessage.text)
                     return true
                 }}
 
@@ -791,7 +753,7 @@ export function ChatScreen() {
                         return Keyboard.dismiss()
                     }
 
-                    writeMsg(name, userName, msg)
+                    //writeMsg(name, userName, msg)
 
 
                     setMessages(preMessages => {
@@ -869,17 +831,6 @@ export function ChatScreen() {
                 onPressActionButton={function (props) {
                     micBarWidth.value = micBarWidth.value === 0 ? width - 120 : 0
                 }}
-
-            // onLoadEarlier={function () {
-            //     console.log("loading early")
-            // }}
-            // loadEarlier={true}
-            // isLoadingEarlier={false}
-            // renderLoadEarlier={function (props) {
-            //     // return <></>
-            //    // console.log(props.isLoadingEarlier)
-            //     return <View style={{ backgroundColor: "skyblue" }}><Text>load messages</Text></View>
-            // }}
 
             />
         </>
@@ -1118,12 +1069,6 @@ function AudioBlock({ ...props }) {
 }
 
 ///////////////////////////////////////////////////
-
-function readMsg(name) {
-
-
-}
-
 
 function writeMsg(name, userName, msg) {
     const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
@@ -1482,15 +1427,12 @@ const useKeyboardHeight = function (platforms = ['ios', 'android']) {
             const listen1 = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
             const listen2 = Keyboard.addListener('keyboardDidHide', keyboardDidHide); // cleanup function
 
-
-
             return () => {
                 // Keyboard.removeListener('keyboardDidShow', keyboardDidShow);
                 // Keyboard.removeListener('keyboardDidHide', keyboardDidHide);
 
                 listen1.remove()
                 listen2.remove()
-
             };
         } else {
             return () => { };
