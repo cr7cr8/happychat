@@ -345,7 +345,7 @@ export function ChatScreen() {
 
             Promise.all(messageHolder).then(contentArr => {
 
-
+                canMoveDown.current = true
                 setMessages(pre => {
 
 
@@ -446,23 +446,19 @@ export function ChatScreen() {
                 listViewProps={{
                     ref: (element) => { scrollRef.current = element },
                     onContentSizeChange: (contentWidth, contentHeight) => {
-                        console.log(contentWidth, contentHeight)
+                        //   console.log(contentWidth, contentHeight)
                         scrollDepth.current = contentHeight
-
-
                         canMoveDown.current && scrollRef.current.scrollToEnd({ animated: true })
-                        canMoveDown.current = true
                     },
                     onScroll: function (e) {
 
-                        console.log(e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60, scrollDepth.current)
+                        //  console.log(e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60, scrollDepth.current)
 
                         if ((e.nativeEvent.contentOffset.y === 0) && allMessages.current.length === 0) {
                             // console.log("no more left")
                             showSnackBar("All loaded")
                             return
                         }
-
 
                         else if (e.nativeEvent.contentOffset.y === 0) {
                             const msg10 = allMessages.current.pop();
@@ -476,21 +472,26 @@ export function ChatScreen() {
                             const msg2 = allMessages.current.pop();
                             const msg1 = allMessages.current.pop();
 
-
-
+                            canMoveDown.current = false
                             setMessages(pre => {
-
-
                                 canMoveDown.current = false
                                 return GiftedChat.append(messages, uniqByKeepFirst([msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10].filter(msg => Boolean(msg)),
                                     function (msg) { return msg._id }))
                             })
 
-
-
                         }
-                        else if ((e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60) >= (scrollDepth.current-1)) {
-                            console.log("end reached", scrollDepth.current)
+                        else if ((e.nativeEvent.contentOffset.y + height - HEADER_HEIGHT - 60) >= (scrollDepth.current - 1)) {
+                            //console.log("end reached", scrollDepth.current)
+                            if (messages.length > 10) {
+                                //console.log(messages.length - 10)
+
+                                canMoveDown.current = false
+                                setMessages(pre => {
+                                    allMessages.current = [...allMessages.current, ...pre.slice(0, -10)]
+                                    return pre.slice(-10)
+                                })
+                            }
+
                         }
                     },
 
@@ -617,7 +618,7 @@ export function ChatScreen() {
                 renderMessageText={function (props) {
                     // return <MessageText {...props}
                     //     textStyle={{ left: { fontSize: 20, lineHeight: 30, color: "black" }, right: { fontSize: 20, lineHeight: 30, color: "black" } }} />
-                    return <TextBlock {...props} />
+                    return <TextBlock {...props} canMoveDown={canMoveDown} setMessages={setMessages} name={name} />
                 }}
                 renderMessageImage={function (props) {
                     const currentMessage = props.currentMessage
@@ -725,7 +726,7 @@ export function ChatScreen() {
                 shouldUpdateMessage={function (props, nextProps) {
                     //    console.log(props.currentMessage.text, nextProps.currentMessage.text)
 
-                    return true
+                    return false
                 }}
 
                 renderSend={function (props) {
@@ -793,11 +794,12 @@ export function ChatScreen() {
 
                     writeMsg(name, userName, msg)
 
-
+                    canMoveDown.current = true
                     setMessages(preMessages => {
                         return GiftedChat.prepend(preMessages, [msg])
-
                     })
+
+
                 }}
 
                 renderAccessory={function (props) {
@@ -939,10 +941,11 @@ function BubbleBlock({ ...props }) {
 
 }
 
-function TextBlock({ ...props }) {
+function TextBlock({ canMoveDown, setMessages, name, ...props }) {
 
     const viewRef = useAnimatedRef()
 
+    const currentMessage = props.currentMessage
     const [visible, setVisible] = useState(false)
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
@@ -988,7 +991,24 @@ function TextBlock({ ...props }) {
                 }}>
 
                     <Icon name="copy-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />
-                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} />
+                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} onPress={function () {
+
+                        canMoveDown.current = false
+                        setTimeout(() => {
+                            setMessages(pre => {
+                                return Array.from(pre).filter(msg => msg._id !== currentMessage._id)
+                            })
+                        }, 0);
+
+
+
+                        deleteMsg(name,currentMessage)
+
+                       
+
+
+
+                    }} />
 
                 </AnimatedComponent>
             </Overlay>
@@ -1134,6 +1154,14 @@ function writeMsg(name, userName, msg) {
     console.log(fileUri)
 }
 
+function deleteMsg(name,currentMessage){
+
+    const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
+    setTimeout(() => {
+        FileSystem.deleteAsync(fileUri, { idempotent: true })
+    }, 800);
+
+}
 
 
 
