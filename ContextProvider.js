@@ -27,12 +27,13 @@ export default function ContextProvider(props) {
 
 
     const [token, setToken] = useState(false)
-
     const [userName, setUserName] = useState("")
     const [initialRouter, setInitialRouter] = useState("")
     const [serverAddress, setServerAddress] = useState("")
 
+    const [socket, setSocket] = useState(null)
 
+    const [peopleList, setPeopleList] = useState([])
 
     const [isSnackVisible, setSnackVisible] = useState(false)
     const [snackMessage, setSnackMessage] = useState("aaabbbaaaaaaaa")
@@ -40,7 +41,7 @@ export default function ContextProvider(props) {
         setSnackVisible(true)
         setSnackMessage(message)
     }, [])
-    const [peopleList, setPeopleList] = useState([])
+
 
 
     useEffect(function () {
@@ -51,28 +52,25 @@ export default function ContextProvider(props) {
         //  Camera.requestCameraPermissionsAsync();
     }, [])
 
-  
-
-
-
-
-
 
 
     return (
         <Context.Provider value={{
 
-            userName, setUserName,
             token, setToken,
+            userName, setUserName,
             initialRouter, setInitialRouter,
-
             serverAddress, setServerAddress,
 
+            socket, setSocket,
+
             peopleList, setPeopleList,
+            
             isSnackVisible, setSnackVisible,
             snackMessage, setSnackMessage,
             showSnackBar,
 
+          
 
         }}>
 

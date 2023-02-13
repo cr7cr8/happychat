@@ -77,6 +77,8 @@ export function ChatScreen() {
     const userName = useContextSelector(Context, (state) => (state.userName))
     const url = useContextSelector(Context, (state) => (state.serverAddress))
 
+    const socket = useContextSelector(Context, (state) => (state.socket))
+
     const avatarString = multiavatar(name)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     const HEADER_HEIGHT = useHeaderHeight()
@@ -327,6 +329,7 @@ export function ChatScreen() {
     const scrollDepth = useRef(999999)
     const allMessages = useRef([])
     const [messages, setMessages] = useState([])
+    //initialzing messages
     useEffect(function () {
 
 
@@ -337,8 +340,10 @@ export function ChatScreen() {
             const messageHolder = []
 
             data.forEach(filename => {
+
+
                 messageHolder.push(
-                    FileSystem.readAsStringAsync(folderUri + filename).then(content => (JSON.parse(content)))
+                    FileSystem.readAsStringAsync(folderUri + filename).then(content => JSON.parse(content))
                 )
             })
 
@@ -363,6 +368,7 @@ export function ChatScreen() {
                     const msg1 = contentArr.pop();
 
 
+
                     allMessages.current = contentArr
 
                     return GiftedChat.prepend([], uniqByKeepFirst([msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10].filter(msg => Boolean(msg)),
@@ -371,23 +377,40 @@ export function ChatScreen() {
 
             })
         })
+    }, [])
+
+    //displaying messages
+    useEffect(() => {
+
+        socket.on("displayMessage" + name, function (msgArr) {
+            // todo
+
+            // console.log("displaying message ================", msgArr)
+
+            const msg = msgArr[0]
+            // hasAvatar
+            //     ? msg.avatar = () => (
+            //         <ImageV source={{ uri: `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
+            //             style={{ position: "relative", width: 40, height: 40, borderRadius: 1000 }} />
+            //     )
+            //     : msg.avatar = () => (<SvgUri style={{ position: "relative", }} width={40} height={40} svgXmlData={multiavatar(name)} />)
+
+            // console.log(`${url}/api/image/avatar/${name}?${randomStr}`)
+
+            canMoveDown.current = true
+            setMessages(pre => {
+                return GiftedChat.prepend(pre, msg)
+            })
 
 
+        })
 
-
-
+        return function () {
+            socket.off("displayMessage" + name)
+        }
 
 
     }, [])
-
-    useEffect(() => {
-
-        //    return function () {
-        //  canMoveDown.current = true
-        //    }
-
-
-    })
 
 
 
@@ -401,16 +424,6 @@ export function ChatScreen() {
                 flexDirection: "row", height: HEADER_HEIGHT,
                 zIndex: 100
             }}>
-                {/* <SharedElement id={route.params.name}  >
-
-                    <SvgUri style={{
-                        margin: 10,
-                        transform: [{ translateY: 6 }, { translateX: 0 }]
-
-                    }}
-
-                        width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
-                </SharedElement> */}
 
 
                 <SharedElement id={name}  >
@@ -503,7 +516,7 @@ export function ChatScreen() {
 
                     //  }
 
-                    contentContainerStyle: { flexGrow: 1, justifyContent: keyboardHeight ? "flex-end" : 'flex-start' }
+                    contentContainerStyle: { flexGrow: 1, justifyContent: keyboardHeight ? "flex-end" : 'flex-start', paddingTop: getStatusBarHeight() >= 24 ? 50 : 0 }
                 }}
 
 
@@ -547,51 +560,33 @@ export function ChatScreen() {
                     )
 
                 }}
-                renderAvatar={function (props) {
+                // renderAvatar={function (props) {
 
-                    return (
-                        <AnimatedComponent entering={ZoomIn.duration(200)}>
-
-
-                            <AvatarIcon {...props}
-                                onPressAvatar={function () {
-
-                                    console.log("avatar pressed")
-                                }}
-
-                                containerStyle={{
-                                    left: {
-                                        marginRight: 0,
-                                        marginTop: 0,
-                                        alignSelf: "flex-start",
-                                        //backgroundColor: "pink",
-                                        //transform: [{ scale: 0.8 }],
-                                        //backgroundColor: bgColor,//"pink",
-                                        padding: 0,
-                                        justifyContent: "flex-start",
-                                        alignItems: "flex-start",
-                                        //borderRadius: 1000,
-                                    },
-                                    right: {
-                                        marginRight: 0,
-                                        marginTop: 0,
-                                        alignSelf: "flex-start",
-                                        //backgroundColor: "pink",
-                                        padding: 0,
-                                        justifyContent: "flex-start",
-                                        alignItems: "flex-start"
-                                    }
-                                }}
-                            />
+                //     const currentMessage = props.currentMessage
+                //     const { sender, toPerson } = currentMessage
 
 
-                        </AnimatedComponent>
-                    )
-                }}
+
+
+                //     return (
+                //         <Pressable onPress={function () { console.log("avatar pressed") }}>
+                //             <View style={{backgroundColor:"skyblue",width:40,height:40}}>
+                //             {hasAvatar
+                //                 ? <ImageV source={{ uri: `${url}/api/image/avatar/${sender}?${randomStr}` }} resizeMode="cover"
+                //                     style={{ position: "relative", width: 40, height: 40, borderRadius: 1000 }} />
+                //                 : <SvgUri style={{ position: "relative", }} width={40} height={40} svgXmlData={multiavatar(sender)} />
+                //             }
+                //             </View>
+                //         </Pressable>
+                //     )
+
+
+                // }}
+                renderAvatar={null}
                 renderBubble={function (props) {
 
                     return (
-                        <BubbleBlock  {...props} />
+                        <BubbleBlock  {...props} userName={userName} hasAvatar={hasAvatar} randomStr={randomStr} url={url} />
                     )
                 }}
                 renderTime={function (props) {
@@ -800,6 +795,15 @@ export function ChatScreen() {
                     })
 
 
+                    if (userName !== name) {
+                        socket.emit("sendMessage",
+                            {
+                                sender: userName,
+                                toPerson: name,
+                                msgArr: msgArr.map(msg => { return { ...msg, createdTime: Date.parse(msg.createdAt), sender: userName, toPerson: name } })
+                            })
+                    }
+                    // console.log(messages_)
                 }}
 
                 renderAccessory={function (props) {
@@ -893,50 +897,77 @@ export function ChatScreen() {
 function MessageBlock({ ...props }) {
 
     return (
+        <Message {...props} />
+    )
+
+    return (
         <View style={{
-            // backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) 
+            backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16),
 
         }}>
             <Message {...props} />
         </View>
-
     )
 }
 
-function BubbleBlock({ ...props }) {
+function BubbleBlock({ userName, hasAvatar, randomStr, url, ...props }) {
 
 
     const currentMessage = props.currentMessage
-    const name = props.currentMessage.user.name
-    const avatarString = multiavatar(name)
+    const previousMessage = props.previousMessage
+    //    console.log(Object.keys(previousMessage).length)
+    const preSender = previousMessage?.sender
+    const sender = currentMessage.sender
+
+    const avatarString = multiavatar(sender)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
+
     return (
 
-        <Bubble {...props}
 
-            wrapperStyle={{
-                left: {
-                    backgroundColor: bgColor,
-                    overflow: "hidden",
-                    justifyContent: 'flex-start',
-                    //transform: [{ translateX: -9 }],
-                    //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
-                },
-                right: {
-                    backgroundColor: "lightgreen",
-                    overflow: "hidden",
-                    justifyContent: 'flex-start',
-                    //transform: [{ translateX: -9 }],
-                    //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
-                },
-            }}
-            textStyle={{
-                left: { color: "black", ...currentMessage.image && { display: "none" } },
-                right: { color: "black", ...currentMessage.image && { display: "none" } },
-            }}
-            onLongPress={function () { }}
-        />
+        <View style={{ flexDirection: "row", margin: 0, padding: 0, }}>
+            {preSender !== sender && userName !== sender &&
 
+                <View style={{ width: 40, height: 40, marginRight: 8, justifyContent: "flex-start", alignItems: "flex-start" }}>
+                    {hasAvatar
+                        ? <ImageV source={{ uri: `${url}/api/image/avatar/${sender}?${randomStr}` }} resizeMode="cover"
+                            style={{ position: "relative", width: 40, height: 40, borderRadius: 1000 }} />
+                        : <SvgUri style={{ position: "relative", }} width={40} height={40} svgXmlData={multiavatar(sender)} />
+                    }
+                </View>
+
+            }
+            {preSender === sender && userName !== sender &&
+                <View style={{ width: 40, height: 40, marginRight: 8, justifyContent: "flex-start", alignItems: "flex-start" }} />
+
+            }
+            <Bubble {...props}
+
+                wrapperStyle={{
+                    left: {
+                        backgroundColor: bgColor,
+                        overflow: "hidden",
+                        justifyContent: 'flex-start',
+
+                        //transform: [{ translateX: -9 }],
+                        //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
+                    },
+                    right: {
+                        backgroundColor: "lightgreen",
+                        overflow: "hidden",
+                        justifyContent: 'flex-start',
+
+                        //transform: [{ translateX: -9 }],
+                        //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
+                    },
+                }}
+                textStyle={{
+                    left: { color: "black", ...currentMessage.image && { display: "none" } },
+                    right: { color: "black", ...currentMessage.image && { display: "none" } },
+                }}
+                onLongPress={function () { }}
+            />
+        </View>
     )
 
 }
@@ -996,15 +1027,17 @@ function TextBlock({ canMoveDown, setMessages, name, ...props }) {
                         canMoveDown.current = false
                         setTimeout(() => {
                             setMessages(pre => {
+
                                 return Array.from(pre).filter(msg => msg._id !== currentMessage._id)
+
                             })
                         }, 0);
 
 
 
-                        deleteMsg(name,currentMessage)
+                        deleteMsg(name, currentMessage)
 
-                       
+
 
 
 
@@ -1151,15 +1184,23 @@ function writeMsg(name, userName, msg) {
 
     FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...msg, isLocal: true }))
 
-    console.log(fileUri)
+    //console.log(fileUri)
 }
 
-function deleteMsg(name,currentMessage){
+function deleteMsg(name, currentMessage) {
 
     const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
-    setTimeout(() => {
-        FileSystem.deleteAsync(fileUri, { idempotent: true })
-    }, 800);
+
+    FileSystem.deleteAsync(fileUri, { idempotent: true })
+
+
+}
+/////////////////////////////////////////////////
+
+function attachAvatar(userName, msg) {
+
+
+
 
 }
 
