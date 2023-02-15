@@ -157,7 +157,7 @@ function renderItem(props) {
 
             < Pressable onLongPress={drag} onPress={
                 function () {
-                    navigation.navigate("ChatScreen", { name: name, hasAvatar: hasAvatar, localImage, randomStr })
+                    navigation.navigate("ChatScreen", { name, hasAvatar, localImage, randomStr })
                     //showSnackBar(name)
                 }
             } >

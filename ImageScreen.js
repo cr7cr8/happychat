@@ -59,30 +59,57 @@ export function ImageScreen({ navigation, route, }) {
   // console.log(height, getStatusBarHeight(), HEADER_HEIGHT, route.params.name)
 
   const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
-  const { currentPos, imageMessageArr } = route.params
+  const { currentPos, imageMessageArr, name, hasAvatar, localImage, url, randomStr } = route.params
   const scrollRef = useRef()
   const scrollX = useSharedValue(currentPos * width)
 
   const [visible, setVisible] = useState(false)
   const [overLayOn, setOverLayOn] = useState(false)
+
+
+
   return (
     <>
       <View style={{
         position: "absolute", display: "flex", justifyContent: "center", alignItems: "center",
         transform: [{ translateY: -HEADER_HEIGHT }],
         backgroundColor: "skyblue", width,
-        flexDirection: "row", height: HEADER_HEIGHT+6,
-    
-      }}>
-        <SharedElement id={route.params.name}  >
-          <SvgUri style={{
-            margin: 10,
-            // transform: [{ translateY: 6 }, { translateX: -width / 2 - 40 }, { scale: 1 }]
-            transform: [{ translateY: HEADER_HEIGHT }, { translateX: -width / 2 - 40 }, { scale: 1 }]
+        flexDirection: "row", height: HEADER_HEIGHT + 6,
 
-          }} width={40} height={40} svgXmlData={multiavatar(route.params.name)} />
+      }}>
+
+        {/* <SharedElement id={name}  >
+          {hasAvatar
+            ? <ImageV source={{ uri: localImage || `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
+              style={{ margin: 10, width: 40, height: 40, transform: [{ translateY: 6 }, { translateX: 0 }], borderRadius: 1000 }}
+            />
+            : <SvgUri style={{
+              margin: 10,
+              transform: [{ translateY: 6 }, { translateX: 0 }]
+
+            }} width={40} height={40} svgXmlData={multiavatar(name)} />
+          }
+        </SharedElement> */}
+
+        <SharedElement id={name}  >
+          {hasAvatar
+            ? <Image source={{ uri: localImage || `${url}/api/image/avatar/${name}?${randomStr}` }} resizeMode="cover"
+              style={{
+                margin: 10, width: 40, height: 40, transform: [{ translateY: HEADER_HEIGHT }, { translateX: -width / 2 - 40 }, { scale: 1 }],
+                borderRadius: 1000
+              }}
+            />
+
+            : <SvgUri style={{
+              margin: 10,
+              transform: [{ translateY: HEADER_HEIGHT }, { translateX: -width / 2 - 40 }, { scale: 1 }]
+            }} width={40} height={40} svgXmlData={multiavatar(name)} />
+          }
         </SharedElement>
       </View>
+
+
+
 
 
       <ScrollView
@@ -166,11 +193,11 @@ export function ImageScreen({ navigation, route, }) {
 
         <AnimatedComponent entering={ZoomIn.duration(200)} style={{
           display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
-          borderRadius: 8,justifyContent:"center",alignItems:"center",
-          width:60, height:60
+          borderRadius: 8, justifyContent: "center", alignItems: "center",
+          width: 60, height: 60
         }}>
 
-          <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} 
+          <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50}
 
             onPress={async function () {
               setVisible(false)
@@ -183,18 +210,18 @@ export function ImageScreen({ navigation, route, }) {
               const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
 
               if (status == 200) {
-                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e);alert(JSON.stringify(e)) })
+                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e); alert(JSON.stringify(e)) })
                 if (!granted) { setBtnText("100%"); return }
 
-                const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e);alert(JSON.stringify(e)) });
-                let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e);alert(JSON.stringify(e)) });
+                const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e); alert(JSON.stringify(e)) });
+                let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e); alert(JSON.stringify(e)) });
 
-                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e);alert(JSON.stringify(e)) }); }
+                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e); alert(JSON.stringify(e)) }); }
                 else {
-                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) ;alert(JSON.stringify(e))});
+                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e); alert(JSON.stringify(e)) });
                 }
                 await FileSystem.deleteAsync(fileUri, { idempotent: true })
-                console.log(asset);alert(JSON.stringify(asset))
+                console.log(asset); alert(JSON.stringify(asset))
                 showSnackBar(fileName + ".jpg downloaded")
               }
               else { alert("server refuse to send"); }

@@ -105,6 +105,16 @@ export function ChatScreen() {
         marginLeft: 0,
     }))
 
+    const inputBarWidth = useSharedValue(width - 120)
+    const inputBarStyle = useAnimatedStyle(() => {
+
+        return {
+            width: withTiming(micBarWidth.value === 0 ? width - 120 : 0),
+            overflow: "hidden"
+        }
+
+    })
+
 
     const isReleased = useSharedValue(1)
     const releasedStyle = useAnimatedStyle(() => {
@@ -565,9 +575,7 @@ export function ChatScreen() {
                 renderBubble={function (props) {
 
                     return (
-                        <BubbleBlock  {...props} userName={userName} hasAvatar={hasAvatar} randomStr={randomStr} url={url} canMoveDown={canMoveDown}
-                            setMessages={setMessages} showSnackBar={showSnackBar} token={token} messages={messages} localImage={localImage}
-                        />
+                        <BubbleBlock  {...props} userName={userName} hasAvatar={hasAvatar} randomStr={randomStr} url={url} />
                     )
                 }}
                 renderTime={function (props) {
@@ -597,9 +605,12 @@ export function ChatScreen() {
                     return <TextBlock {...props} canMoveDown={canMoveDown} setMessages={setMessages} name={name} />
                 }}
                 renderMessageImage={function (props) {
-                 
-                    return <ImageBlock {...props} />
-                    
+                    const currentMessage = props.currentMessage
+                    const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
+                    return <ImageBlock url={url} currentMessage={currentMessage} imageMessageArr={imageMessageArr}
+                        setMessages={setMessages} name={name}
+                        token={token}
+                    />
                 }}
 
                 renderMessageAudio={function (props) {
@@ -890,35 +901,23 @@ function MessageBlock({ ...props }) {
     // )
 }
 
-function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMessages, showSnackBar, token, messages, localImage,...props }) {
+function BubbleBlock({ userName, hasAvatar, randomStr, url, ...props }) {
 
-    const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
 
-    const navigation = useNavigation()
     const currentMessage = props.currentMessage
     const previousMessage = props.previousMessage
     //    console.log(Object.keys(previousMessage).length)
     const preSender = previousMessage?.sender
     const sender = currentMessage.sender
-    const isFromGuest = sender !== userName
-    const name = sender === userName ? currentMessage.toPerson : sender
-
-    const isText = (!currentMessage.image) && (!currentMessage.audio)
-    const isImage = (!currentMessage.text) && (!currentMessage.audio)
-    const isAudio = (!currentMessage.text) && (!currentMessage.image)
 
     const avatarString = multiavatar(sender)
     const bgColor = hexify(hexToRgbA(avatarString.match(/#[a-zA-z0-9]*/)[0]))
     const bubbleHeight = currentMessage.imageHeight ? (currentMessage.imageHeight * 200 / currentMessage.imageWidth) : 40
 
-    const viewRef = useAnimatedRef()
-    const [visible, setVisible] = useState(false)
-    const [top, setTop] = useState(60)
-    const [left, setLeft] = useState(0)
     return (
 
 
-        <View style={{ flexDirection: "row", margin: 0, padding: 0, }} >
+        <View style={{ flexDirection: "row", margin: 0, padding: 0, }}>
             {preSender !== sender && userName !== sender &&
 
                 <View style={{ width: 40, height: bubbleHeight, marginRight: 8, justifyContent: "flex-start", alignItems: "flex-start" }}>
@@ -934,161 +933,32 @@ function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMess
                 <View style={{ width: 40, height: bubbleHeight, marginRight: 8, justifyContent: "flex-start", alignItems: "flex-start" }} />
 
             }
-            <View ref={function (element) { viewRef.current = element }} style={{ maxWidth: width }} >
-                <Bubble {...props}
-                    wrapperStyle={{
-                        left: {
-                            backgroundColor: bgColor,
-                            overflow: "hidden",
-                            justifyContent: 'flex-start',
+            <Bubble {...props}
 
-                            //transform: [{ translateX: -9 }],
-                            //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
-                        },
-                        right: {
-                            backgroundColor: "lightgreen",
-                            overflow: "hidden",
-                            justifyContent: 'flex-start',
+                wrapperStyle={{
+                    left: {
+                        backgroundColor: bgColor,
+                        overflow: "hidden",
+                        justifyContent: 'flex-start',
 
-                            //transform: [{ translateX: -9 }],
-                            //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
-                        },
-                    }}
-                    textStyle={{
-                        left: { color: "black", ...currentMessage.image && { display: "none" } },
-                        right: { color: "black", ...currentMessage.image && { display: "none" } },
-                    }}
-                    onLongPress={function () {
-                        Vibration.vibrate(50);
-                        viewRef.current.measure((fx, fy, compoWidth, compoHeight, px, py) => {
-                            setLeft(Math.min(px, px))
-                            setTop(Math.max(0, py - STATUS_HEIGHT - 70))
-                            setVisible(true)
-                        })
+                        //transform: [{ translateX: -9 }],
+                        //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
+                    },
+                    right: {
+                        backgroundColor: "lightgreen",
+                        overflow: "hidden",
+                        justifyContent: 'flex-start',
 
-                    }}
-                    onPress={function () {
-
-                        isImage && navigation.navigate('ImageScreen', {
-
-                            imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
-                            currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
-                            name: name,
-                            hasAvatar, localImage,
-                            url, randomStr,
-                        })
-                    }}
-                />
-            </View>
-            <Overlay isVisible={visible} fullScreen={false}
-                onBackdropPress={function () {
-                    setVisible(false)
+                        //transform: [{ translateX: -9 }],
+                        //      ...currentMessage.image && {  borderTopRadius:10,borderTopRightRadius:100}
+                    },
                 }}
-                backdropStyle={{ backgroundColor: "transparent" }}
-                overlayStyle={{
-                    backgroundColor: "rgba(50,50,50,0)",
-                    //  backgroundColor: "transparent",
-                    position: "absolute",
-                    ...isFromGuest && { left: left - 8 },
-                    ...!isFromGuest && { right: 0 },
-                    top,
-                    elevation: 0,
+                textStyle={{
+                    left: { color: "black", ...currentMessage.image && { display: "none" } },
+                    right: { color: "black", ...currentMessage.image && { display: "none" } },
                 }}
-            >
-
-                <AnimatedComponent entering={ZoomIn.duration(200)} style={{
-                    display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
-                    borderRadius: 8
-                }}>
-
-                    {isText && <Icon name="copy-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} />}
-                    {isText && <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} onPress={function () {
-                        setVisible(false)
-                        canMoveDown.current = false
-                        setTimeout(() => {
-                            setMessages(pre => {
-                                return Array.from(pre).filter(msg => msg._id !== currentMessage._id)
-                            })
-                        }, 0);
-                        deleteMsg(name, currentMessage)
-
-                    }} />}
-
-                    {isImage && <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }} onPress={async function () {
-                        setVisible(false)
-
-                        const currentImage = currentMessage.image
-                        const uri = currentImage
-                        if (uri.indexOf("file:") === 0) {
-                            const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
-                            if (!granted) { return }
-
-                            const asset = await MediaLibrary.createAssetAsync(uri)
-                            console.log(uri)
-                            let album = await MediaLibrary.getAlbumAsync('expoDownload')
-                            if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false) }
-                            else { await MediaLibrary.addAssetsToAlbumAsync([asset], album, false) }
-                            return showSnackBar("local image copied")
-                        }
-
-                        const fileName = Date.now()
-                        const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
-                        const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
-                        const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
-                        if (status == 200) {
-                            const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
-                            if (!granted) { setBtnText("100%"); return }
-
-                            const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
-                            let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
-
-                            if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
-                            else {
-                                await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
-                            }
-                            await FileSystem.deleteAsync(fileUri, { idempotent: true })
-                            showSnackBar(fileName + ".jpg downloaded")
-                        }
-                        else { alert("server refuse to send"); }
-                    }} />}
-                    {isImage && <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} onPress={function () {
-                        setVisible(false)
-
-                        const currentImage = currentMessage.image
-                        const uri = currentImage
-
-                        //  console.log("---", name)
-
-                        if (uri.indexOf("file:") === 0) {
-
-                            canMoveDown.current = false
-                            setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
-                            deleteMsg(name, currentMessage)
-                            FileSystem.deleteAsync(currentMessage.image, { idempotent: true })
-                        }
-                        if (uri.indexOf("http") === 0) {
-
-                            axios.get(`${url}/api/image/deleteimage/${currentMessage.picName}`, { headers: { "x-auth-token": token } }).then(response => {
-
-                            })
-                            canMoveDown.current = false
-                            setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
-                            deleteMsg(name, currentMessage)
-                        }
-
-
-                        // setTimeout(() => {
-                        //     setMessages(pre => {
-                        //         return Array.from(pre).filter(msg => msg._id !== currentMessage._id)
-                        //     })
-                        // }, 0);
-                        // deleteMsg(sender, currentMessage)
-                    }} />}
-
-
-
-                </AnimatedComponent>
-            </Overlay>
+                onLongPress={function () { }}
+            />
         </View>
     )
 
@@ -1103,9 +973,6 @@ function TextBlock({ canMoveDown, setMessages, name, ...props }) {
     const [top, setTop] = useState(60)
     const [left, setLeft] = useState(0)
     // const showOverLayText = useContextSelector(Context, (state) => (state.showOverLayText));
-    return <MessageText {...props} textStyle={{ left: { fontSize: 20, lineHeight: 30, color: "black" }, right: { fontSize: 20, lineHeight: 30, color: "black" } }} />
-
-
     return (
 
         <Pressable ref={function (element) { viewRef.current = element }}
@@ -1175,16 +1042,150 @@ function TextBlock({ canMoveDown, setMessages, name, ...props }) {
 
 }
 
-function ImageBlock({ currentMessage, ...props }) {
+function ImageBlock({ currentMessage, imageMessageArr, setMessages, name, url, token, ...props }) {
 
     const currentImage = currentMessage.image
-   
+    //console.log("===",currentMessage.picName)
+
+    const navigation = useNavigation()
+    const route = useRoute()
+    const viewRef = useAnimatedRef()
+
+    const [visible, setVisible] = useState(false)
+    const [top, setTop] = useState(60)
+    const [left, setLeft] = useState(0)
+
+    const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
     return (
-      
-            <SharedElement id={currentMessage._id}  >
-                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
-            </SharedElement>
-          
+        <>
+            <Pressable
+                ref={function (element) { viewRef.current = element }}
+                onPress={function () {
+
+                    navigation.navigate('ImageScreen', {
+
+                        imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
+                        currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
+                        name: route.params.name
+
+                    })
+                }}
+                onLongPress={function () {
+                    Vibration.vibrate(50);
+                    const handle = findNodeHandle(viewRef.current);
+                    UIManager.measure(handle, (fx, fy, compoWidth, compoHeight, px, py) => {
+                        //    console.log(fx, fy, compoWidth, compoHeight, px, py)
+                        setLeft(px)
+                        setTop(Math.max(0, py - STATUS_HEIGHT - 60))
+                        setVisible(true)
+                    })
+                }}
+            >
+                <SharedElement id={currentMessage._id}  >
+                    <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+                </SharedElement>
+
+
+                <Overlay isVisible={visible} fullScreen={false}
+                    onBackdropPress={function () {
+                        setVisible(false)
+                    }}
+                    backdropStyle={{ backgroundColor: "transparent" }}
+                    overlayStyle={{
+                        //  backgroundColor: "rgba(50,50,50,0)",
+                        backgroundColor: "transparent",
+                        position: "absolute",
+                        left,
+                        top,
+                        elevation: 0,
+                    }}
+                >
+
+                    <AnimatedComponent entering={ZoomIn.duration(200)} style={{
+                        display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
+                        borderRadius: 8
+                    }}>
+
+                        <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }}
+
+                            onPress={async function () {
+
+                                setVisible(false)
+                                const uri = currentImage
+
+                                if (uri.indexOf("file:") === 0) {
+                                    const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                                    if (!granted) { return }
+
+                                    const asset = await MediaLibrary.createAssetAsync(uri)
+                                    let album = await MediaLibrary.getAlbumAsync('expoDownload')
+                                    if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false) }
+                                    else { await MediaLibrary.addAssetsToAlbumAsync([asset], album, false) }
+                                    return
+                                }
+
+                                const fileName = Date.now()
+                                const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
+                                const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
+                                const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
+                                if (status == 200) {
+                                    const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                                    if (!granted) { setBtnText("100%"); return }
+
+                                    const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
+                                    let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
+
+                                    if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
+                                    else {
+                                        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
+                                    }
+                                    await FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                    showSnackBar(fileName + ".jpg downloaded")
+                                }
+                                else { alert("server refuse to send"); }
+
+
+                            }}
+                        />
+                        <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50}
+
+                            onPress={async function () {
+
+                                setVisible(false)
+                                const uri = currentImage
+                                if (uri.indexOf("file:") === 0) {
+
+                                    // axios.get(`${url}/api/image/delete/${currentMessage._id}`, { headers: { "x-auth-token": token } }).then(response => {
+                                    //     // console.log(response.data)
+                                    // })
+
+                                    setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
+                                    const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
+                                    FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                    setTimeout(() => {
+                                        currentMessage.isLocal && FileSystem.deleteAsync(currentMessage.image, { idempotent: true })
+                                    }, 800);
+                                }
+                                if (uri.indexOf("http") === 0) {
+                                    // axios.get(`${url}/api/image/delete/${currentMessage._id}`, { headers: { "x-auth-token": token } }).then(response => {
+                                    // })
+                                    setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
+                                    const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
+                                    FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                }
+                            }}
+
+                        />
+
+                    </AnimatedComponent>
+                </Overlay>
+
+
+            </Pressable>
+
+
+
+        </>
     )
 
 
@@ -1268,7 +1269,7 @@ async function pickImage(setMessages, userName, name, socket, url, canMoveDown, 
         const ext = match[1] || ""
         let type = match ? `image/${match[1]}` : `image`;
 
-        //  console.log(imageMsg.imageWidth, imageMsg.imageHeight, type, imageName)
+        console.log(imageMsg.imageWidth, imageMsg.imageHeight, type, imageName)
         formData.append('file', { uri: imageUri, name: imageName + "." + ext, type });
         formData.append(
             "obj",
@@ -1281,7 +1282,7 @@ async function pickImage(setMessages, userName, name, socket, url, canMoveDown, 
         )
 
 
-        console.log("upload to", name)
+        console.log("upload to",name)
         axios.post(`${url}/api/image/uploadimage`, formData, { headers: { 'content-type': 'multipart/form-data', "x-auth-token": token }, })
             .then(response => {
 
@@ -1321,7 +1322,7 @@ async function uploadImage({ localUri, filename, sender, toPerson, imageWidth, i
     return axios.post(`${url}/api/image/uploadimage`, formData, { headers: { 'content-type': 'multipart/form-data', /*"x-auth-token": token*/ }, })
         .then(response => {
 
-            //  FileSystem.deleteAsync(localUri, {idempotent: true })
+            //  FileSystem.deleteAsync(localUri, { idempotent: true })
             return response
         })
 
@@ -1423,7 +1424,7 @@ function stopRecording(name) {
                 audioUri = audioFolder + audioName
 
                 recording = new Audio.Recording()
-                console.log("uri audiouri", uri, audioUri)
+                console.log(uri, audioUri)
                 return FileSystem.moveAsync({ from: uri, to: audioUri })
             }
             else {
@@ -1644,10 +1645,10 @@ export function ChatScreenHeaderTitle({ ...props }) {
 // FileSystem.readDirectoryAsync(FileSystem.cacheDirectory).then(data => {
 //     data.forEach(filename_ => {
 //       //  console.log("=cacheDirctory==" + filename_)
-//         FileSystem.getInfoAsync(FileSystem.cacheDirectory + filename_, {md5: false, size: true }).then(info => {
+//         FileSystem.getInfoAsync(FileSystem.cacheDirectory + filename_, { md5: false, size: true }).then(info => {
 //                console.log(info.uri)
 //         })
-//      //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, {idempotent: true })
+//      //   FileSystem.deleteAsync(FileSystem.cacheDirectory + filename_, { idempotent: true })
 //     })
 // })
 
@@ -1655,10 +1656,10 @@ export function ChatScreenHeaderTitle({ ...props }) {
 // FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
 //     data.forEach(filename_ => {
 //       //  console.log("=documentDirctory==" + filename_)
-//         FileSystem.getInfoAsync(FileSystem.documentDirectory + filename_, {md5: false, size: true }).then(info => {
-//                console.log(info.uri)
+//         FileSystem.getInfoAsync(FileSystem.documentDirectory + filename_, { md5: false, size: true }).then(info => {
+//                console.log(info.uri) 
 //         })
-//      //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, {idempotent: true })
+//      //   FileSystem.deleteAsync(FileSystem.documentDirectory + filename_, { idempotent: true })
 //     })
 
 // })

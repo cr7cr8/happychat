@@ -597,9 +597,12 @@ export function ChatScreen() {
                     return <TextBlock {...props} canMoveDown={canMoveDown} setMessages={setMessages} name={name} />
                 }}
                 renderMessageImage={function (props) {
-                 
-                    return <ImageBlock {...props} />
-                    
+                    const currentMessage = props.currentMessage
+                    const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
+                    return <ImageBlock url={url} currentMessage={currentMessage} imageMessageArr={imageMessageArr}
+                        setMessages={setMessages} name={name}
+                        token={token} hasAvatar={hasAvatar} localImage={localImage} randomStr={randomStr}
+                    />
                 }}
 
                 renderMessageAudio={function (props) {
@@ -1175,16 +1178,151 @@ function TextBlock({ canMoveDown, setMessages, name, ...props }) {
 
 }
 
-function ImageBlock({ currentMessage, ...props }) {
+function ImageBlock({ currentMessage, imageMessageArr, setMessages, name, url, token, hasAvatar, localImage, randomStr, ...props }) {
 
     const currentImage = currentMessage.image
-   
+    //console.log("===",currentMessage.picName)
+
+    const navigation = useNavigation()
+    const route = useRoute()
+    const viewRef = useAnimatedRef()
+
+    const [visible, setVisible] = useState(false)
+    const [top, setTop] = useState(60)
+    const [left, setLeft] = useState(0)
+
+    const showSnackBar = useContextSelector(Context, (state) => (state.showSnackBar));
+    // return <SharedElement id={currentMessage._id}  >
+    //     <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+    // </SharedElement>
+
+
     return (
-      
+        <>
+            {/* <View ref={function (element) { viewRef.current = element }}  > */}
+
+
+            {/* <Pressable
+                onLongPress={function (e) {
+                    console.log(e.isPropagationStopped())
+                }}
+                onPress={function () {
+
+                    navigation.navigate('ImageScreen', {
+
+                        imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
+                        currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
+                        name: route.params.name,
+                        hasAvatar, localImage,
+                        url, randomStr,
+                    })
+                }}
+            > */}
             <SharedElement id={currentMessage._id}  >
                 <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
             </SharedElement>
-          
+            {/* </Pressable> */}
+
+            {/* <Overlay isVisible={visible} fullScreen={false}
+                    onBackdropPress={function () {
+                        setVisible(false)
+                    }}
+                    backdropStyle={{ backgroundColor: "transparent" }}
+                    overlayStyle={{
+                        //  backgroundColor: "rgba(50,50,50,0)",
+                        backgroundColor: "transparent",
+                        position: "absolute",
+                        left,
+                        top,
+                        elevation: 0,
+                    }}
+                >
+
+                    <AnimatedComponent entering={ZoomIn.duration(200)} style={{
+                        display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
+                        borderRadius: 8
+                    }}>
+
+                        <Icon name="arrow-down-circle-outline" type='ionicon' color='white' size={50} style={{ padding: 4 }}
+
+                            onPress={async function () {
+
+                                setVisible(false)
+                                const uri = currentImage
+
+                                if (uri.indexOf("file:") === 0) {
+                                    const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                                    if (!granted) { return }
+
+                                    const asset = await MediaLibrary.createAssetAsync(uri)
+                                    let album = await MediaLibrary.getAlbumAsync('expoDownload')
+                                    if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false) }
+                                    else { await MediaLibrary.addAssetsToAlbumAsync([asset], album, false) }
+                                    return
+                                }
+
+                                const fileName = Date.now()
+                                const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
+                                const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
+                                const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
+                                if (status == 200) {
+                                    const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                                    if (!granted) { setBtnText("100%"); return }
+
+                                    const asset = await MediaLibrary.createAssetAsync(fileUri).catch(e => { console.log(e) });
+                                    let album = await MediaLibrary.getAlbumAsync('expoDownload').catch(e => { console.log(e) });
+
+                                    if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false).catch(e => { console.log(e) }); }
+                                    else {
+                                        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
+                                    }
+                                    await FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                    showSnackBar(fileName + ".jpg downloaded")
+                                }
+                                else { alert("server refuse to send"); }
+
+
+                            }}
+                        />
+                        <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50}
+
+                            onPress={async function () {
+
+                                setVisible(false)
+                                const uri = currentImage
+                                if (uri.indexOf("file:") === 0) {
+
+                                    // axios.get(`${url}/api/image/delete/${currentMessage._id}`, { headers: { "x-auth-token": token } }).then(response => {
+                                    //     // console.log(response.data)
+                                    // })
+
+                                    setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
+                                    const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
+                                    FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                    setTimeout(() => {
+                                        currentMessage.isLocal && FileSystem.deleteAsync(currentMessage.image, { idempotent: true })
+                                    }, 800);
+                                }
+                                if (uri.indexOf("http") === 0) {
+                                    // axios.get(`${url}/api/image/delete/${currentMessage._id}`, { headers: { "x-auth-token": token } }).then(response => {
+                                    // })
+                                    setMessages(messages => { return messages.filter(msg => { return msg._id !== currentMessage._id }) })
+                                    const fileUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/" + name + "---" + currentMessage.createdTime
+                                    FileSystem.deleteAsync(fileUri, { idempotent: true })
+                                }
+                            }}
+
+                        />
+
+                    </AnimatedComponent>
+                </Overlay> */}
+
+
+            {/* </View> */}
+
+
+
+        </>
     )
 
 

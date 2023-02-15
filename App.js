@@ -21,6 +21,7 @@ import { io } from "socket.io-client";
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 export default function App() {
+console.log(Constants.deviceName)
   return (
     <ContextProvider><StatusBar /><AppStarter /></ContextProvider>
   );

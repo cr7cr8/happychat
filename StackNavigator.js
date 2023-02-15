@@ -16,7 +16,7 @@ import { ImageScreen } from './ImageScreen';
 import { Context } from "./ContextProvider";
 
 import { createContext, useContextSelector } from 'use-context-selector';
-import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, deleteFolder } from "./config";
+import { hexToRgbA, hexify, moveArr, uniqByKeepFirst, ScaleView, ScaleAcitveView, deleteFolder,createFolder } from "./config";
 import multiavatar from '@multiavatar/multiavatar';
 import SvgUri from 'react-native-svg-uri';
 import { SharedElement } from 'react-navigation-shared-element';
@@ -109,7 +109,7 @@ export default function StackNavigator() {
               header: (props) => <Header {...props} />,
               headerStyle: {
                 backgroundColor: "wheat",
-                elevation:0
+                elevation: 0
               },
               headerRight: () => (
                 <Button
@@ -213,14 +213,26 @@ export default function StackNavigator() {
                 backgroundColor: "rgba(0,0,255 ,0)",
               },
               headerTitle: function (props) { return <></> },
-              // headerRight: () => (
-              //   <Button
-              //     title={"Chat"}
-              //     onPress={function () {
-              //       navigation.navigate("HomeScreen")
-              //     }}
-              //   />
-              // ),
+              headerRight: () => (
+                <Button
+                  title="delete"
+                  onPress={async function () {
+                    await deleteFolder(route.params.name)
+                    createFolder(route.params.name)
+                    // AsyncStorage.getItem("token").then(token => {
+                    //   console.log(token)
+                    //   token && deleteFolder(token.userName)
+                    //   token && AsyncStorage.removeItem("token")
+                    // })
+
+                    // AsyncStorage.getItem("serverAddress").then(serverAddress => {
+                    //   serverAddress && AsyncStorage.removeItem("serverAddress")
+                    // })
+
+
+                  }}
+                />
+              ),
 
             }
 
