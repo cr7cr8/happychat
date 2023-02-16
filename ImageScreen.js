@@ -205,6 +205,22 @@ export function ImageScreen({ navigation, route, }) {
               const fileName = Date.now()
               const fileUri = `${FileSystem.documentDirectory}${fileName}.jpg`
 
+
+              if (uri.indexOf("file:") === 0) {
+                const { granted } = await MediaLibrary.requestPermissionsAsync().catch(e => { console.log(e) })
+                if (!granted) { return }
+
+                const asset = await MediaLibrary.createAssetAsync(uri)
+                console.log(uri)
+                let album = await MediaLibrary.getAlbumAsync('expoDownload')
+                if (album == null) { await MediaLibrary.createAlbumAsync('expoDownload', asset, false) }
+                else { await MediaLibrary.addAssetsToAlbumAsync([asset], album, false) }
+                return showSnackBar("local image copied")
+            }
+
+
+
+
               const downloadResumable = FileSystem.createDownloadResumable(uri, fileUri, { headers: { token: "hihihi" } },);
 
               const { status } = await downloadResumable.downloadAsync(uri, fileUri, { headers: { token: "hihihi" } }).catch(e => { console.log(e) })
@@ -221,7 +237,7 @@ export function ImageScreen({ navigation, route, }) {
                   await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e); alert(JSON.stringify(e)) });
                 }
                 await FileSystem.deleteAsync(fileUri, { idempotent: true })
-                console.log(asset); alert(JSON.stringify(asset))
+                //console.log(asset); alert(JSON.stringify(asset))
                 showSnackBar(fileName + ".jpg downloaded")
               }
               else { alert("server refuse to send"); }

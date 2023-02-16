@@ -30,7 +30,7 @@ import multiavatar from '@multiavatar/multiavatar';
 import { Overlay } from 'react-native-elements/dist/overlay/Overlay';
 import { SharedElement } from 'react-navigation-shared-element';
 import SvgUri from 'react-native-svg-uri';
-import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo, useCallback } from 'react';
 import { Context } from "./ContextProvider"
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -170,7 +170,7 @@ export function ChatScreen() {
         onFinish: (event, obj) => {
 
             if ((Math.abs(obj.translationY) < 60) && (Math.abs(obj.translationX) < 60) && (isReleased.value === 0)) {
-                runOnJS(callStopRecording)(name)
+                runOnJS(callStopRecording)()
             }
             // else if ((obj.translationX < -60) && (isReleased.value === 0)) {
             //     runOnJS(callCancelRecording)()
@@ -399,6 +399,29 @@ export function ChatScreen() {
     }, [])
 
 
+    function callStartRecording() {
+        startRecording()
+        // console.log(FileSystem.cacheDirectory)
+
+
+        // FileSystem.readDirectoryAsync(FileSystem.cacheDirectory+"Audio").then(data => {
+        //     data.forEach(filename_ => {
+        //          console.log(Date.now() + "=cached audio==***===" + filename_)
+        //          FileSystem.deleteAsync(FileSystem.cacheDirectory+"/Audio/" + filename_, { idempotent: true })
+        //     })
+
+        // })
+
+    }
+    function callStopRecording() {
+        console.log("call stop recording")
+        stopRecording({ name, userName, socket, url, token, setMessages, canMoveDown })
+        //FileSystem.documentDirectory
+    }
+    function callCancelRecording() {
+        cancelRecording()
+    }
+
 
     return (
         <>
@@ -597,13 +620,13 @@ export function ChatScreen() {
                     return <TextBlock {...props} canMoveDown={canMoveDown} setMessages={setMessages} name={name} />
                 }}
                 renderMessageImage={function (props) {
-                 
+
                     return <ImageBlock {...props} />
-                    
+
                 }}
 
                 renderMessageAudio={function (props) {
-                    return <AudioBlock {...props} />
+                    return <AudioBlock {...props} name={name} userName={userName} url={url} token={token} setMessages={setMessages} canMoveDown={canMoveDown} />
                 }}
 
                 renderInputToolbar={function (props) {
@@ -819,6 +842,9 @@ export function ChatScreen() {
                                 type='ionicon'
                                 color='#517fa4'
                                 size={45}
+                                onPress={function () {
+                                    takePhoto(setMessages, userName, name, socket, url, canMoveDown, token)
+                                }}
                             />
 
                         </View>
@@ -878,6 +904,29 @@ export function ChatScreen() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function MessageBlock({ ...props }) {
 
     return (
@@ -890,7 +939,7 @@ function MessageBlock({ ...props }) {
     // )
 }
 
-function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMessages, showSnackBar, token, messages, localImage,...props }) {
+function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMessages, showSnackBar, token, messages, localImage, ...props }) {
 
     const imageMessageArr = messages.filter(message => Boolean(message.image)).map(msg => { return { ...msg, user: { ...msg.user, avatar: "" } } })
 
@@ -970,13 +1019,20 @@ function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMess
                     onPress={function () {
 
                         isImage && navigation.navigate('ImageScreen', {
-
                             imageMessageArr: imageMessageArr.map(item => ({ _id: String(item._id), image: item.image })),
                             currentPos: imageMessageArr.findIndex(item => { return item._id === currentMessage._id }),
                             name: name,
                             hasAvatar, localImage,
                             url, randomStr,
                         })
+
+                        isAudio && function () {
+
+
+                        }()
+
+
+
                     }}
                 />
             </View>
@@ -1085,6 +1141,13 @@ function BubbleBlock({ userName, hasAvatar, randomStr, url, canMoveDown, setMess
                         // deleteMsg(sender, currentMessage)
                     }} />}
 
+                    {/* {isAudio && <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50} onPress={function () {
+                        setVisible(false)
+
+                        console.log("deleting audio")
+                        
+                    }} />} */}
+
 
 
                 </AnimatedComponent>
@@ -1178,29 +1241,329 @@ function TextBlock({ canMoveDown, setMessages, name, ...props }) {
 function ImageBlock({ currentMessage, ...props }) {
 
     const currentImage = currentMessage.image
-   
+
     return (
-      
-            <SharedElement id={currentMessage._id}  >
-                <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
-            </SharedElement>
-          
+        <SharedElement id={currentMessage._id}  >
+            <Image source={{ uri: currentImage, headers: { token: "hihihi" } }} width={200} resizeMode="contain" />
+        </SharedElement>
     )
 
 
 
 }
 
-function AudioBlock({ ...props }) {
+function AudioBlock({ name, userName, url, token, setMessages, canMoveDown, ...props }) {
 
-    // console.log(props)
+    const viewRef = useAnimatedRef()
+    const [visible, setVisible] = useState(false)
+    const [top, setTop] = useState(60)
+    const [left, setLeft] = useState(0)
 
-    return <Text>AudioBlock</Text>
+
+
+    const currentMessage = props.currentMessage
+    const isFromGuest = props.currentMessage.sender !== userName
+    const audioUri = FileSystem.documentDirectory + "Audio/" + name + "/" + currentMessage.audioName
+    const audioDuration = Number.parseFloat(currentMessage.durationMillis / 1000).toFixed(1)
+
+    const [enabled, setEnabled] = useState(Boolean(currentMessage.isLocal))
+
+    const isPlaying = useSharedValue(false)
+
+    const viewStyle1 = useAnimatedStyle(() => {
+        return {
+
+            display: isPlaying.value ? "none" : "flex",
+            minWidth: 80, maxWidth: 300,
+            width: audioDuration * 10 * 1.5,
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            alignItems: "center",
+
+        }
+    })
+
+    const viewStyle2 = useAnimatedStyle(() => {
+        return {
+
+            display: isPlaying.value ? "flex" : "none",
+            minWidth: 80, maxWidth: 300,
+            width: audioDuration * 10 * 1.5,
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            alignItems: "center",
+
+        }
+    })
+
+    const loadAudio = useCallback(function () {
+
+        audioSound.getStatusAsync().then(info => {
+            if (!info.isLoaded) {
+                audioSound.setOnPlaybackStatusUpdate(function (info) {
+
+                    //  console.log(info)
+                    isPlaying.value = info.isPlaying
+                });
+
+                audioSound.loadAsync({ uri: audioUri }, { shouldPlay: true }, true);
+            }
+            else {
+
+                audioSound.unloadAsync().then(info => {
+
+                    audioSound = new Audio.Sound();
+                    audioSound.setOnPlaybackStatusUpdate(function (info) {
+                        //     console.log(info)
+                        isPlaying.value = info.isPlaying
+                    });
+
+                    audioSound.loadAsync({ uri: audioUri }, { shouldPlay: true }, true);
+
+                })
+            }
+
+
+        })
+
+
+
+
+    }, [])
+
+    const unloadAudio = useCallback(function () {
+
+
+        audioSound.getStatusAsync().then(info => {
+            if (info.isLoaded) {
+
+                audioSound.unloadAsync().then(info => {
+                    isPlaying.value = info.isPlaying
+                })
+            }
+
+
+
+        })
+
+
+
+
+    }, [])
+
+    useEffect(function () {
+        if (!enabled) {
+            FileSystem.getInfoAsync(audioUri).then(info => {
+                if (info.exists) { setEnabled(true) }
+                else {
+                    // console.log(currentMessage.mongooseID)
+                    const uri = `${url}/api/audio/download/${currentMessage.mongooseID}`
+                    const downloadResumable = FileSystem.createDownloadResumable(
+                        uri, audioUri, { headers: { "x-auth-token": token } },
+                        function ({ totalBytesExpectedToWrite, totalBytesWritten }) { }
+                    );
+                    downloadResumable.downloadAsync(uri, audioUri, { headers: { "x-auth-token": token } })
+                        .then(({ status }) => {
+                            if (status == 200) {
+                                setEnabled(true)
+                                axios.get(`${url}/api/audio/delete/${currentMessage.mongooseID}`)
+                            }
+                            else { console.log(status) }
+                        })
+                }
+            })
+        }
+
+
+
+        //     if (!currentMessage.mongooseID) {
+        //         setEnabled(false)
+        //     }
+        //     else {
+
+        //       FileSystem.getInfoAsync(audioUri).then(info => {
+
+        //         if (info.exists) {
+
+        //           setEnabled(false)
+        //         }
+        //         else {
+        //           const uri = `${url}/api/audio/download/${currentMessage.mongooseID}`
+
+        //           const downloadResumable = FileSystem.createDownloadResumable(
+        //             uri, audioUri, { headers: { "x-auth-token": token } },
+        //             function ({ totalBytesExpectedToWrite, totalBytesWritten }) {
+        //               //  console.log(totalBytesWritten + " / " + totalBytesExpectedToWrite)
+        //             }
+        //           );
+
+        //           downloadResumable.downloadAsync(uri, audioUri, { headers: { "x-auth-token": token } })
+        //             .then(({ status }) => {
+        //               if (status == 200) {
+        //                 setDisabled(false)
+
+
+        //                 axios.get(`${url}/api/audio/delete/${currentMessage.mongooseID}`)
+
+        //               }
+        //               else {
+        //                 console.log(status)
+        //               }
+        //             })
+
+
+        //         }
+        //       })
+
+
+        //     }
+
+
+        //     return function () {
+        //       audioSound.getStatusAsync().then(info => {
+        //         if (info.isLoaded) {
+        //           audioSound.unloadAsync()
+
+        //         }
+        //       })
+        //     }
+
+    }, [])
+
+
+
+
+    function showDeleteButton() {
+        Vibration.vibrate(50)
+        viewRef.current.measure((fx, fy, compoWidth, compoHeight, px, py) => {
+            setLeft(Math.min(px, px))
+            setTop(Math.max(0, py - STATUS_HEIGHT - 70))
+            setVisible(true)
+        })
+    }
+
+
+    return (
+
+        <View ref={element => { viewRef.current = element }}>
+
+            {!enabled && <View style={{
+                opacity: 0.3,
+                minWidth: 80, maxWidth: 300,
+                width: audioDuration * 10 * 1.5,
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                backgroundColor: "lightgray"
+            }}>
+                <Icon
+                    name="caret-forward-circle-outline"
+                    type='ionicon' color='gray' size={50} containerStyle={{}}
+                    onPress={function () {
+                        // isPlaying.value = true
+                        // loadAudio()
+                    }}
+                />
+                <Text>{audioDuration}</Text>
+            </View>
+            }
+
+            {enabled && <Pressable
+                onLongPress={showDeleteButton} >
+                <View style={viewStyle1}>
+                    <Icon
+                        name="caret-forward-circle-outline"
+                        type='ionicon' color='gray' size={50} containerStyle={{}}
+                        onPress={function () {
+                            isPlaying.value = true
+                            loadAudio()
+                        }}
+                        onLongPress={showDeleteButton}
+                    />
+                    <Text>{audioDuration}</Text>
+                </View>
+            </Pressable>
+            }
+
+            {enabled && <View style={viewStyle2} >
+                <LinearProgress
+                    color="#aaa"
+
+                    style={{
+                        // minWidth: 90,
+                        // width: audioDuration * 10 * 1.5,
+
+                        height: 55,
+                        position: "absolute", //top: 0, left: 0,
+
+                    }} />
+                <Icon
+                    name="stop-circle-outline"
+                    type='ionicon' color='gray' size={50} containerStyle={{}}
+                    onPress={function () {
+                        isPlaying.value = false
+                        unloadAudio()
+                    }}
+                />
+                <Text>{audioDuration}</Text>
+            </View >
+            }
+
+            <Overlay isVisible={visible} fullScreen={false}
+                onBackdropPress={function () {
+                    setVisible(false)
+                }}
+                backdropStyle={{ backgroundColor: "transparent" }}
+                overlayStyle={{
+                    backgroundColor: "rgba(50,50,50,0)",
+                    position: "absolute",
+                    ...isFromGuest && { left: left - 8 },
+                    ...!isFromGuest && { right: 0 },
+                    top,
+                    elevation: 0,
+                }}
+            >
+
+                <AnimatedComponent entering={ZoomIn.duration(200)} style={{
+                    display: "flex", flexDirection: "row", backgroundColor: "rgba(50,50,50,0.8)",
+                    borderRadius: 8
+                }}>
+                    <Icon name="trash-outline" type='ionicon' color='white' style={{ padding: 4 }} size={50}
+                        onPress={function () {
+                            setVisible(false)
+                            canMoveDown.current = false
+                            setMessages(pre => {
+                                return Array.from(pre).filter(msg => msg._id !== currentMessage._id)
+                            })
+                            deleteMsg(name, currentMessage)
+                            FileSystem.deleteAsync(audioUri, { idempotent: true })
+                        }}
+                    />
+                </AnimatedComponent>
+            </Overlay>
+
+
+        </View>
+
+
+    )
+
+
+
+
+    return <Pressable onPress={function () {
+        loadAudio()
+    }}><Text>AudioBlock</Text></Pressable>
 
 }
 
-///////////////////////////////////////////////////
 
+
+
+
+
+
+///////////////////////////////////////////////////
 function writeMsg(name, userName, msg) {
     const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
     const fileUri = folderUri + name + "---" + msg.createdTime
@@ -1218,8 +1581,15 @@ function deleteMsg(name, currentMessage) {
 
 
 }
-/////////////////////////////////////////////////
 
+
+
+
+
+
+
+
+/////////////////////////////////////////////////
 async function pickImage(setMessages, userName, name, socket, url, canMoveDown, token) {
     // setIsOverLay(true)
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -1231,11 +1601,7 @@ async function pickImage(setMessages, userName, name, socket, url, canMoveDown, 
     });
 
 
-
-
     if ((!result.canceled) && (result.assets[0].uri)) {
-
-
 
         const uri = result.assets[0].uri
         const imageName = uri.replace(/^.*[\\\/]/, '')
@@ -1280,22 +1646,17 @@ async function pickImage(setMessages, userName, name, socket, url, canMoveDown, 
             })
         )
 
-
-        console.log("upload to", name)
         axios.post(`${url}/api/image/uploadimage`, formData, { headers: { 'content-type': 'multipart/form-data', "x-auth-token": token }, })
             .then(response => {
-
                 return {
                     ...imageMsg,
                     ...response.data,
                     image: `${url}/api/image/download/${response.data.mongooseID}`,
-
                 }
             })
             .then(data => {
                 socket.emit("sendMessage", { sender: userName, toPerson: name, msgArr: [data] })
                 //  latestChattingMsg.current = imageMsg
-
             })
             .catch(e => console.log(e))
 
@@ -1303,57 +1664,89 @@ async function pickImage(setMessages, userName, name, socket, url, canMoveDown, 
 
 };
 
-async function uploadImage({ localUri, filename, sender, toPerson, imageWidth, imageHeight, url }) {
+async function takePhoto(setMessages, userName, name, socket, url, canMoveDown, token) {
+
+    let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        //  aspect: [1, 1],
+        quality: 1,
+        base64: false,
+    });
+    if ((!result.canceled) && (result.assets[0].uri)) {
+        const uri = result.assets[0].uri
+        const imageName = uri.replace(/^.*[\\\/]/, '')
+        const imageFolder = uri.replace(imageName, "") + name + "/"
+        const imageUri = imageFolder + imageName
+        await FileSystem.moveAsync({ from: uri, to: imageUri })
+
+        const time = Date.now()
+        const imageMsg = {
+            _id: time,
+            text: '',
+            createdAt: new Date(),
+            createdTime: time,
+            sender: userName,
+            user: { _id: userName },
+            image: imageUri,
+            imageWidth: result.assets[0].width,     //"data:image/png;base64," + result.base64,
+            imageHeight: result.assets[0].height,
+            toPerson: name,
+        }
+        const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
+        const fileUri = folderUri + name + "---" + imageMsg.createdTime
+        FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...imageMsg, isLocal: true }))
+
+        canMoveDown.current = true
+        setMessages(pre => { return [...pre, { ...imageMsg, isLocal: true }] })
+
+        const formData = new FormData();
+        let match = /\.(\w+)$/.exec(imageUri.split('/').pop());
+        const ext = match[1] || ""
+        let type = match ? `image/${match[1]}` : `image`;
+
+        //  console.log(imageMsg.imageWidth, imageMsg.imageHeight, type, imageName)
+        formData.append('file', { uri: imageUri, name: imageName + "." + ext, type });
+        formData.append(
+            "obj",
+            JSON.stringify({
+                ownerName: userName, toPerson: name, picName: imageName,
+                imageWidth: result.assets[0].width,
+                imageHeight: result.assets[0].height,
+                sender: userName
+            })
+        )
+
+        axios.post(`${url}/api/image/uploadimage`, formData, { headers: { 'content-type': 'multipart/form-data', "x-auth-token": token }, })
+            .then(response => {
+                return {
+                    ...imageMsg,
+                    ...response.data,
+                    image: `${url}/api/image/download/${response.data.mongooseID}`,
+                }
+            })
+            .then(data => {
+                socket.emit("sendMessage", { sender: userName, toPerson: name, msgArr: [data] })
+                //  latestChattingMsg.current = imageMsg
+            })
+            .catch(e => console.log(e))
 
 
 
-    const formData = new FormData();
-    let match = /\.(\w+)$/.exec(localUri.split('/').pop());
-
-    const ext = match[1] || ""
-    let type = match ? `image/${match[1]}` : `image`;
-
-    //  console.log(type,filename + "." + ext)
-
-    formData.append('file', { uri: localUri, name: filename + "." + ext, type });
-    formData.append("obj", JSON.stringify({ ownerName: sender, toPerson, picName: filename, imageWidth, imageHeight, sender }))
-
-    return axios.post(`${url}/api/image/uploadimage`, formData, { headers: { 'content-type': 'multipart/form-data', /*"x-auth-token": token*/ }, })
-        .then(response => {
-
-            //  FileSystem.deleteAsync(localUri, {idempotent: true })
-            return response
-        })
 
 
 
+
+    }
 }
+
+
+
+
+
+
 
 ///////////////////////////////////////////////////
-
-function callStartRecording() {
-    startRecording()
-    // console.log(FileSystem.cacheDirectory)
-
-
-    // FileSystem.readDirectoryAsync(FileSystem.cacheDirectory+"Audio").then(data => {
-    //     data.forEach(filename_ => {
-    //          console.log(Date.now() + "=cached audio==***===" + filename_)
-    //          FileSystem.deleteAsync(FileSystem.cacheDirectory+"/Audio/" + filename_, { idempotent: true })
-    //     })
-
-    // })
-
-}
-function callStopRecording(name) {
-    console.log("call stop recording", name)
-    stopRecording(name)
-
-    //FileSystem.documentDirectory
-}
-function callCancelRecording() {
-    cancelRecording()
-}
 function startRecording() {
     recording = new Audio.Recording()
 
@@ -1387,7 +1780,7 @@ function startRecording() {
             console.log("error in startRecording promise ==>")
         })
 }
-function stopRecording(name) {
+function stopRecording({ name, userName, socket, url, token, setMessages, canMoveDown }) {
 
     let uri = ""
     let audioName = ""
@@ -1423,7 +1816,7 @@ function stopRecording(name) {
                 audioUri = audioFolder + audioName
 
                 recording = new Audio.Recording()
-                console.log("uri audiouri", uri, audioUri)
+                //console.log("uri audiouri", uri, audioUri)
                 return FileSystem.moveAsync({ from: uri, to: audioUri })
             }
             else {
@@ -1435,55 +1828,57 @@ function stopRecording(name) {
         })
 
 
-        // .then(() => {
+        .then(() => {
 
-        //     time = Date.now()
-        //     audioMsg = {
-        //         _id: time,
-        //         text: '',
-        //         createdAt: new Date(),
-        //         createdTime: time,
-        //         user: { _id: userName },
-        //         sender: userName,
-        //         audio: audioUri,
-        //         audioName: audioName,
-
-
-        //         durationMillis: durationMillis,
-        //         toPerson: item.name,
-        //     }
-
-        //     canMoveDown.current = true
-        //     setMessages(pre => {
-        //         if (pre.length >= 20) {
-        //             previousMessages.current = previousMessages.current.concat(pre.slice(0, pre.length - 10))
-        //             if (!shouldDisplayNotice && (previousMessages.current.length > 0)) { setShouldDisplayNotice(true) }
-        //             return GiftedChat.prepend(pre.slice(-10), { ...audioMsg, isLocal: true })
-        //         }
-        //         else {
-        //             return GiftedChat.prepend(pre, { ...audioMsg, isLocal: true })
-        //         }
-        //     })
+            time = Date.now()
+            audioMsg = {
+                _id: time,
+                text: '',
+                createdAt: new Date(),
+                createdTime: time,
+                user: { _id: userName },
+                sender: userName,
+                audio: audioUri,
+                audioName: audioName,
 
 
-        //     const folderUri = FileSystem.documentDirectory + "MessageFolder/" + item.name + "/"
-        //     const fileUri = folderUri + item.name + "---" + audioMsg.createdTime
-        //     FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...audioMsg, isLocal: true }))
-        //     latestChattingMsg.current = audioMsg
+                durationMillis: durationMillis,
+                toPerson: name,
+            }
+            //   console.log(audioMsg)
+            canMoveDown.current = true
+            setMessages(pre => {
+                // if (pre.length >= 20) {
+                //     previousMessages.current = previousMessages.current.concat(pre.slice(0, pre.length - 10))
+                //     if (!shouldDisplayNotice && (previousMessages.current.length > 0)) {setShouldDisplayNotice(true)}
+                //     return GiftedChat.prepend(pre.slice(-10), {...audioMsg, isLocal: true })
+                // }
+                // else {
+                return GiftedChat.prepend(pre, { ...audioMsg, isLocal: true })
+                //}
+            })
 
-        //     return uploadAudio({ localUri: audioUri, filename: audioName || Date.now() + ".m4a", sender: userName, toPerson: item.name, durationMillis })
 
-        // })
-        // .then(response => {
-        //     //   console.log(ExponentAV)
-        //     socket.emit("sendMessage", {
-        //         sender: userName, toPerson: item.name,
-        //         msgArr: [{ ...audioMsg, sender: userName, mongooseID: response.data.mongooseID }]
-        //     })
+            const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
+            const fileUri = folderUri + name + "---" + audioMsg.createdTime
+            FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...audioMsg, isLocal: true }))
+            // latestChattingMsg.current = audioMsg
 
-        //     //console.log(recording._cleanupForUnloadedRecorder)
+            const formData = new FormData();
+            formData.append('file', { uri: audioUri, name: audioName || Date.now() + ".m4a", type: "audio/m4a" });
+            formData.append("obj", JSON.stringify({ ownerName: userName, toPerson: name, filename: audioName, sender: userName, durationMillis }))
+            return axios.post(`${url}/api/audio/uploadaudio`, formData, { headers: { 'content-type': 'multipart/form-data', /*"x-auth-token": token*/ }, })
 
-        // })
+        })
+        .then(response => {
+
+            socket.emit("sendMessage", {
+                sender: userName, toPerson: name,
+                msgArr: [{ ...audioMsg, sender: userName, mongooseID: response.data.mongooseID }]
+            })
+
+
+        })
         .catch(err => {
             console.log("cannot stop recording", err)
             // if (err.message.includes("Stop encountered an error: recording not stopped")) {
@@ -1492,6 +1887,7 @@ function stopRecording(name) {
             // } else {
             //   await handleError(e, { userMessage: "An error occurred stopping the recording." });
             // }
+
 
             recording._cleanupForUnloadedRecorder({
                 canRecord: false,
