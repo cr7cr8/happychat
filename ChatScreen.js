@@ -732,7 +732,7 @@ export function ChatScreen() {
 
                     return (
 
-                        <View style={{ backgroundColor: "yellow", width: 60, height: 60, position: "relative" }}>
+                        <View style={{  width: 60, height: 60, position: "relative" }}>
                             <AnimatedComponent entering={SlideInRight.duration(300)} exiting={SlideOutRight.duration(300)}
                                 style={{ backgroundColor: bgColor, position: "absolute", width: 60, height: 60, }}>
                                 <Send {...props} sendButtonProps={{
@@ -791,7 +791,10 @@ export function ChatScreen() {
                         return Keyboard.dismiss()
                     }
 
-                    writeMsg(name, userName, msg)
+                    const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
+                    const fileUri = folderUri + name + "---" + msg.createdTime
+                
+                    FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...msg, isLocal: true }))
 
                     canMoveDown.current = true
                     setMessages(preMessages => {
@@ -1260,7 +1263,6 @@ function AudioBlock({ name, userName, url, token, setMessages, canMoveDown, ...p
     const [left, setLeft] = useState(0)
 
 
-
     const currentMessage = props.currentMessage
     const isFromGuest = props.currentMessage.sender !== userName
     const audioUri = FileSystem.documentDirectory + "Audio/" + name + "/" + currentMessage.audioName
@@ -1431,8 +1433,6 @@ function AudioBlock({ name, userName, url, token, setMessages, canMoveDown, ...p
     }, [])
 
 
-
-
     function showDeleteButton() {
         Vibration.vibrate(50)
         viewRef.current.measure((fx, fy, compoWidth, compoHeight, px, py) => {
@@ -1441,7 +1441,6 @@ function AudioBlock({ name, userName, url, token, setMessages, canMoveDown, ...p
             setVisible(true)
         })
     }
-
 
     return (
 
@@ -1548,30 +1547,12 @@ function AudioBlock({ name, userName, url, token, setMessages, canMoveDown, ...p
 
     )
 
-
-
-
-    return <Pressable onPress={function () {
-        loadAudio()
-    }}><Text>AudioBlock</Text></Pressable>
-
 }
-
-
-
-
 
 
 
 ///////////////////////////////////////////////////
-function writeMsg(name, userName, msg) {
-    const folderUri = FileSystem.documentDirectory + "MessageFolder/" + name + "/"
-    const fileUri = folderUri + name + "---" + msg.createdTime
 
-    FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ ...msg, isLocal: true }))
-
-    //console.log(fileUri)
-}
 
 function deleteMsg(name, currentMessage) {
 
@@ -1581,10 +1562,6 @@ function deleteMsg(name, currentMessage) {
 
 
 }
-
-
-
-
 
 
 
